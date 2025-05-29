@@ -5,7 +5,7 @@
  * Copyright © 2004-2019 Tom St Denis
  * Copyright © 2004 g10 Code GmbH
  * Copyright © 2002-2015 Wei Dai & Igor Pavlov
- * Copyright © 2015-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2015-2025 Pete Batard <pete@akeo.ie>
  * Copyright © 2022 Jeffrey Walton <noloader@gmail.com>
  * Copyright © 2016 Alexander Graf
  *
@@ -70,6 +70,7 @@
 #include <windowsx.h>
 
 #include "db.h"
+#include "efi.h"
 #include "rufus.h"
 #include "winio.h"
 #include "missing.h"
@@ -1886,19 +1887,21 @@ out:
  */
 INT_PTR CALLBACK HashCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static HFONT hFont = NULL;
 	int i, dw, dh;
 	RECT rc;
-	HFONT hFont;
 	HDC hDC;
 
 	switch (message) {
 	case WM_INITDIALOG:
 		apply_localization(IDD_HASH, hDlg);
-		hDC = GetDC(hDlg);
-		hFont = CreateFontA(-MulDiv(9, GetDeviceCaps(hDC, LOGPIXELSY), 72),
-			0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
-			0, 0, PROOF_QUALITY, 0, "Courier New");
-		safe_release_dc(hDlg, hDC);
+		if (hFont == NULL) {
+			hDC = GetDC(hDlg);
+			hFont = CreateFontA(-MulDiv(9, GetDeviceCaps(hDC, LOGPIXELSY), 72),
+				0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+				0, 0, PROOF_QUALITY, 0, "Courier New");
+			safe_release_dc(hDlg, hDC);
+		}
 		SendDlgItemMessageA(hDlg, IDC_MD5, WM_SETFONT, (WPARAM)hFont, TRUE);
 		SendDlgItemMessageA(hDlg, IDC_SHA1, WM_SETFONT, (WPARAM)hFont, TRUE);
 		SendDlgItemMessageA(hDlg, IDC_SHA256, WM_SETFONT, (WPARAM)hFont, TRUE);
@@ -1941,6 +1944,9 @@ INT_PTR CALLBACK HashCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 		// Set focus on the OK button
 		SendMessage(hDlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hDlg, IDOK), TRUE);
 		CenterDialog(hDlg, NULL);
+		break;
+	case WM_NCDESTROY:
+		safe_delete_object(hFont);
 		break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
@@ -2191,6 +2197,68 @@ static BOOL IsRevokedBySbat(uint8_t* buf, uint32_t len)
 	return FALSE;
 }
 
+// NB: Can be tested using en_windows_8_1_x64_dvd_2707217.iso
+extern BOOL UseLocalDbx(int arch);
+static BOOL IsRevokedByDbx(uint8_t* hash, uint8_t* buf, uint32_t len)
+{
+	EFI_VARIABLE_AUTHENTICATION_2* efi_var_auth;
+	EFI_SIGNATURE_LIST* efi_sig_list;
+	BYTE* dbx_data = NULL;
+	BOOL ret = FALSE, needs_free = FALSE;
+	DWORD dbx_size = 0;
+	char dbx_name[32], path[MAX_PATH];
+	uint32_t i, fluff_size, nb_entries;
+
+	i = MachineToArch(GetPeArch(buf));
+	if (i == ARCH_UNKNOWN)
+		goto out;
+
+	// Check if a more recent local DBX should be preferred over embedded
+	static_sprintf(dbx_name, "dbx_%s.bin", efi_archname[i]);
+	if (UseLocalDbx(i)) {
+		static_sprintf(path, "%s\\%s\\%s", app_data_dir, FILES_DIR, dbx_name);
+		dbx_size = read_file(path, &dbx_data);
+		needs_free = (dbx_data != NULL);
+		if (needs_free)
+			duprintf("Using local %s for revocation check", path);
+	}
+	if (dbx_size == 0) {
+		dbx_data = (BYTE*)GetResource(hMainInstance, MAKEINTRESOURCEA(IDR_DBX + i),
+			_RT_RCDATA, dbx_name, &dbx_size, FALSE);
+	}
+	if (dbx_data == NULL || dbx_size <= sizeof(EFI_VARIABLE_AUTHENTICATION_2))
+		goto out;
+
+	efi_var_auth = (EFI_VARIABLE_AUTHENTICATION_2*)dbx_data;
+	fluff_size = efi_var_auth->AuthInfo.Hdr.dwLength + sizeof(EFI_TIME); // +sizeof(EFI_SIGNATURE_LIST);
+	if (dbx_size <= fluff_size)
+		goto out;
+	efi_sig_list = (EFI_SIGNATURE_LIST*)&dbx_data[fluff_size];
+	fluff_size += sizeof(EFI_SIGNATURE_LIST);
+	if (dbx_size <= fluff_size)
+		goto out;
+	// Expect SHA-256 hashes
+	if (!CompareGUID(&efi_sig_list->SignatureType, &EFI_CERT_SHA256_GUID)) {
+		uprintf("WARNING: %s is not using SHA-256 hashes - Cannot check for UEFI revocation!", dbx_name);
+		goto out;
+	}
+	fluff_size += efi_sig_list->SignatureHeaderSize;
+	assert(efi_sig_list->SignatureSize != 0);
+	nb_entries = (efi_sig_list->SignatureListSize - efi_sig_list->SignatureHeaderSize - sizeof(EFI_SIGNATURE_LIST)) / efi_sig_list->SignatureSize;
+	assert(dbx_size >= fluff_size + nb_entries * efi_sig_list->SignatureSize);
+
+	fluff_size += sizeof(GUID);
+	for (i = 0; i < nb_entries && !ret; i++) {
+		if (memcmp(hash, &dbx_data[fluff_size + i * efi_sig_list->SignatureSize], SHA256_HASHSIZE) == 0)
+			ret = TRUE;
+	}
+
+out:
+	if (needs_free)
+		free(dbx_data);
+	return ret;
+}
+
 static BOOL IsRevokedBySvn(uint8_t* buf, uint32_t len)
 {
 	wchar_t* rsrc_name = NULL;
@@ -2309,9 +2377,8 @@ int IsBootloaderRevoked(uint8_t* buf, uint32_t len)
 	if (!PE256Buffer(buf, len, hash))
 		return -1;
 	// Check for UEFI DBX revocation
-	for (i = 0; i < ARRAYSIZE(pe256dbx); i += SHA256_HASHSIZE)
-		if (memcmp(hash, &pe256dbx[i], SHA256_HASHSIZE) == 0)
-			return 1;
+	if (IsRevokedByDbx(hash, buf, len))
+		return 1;
 	// Check for Microsoft SSP revocation
 	for (i = 0; i < pe256ssp_size * SHA256_HASHSIZE; i += SHA256_HASHSIZE)
 		if (memcmp(hash, &pe256ssp[i], SHA256_HASHSIZE) == 0)
@@ -2326,13 +2393,6 @@ int IsBootloaderRevoked(uint8_t* buf, uint32_t len)
 	if (IsRevokedByCert(&info))
 		return 5;
 	return 0;
-}
-
-void PrintRevokedBootloaderInfo(void)
-{
-	uprintf("Found %d revoked UEFI bootloaders from embedded list", sizeof(pe256dbx) / SHA256_HASHSIZE);
-	if (ParseSKUSiPolicy() && pe256ssp_size != 0)
-		uprintf("Found %d additional revoked UEFI bootloaders from this system's SKUSiPolicy.p7b", pe256ssp_size);
 }
 
 /*

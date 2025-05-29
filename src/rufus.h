@@ -1,6 +1,6 @@
 /*
  * Rufus: The Reliable USB Formatting Utility
- * Copyright © 2011-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,6 +174,12 @@ static __inline void safe_strcp(char* dst, const size_t dst_max, const char* src
 #define safe_strnicmp(str1, str2, count) _strnicmp(((str1 == NULL) ? "<NULL>" : str1), ((str2 == NULL) ? "<NULL>" : str2), count)
 #define safe_closehandle(h) do { if ((h != INVALID_HANDLE_VALUE) && (h != NULL)) { CloseHandle(h); h = INVALID_HANDLE_VALUE; } } while(0)
 #define safe_release_dc(hDlg, hDC) do { if ((hDC != INVALID_HANDLE_VALUE) && (hDC != NULL)) { ReleaseDC(hDlg, hDC); hDC = NULL; } } while(0)
+#define safe_delete_object(hObj) do { if (hObj != NULL) { DeleteObject(hObj); hObj = NULL; } } while(0)
+#define safe_destroy_icon(hIcon) do { if (hIcon != NULL) { DestroyIcon(hIcon); hIcon = NULL; } } while(0)
+#define safe_destroy_imagelist(hImageList) do { if (hImageList != NULL) { ImageList_Destroy(hImageList); hImageList = NULL; } } while(0)
+#define safe_destroy_imagelist_from_toolbar(hToolbar) do { if (hToolbar != NULL) {                     \
+	HIMAGELIST _hImageList = (HIMAGELIST)SendMessage(hToolbar, TB_GETIMAGELIST, (WPARAM)0, (LPARAM)0); \
+	safe_destroy_imagelist(_hImageList); } } while(0)
 #define safe_sprintf(dst, count, ...) do { size_t _count = count; char* _dst = dst; _snprintf_s(_dst, _count, _TRUNCATE, __VA_ARGS__); \
 	_dst[(_count) - 1] = 0; } while(0)
 #define static_sprintf(dst, ...) safe_sprintf(dst, sizeof(dst), __VA_ARGS__)
@@ -381,7 +387,14 @@ typedef struct {
 	uint16_t revision;
 } winver_t;
 
-/* We can't use the Microsoft enums as we want to have RISC-V and LoongArch */
+/*
+ * We can't use the Microsoft enums as we want to have RISC-V and LoongArch
+ * and we also translate these to IDR_BASE + Value for resource items, which,
+ * if we were to use the Microsoft IMAGE_FILE_MACHINE constants, would force
+ * us to leave a 65536 sized gap between bases in order to properly map
+ * 0x8664 (x86_64), 0xaa64 (ARM64) and so on...
+ * NB: When editing this, make sure to also update the values in resource.h!
+ */
 enum ArchType {
 	ARCH_UNKNOWN = 0,
 	ARCH_X86_32,
@@ -692,6 +705,7 @@ typedef struct {
 	uint32_t Index;		// Current array size
 	uint32_t Max;		// Maximum array size
 } StrArray;
+#define STRARRAY_EMPTY { NULL, 0, 0 };
 extern void StrArrayCreate(StrArray* arr, uint32_t initial_size);
 extern int32_t StrArrayAdd(StrArray* arr, const char* str, BOOL);
 extern int32_t StrArrayFind(StrArray* arr, const char* str);
@@ -756,7 +770,7 @@ extern INT_PTR MyDialogBox(HINSTANCE hInstance, int Dialog_ID, HWND hWndParent, 
 extern void CenterDialog(HWND hDlg, HWND hParent);
 extern void ResizeMoveCtrl(HWND hDlg, HWND hCtrl, int dx, int dy, int dw, int dh, float scale);
 extern void ResizeButtonHeight(HWND hDlg, int id);
-extern void CreateStatusBar(void);
+extern void CreateStatusBar(HFONT* hFont);
 extern void CreateStaticFont(HDC hDC, HFONT* hFont, BOOL underlined);
 extern void SetTitleBarIcon(HWND hDlg);
 extern BOOL CreateTaskbarList(void);
@@ -841,7 +855,6 @@ extern BOOL HashBuffer(const unsigned type, const uint8_t* buf, const size_t len
 extern BOOL IsFileInDB(const char* path);
 extern BOOL IsSignedBySecureBootAuthority(uint8_t* buf, uint32_t len);
 extern int IsBootloaderRevoked(uint8_t* buf, uint32_t len);
-extern void PrintRevokedBootloaderInfo(void);
 extern BOOL IsBufferInDB(const unsigned char* buf, const size_t len);
 #define printbits(x) _printbits(sizeof(x), &x, 0)
 #define printbitslz(x) _printbits(sizeof(x), &x, 1)
@@ -871,6 +884,7 @@ extern uint8_t* RvaToPhysical(uint8_t* buf, uint32_t rva);
 extern uint32_t FindResourceRva(const wchar_t* name, uint8_t* root, uint8_t* dir, uint32_t* len);
 extern DWORD ListDirectoryContent(StrArray* arr, char* dir, uint8_t type);
 extern BOOL TakeOwnership(LPCSTR lpszOwnFile);
+extern enum ArchType MachineToArch(WORD machine);
 #define GetTextWidth(hDlg, id) GetTextSize(GetDlgItem(hDlg, id), NULL).cx
 
 DWORD WINAPI HashThread(void* param);

@@ -91,6 +91,7 @@ static unsigned int timer;
 static char uppercase_select[2][64], uppercase_start[64], uppercase_close[64], uppercase_cancel[64];
 
 extern HANDLE update_check_thread, wim_thread;
+extern HIMAGELIST hUpImageList, hDownImageList;
 extern BOOL enable_iso, enable_joliet, enable_rockridge, enable_extra_hashes, is_bootloader_revoked;
 extern BOOL validate_md5sum, cpu_has_sha1_accel, cpu_has_sha256_accel;
 extern BYTE* fido_script;
@@ -109,8 +110,9 @@ extern const char *bootmgr_efi_name, *efi_dirname, *efi_bootname[ARCH_MAX];
 OPENED_LIBRARIES_VARS;
 RUFUS_UPDATE update = { { 0,0,0 },{ 0,0 }, NULL, NULL };
 HINSTANCE hMainInstance;
-HWND hMainDialog, hMultiToolbar, hSaveToolbar, hHashToolbar, hAdvancedDeviceToolbar, hAdvancedFormatToolbar;
-HFONT hInfoFont;
+HWND hMainDialog, hMultiToolbar, hSaveToolbar, hHashToolbar, hAdvancedDeviceToolbar, hAdvancedFormatToolbar, hUpdatesDlg = NULL;
+HFONT hInfoFont = NULL, hSectionHeaderFont = NULL;
+HICON hSmallIcon, hBigIcon = NULL;
 uint8_t image_options = IMOP_WINTOGO;
 uint16_t rufus_version[3], embedded_sl_version[2];
 uint32_t dur_mins, dur_secs;
@@ -403,10 +405,14 @@ static BOOL IsRefsAvailable(MEDIA_TYPE MediaType)
 	// Microsoft in Windows 10 1709, except for the Enterprise and Pro Workstation
 	// versions. Oh and VdsService::QueryFileSystemTypes() is *USELESS* to detect
 	// if ReFS is available on the system. Oh, and it only applies to fixed media.
+	// Oh and Microsoft removed the ability to format a volume to ReFS unless you
+	// use VDS... Why do I even bother with this?
 
 	if (MediaType != FixedMedia)
 		return FALSE;
 	if (WindowsVersion.Version < WINDOWS_8_1 || WindowsVersion.BuildNumber <= 0)
+		return FALSE;
+	if (!use_vds)
 		return FALSE;
 	// Per https://gist.github.com/0xbadfca11/da0598e47dd643d933dc
 	if (WindowsVersion.BuildNumber < 16226)
@@ -940,8 +946,8 @@ out:
 // Callback for the log window
 BOOL CALLBACK LogCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static HFONT hf = NULL;
 	HDC hDC;
-	HFONT hf;
 	LONG lfHeight;
 	LONG_PTR style;
 	DWORD log_size;
@@ -954,12 +960,14 @@ BOOL CALLBACK LogCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 		// Increase the size of our log textbox to MAX_LOG_SIZE (unsigned word)
 		PostMessage(hLog, EM_LIMITTEXT, MAX_LOG_SIZE , 0);
-		// Set the font to Unicode so that we can display anything
-		hDC = GetDC(NULL);
-		lfHeight = -MulDiv(9, GetDeviceCaps(hDC, LOGPIXELSY), 72);
-		safe_release_dc(NULL, hDC);
-		hf = CreateFontA(lfHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-			DEFAULT_CHARSET, 0, 0, PROOF_QUALITY, 0, "Consolas");
+		if (hf == NULL) {
+			// Set the font to Unicode so that we can display anything
+			hDC = GetDC(NULL);
+			lfHeight = -MulDiv(9, GetDeviceCaps(hDC, LOGPIXELSY), 72);
+			safe_release_dc(NULL, hDC);
+			hf = CreateFontA(lfHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+				DEFAULT_CHARSET, 0, 0, PROOF_QUALITY, 0, "Consolas");
+		}
 		SendDlgItemMessageA(hDlg, IDC_LOG_EDIT, WM_SETFONT, (WPARAM)hf, TRUE);
 		// Set 'Close Log' as the selected button
 		SendMessage(hDlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hDlg, IDCANCEL), TRUE);
@@ -974,6 +982,9 @@ BOOL CALLBACK LogCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		style = GetWindowLongPtr(hLog, GWL_STYLE);
 		style &= ~(ES_RIGHT);
 		SetWindowLongPtr(hLog, GWL_STYLE, style);
+		break;
+	case WM_NCDESTROY:
+		safe_delete_object(hf);
 		break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
@@ -1155,6 +1166,30 @@ static void UpdateImage(BOOL update_image_option_only)
 	IGNORE_RETVAL(ComboBox_SetCurSel(hImageOption, imop_win_sel));
 }
 
+enum ArchType MachineToArch(WORD machine)
+{
+	switch (machine) {
+	case IMAGE_FILE_MACHINE_I386:
+		return ARCH_X86_32;
+	case IMAGE_FILE_MACHINE_AMD64:
+		return ARCH_X86_64;
+	case IMAGE_FILE_MACHINE_ARM:
+		return ARCH_ARM_32;
+	case IMAGE_FILE_MACHINE_ARM64:
+		return ARCH_ARM_64;
+	case IMAGE_FILE_MACHINE_IA64:
+		return ARCH_IA_64;
+	case IMAGE_FILE_MACHINE_RISCV64:
+		return ARCH_RISCV_64;
+	case IMAGE_FILE_MACHINE_LOONGARCH64:
+		return ARCH_LOONGARCH_64;
+	case IMAGE_FILE_MACHINE_EBC:
+		return ARCH_EBC;
+	default:
+		return ARCH_UNKNOWN;
+	}
+}
+
 /// <summary>
 /// Parse a PE executable file and return its CPU architecture.
 /// </summary>
@@ -1196,36 +1231,14 @@ static uint8_t FindArch(const char* path)
 		goto out;
 	}
 
-	switch (pImageNTHeader->FileHeader.Machine) {
-	case IMAGE_FILE_MACHINE_I386:
-		ret = ARCH_X86_32;
-		break;
-	case IMAGE_FILE_MACHINE_AMD64:
-		ret = ARCH_X86_64;
-		break;
-	case IMAGE_FILE_MACHINE_ARM:
-		ret = ARCH_ARM_32;
-		break;
-	case IMAGE_FILE_MACHINE_ARM64:
-		ret = ARCH_ARM_64;
-		break;
-	case IMAGE_FILE_MACHINE_IA64:
-		ret = ARCH_IA_64;
-		break;
-	case IMAGE_FILE_MACHINE_RISCV64:
-		ret = ARCH_RISCV_64;
-		break;
-	case IMAGE_FILE_MACHINE_EBC:
-		ret = ARCH_EBC;
-		break;
-	}
+	ret = MachineToArch(pImageNTHeader->FileHeader.Machine);
 
 out:
 	if (pImageDOSHeader != NULL)
 		UnmapViewOfFile(pImageDOSHeader);
 	safe_closehandle(hFileMapping);
 	safe_closehandle(hFile);
-	assert(ret < ARCH_MAX);
+	assert(ret != 0 && ret < ARCH_MAX);
 	return ret;
 }
 
@@ -1430,7 +1443,7 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 	if (boot_type == BT_IMAGE) {
 		if_not_assert(image_path != NULL)
 			goto out;
-		if ((size_check) && (img_report.projected_size > (uint64_t)SelectedDrive.DiskSize)) {
+		if ((size_check) && (MAX(img_report.image_size, img_report.projected_size) > (uint64_t)SelectedDrive.DiskSize)) {
 			// This ISO image is too big for the selected target
 			MessageBoxExU(hMainDialog, lmprintf(MSG_089), lmprintf(MSG_088), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
 			goto out;
@@ -2023,8 +2036,10 @@ static void InitDialog(HWND hDlg)
 	SetAccessibleName(hNBPasses, lmprintf(MSG_316));
 
 	// Create the font and brush for the progress messages
-	hInfoFont = CreateFontA(lfHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
-		0, 0, PROOF_QUALITY, 0, "Segoe UI");
+	if (hInfoFont == NULL) {
+		hInfoFont = CreateFontA(lfHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+			0, 0, PROOF_QUALITY, 0, "Segoe UI");
+	}
 
 	// Create the title bar icon
 	SetTitleBarIcon(hDlg);
@@ -2092,7 +2107,6 @@ static void InitDialog(HWND hDlg)
 			"one. Because of this, some messages will only be displayed in English.", selected_locale->txt[1]);
 		uprintf("If you think you can help update this translation, please e-mail the author of this application");
 	}
-	PrintRevokedBootloaderInfo();
 	// Detect and report system limitations
 	if (ReadRegistryKeyBool(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Policies\\Microsoft\\FVE"))
 		uprintf("WARNING: This system has a policy set to prevent write access to FIXED drives not using BitLocker");
@@ -2127,7 +2141,7 @@ static void InitDialog(HWND hDlg)
 	CheckDlgButton(hDlg, IDC_EXTENDED_LABEL, BST_CHECKED);
 
 	CreateAdditionalControls(hDlg);
-	SetSectionHeaders(hDlg);
+	SetSectionHeaders(hDlg, &hSectionHeaderFont);
 	PositionMainControls(hDlg);
 	AdjustForLowDPI(hDlg);
 	// Because we created the log dialog before we computed our sizes, we need to send a custom message
@@ -2135,7 +2149,7 @@ static void InitDialog(HWND hDlg)
 	// Limit the amount of characters for the Persistence size field
 	SendMessage(GetDlgItem(hDlg, IDC_PERSISTENCE_SIZE), EM_LIMITTEXT, 7, 0);
 	// Create the status line and initialize the taskbar icon for progress overlay
-	CreateStatusBar();
+	CreateStatusBar(&hInfoFont);
 
 	// Set the various tooltips
 	CreateTooltip(hFileSystem, lmprintf(MSG_157), -1);
@@ -2195,7 +2209,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 	static LPITEMIDLIST pidlDesktop = NULL;
 	static SHChangeNotifyEntry NotifyEntry;
 	static DWORD_PTR thread_affinity[HASH_MAX + 1];
-	static HFONT hyperlink_font = NULL;
+	static HFONT hHyperlinkFont = NULL;
 	static wchar_t wtooltip[128];
 	LONG lPos;
 	BOOL set_selected_fs;
@@ -2813,10 +2827,26 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		if ((HWND)lParam != GetDlgItem(hDlg, IDS_CSM_HELP_TXT))
 			return FALSE;
 		SetBkMode((HDC)wParam, TRANSPARENT);
-		CreateStaticFont((HDC)wParam, &hyperlink_font, FALSE);
-		SelectObject((HDC)wParam, hyperlink_font);
+		CreateStaticFont((HDC)wParam, &hHyperlinkFont, FALSE);
+		SelectObject((HDC)wParam, hHyperlinkFont);
 		SetTextColor((HDC)wParam, TOOLBAR_ICON_COLOR);
-		return (INT_PTR)CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
+		return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
+
+	case WM_DESTROY:
+		safe_destroy_imagelist_from_toolbar(hSaveToolbar);
+		safe_destroy_imagelist_from_toolbar(hHashToolbar);
+		safe_destroy_imagelist_from_toolbar(hMultiToolbar);
+		break;
+
+	case WM_NCDESTROY:
+		safe_delete_object(hHyperlinkFont);
+		safe_delete_object(hInfoFont);
+		safe_delete_object(hSectionHeaderFont);
+		safe_destroy_imagelist(hUpImageList);
+		safe_destroy_imagelist(hDownImageList);
+		safe_destroy_icon(hSmallIcon);
+		safe_destroy_icon(hBigIcon);
+		break;
 
 	case WM_NOTIFY:
 		switch (((LPNMHDR)lParam)->code) {
@@ -3238,23 +3268,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{0, 0, NULL, 0}
 	};
 
-	// Disable loading system DLLs from the current directory (sideloading mitigation)
+	// Disable loading system DLLs from the current directory (side-loading mitigation)
 	// PS: You know that official MSDN documentation for SetDllDirectory() that explicitly
 	// indicates that "If the parameter is an empty string (""), the call removes the current
-	// directory from the default DLL search order"? Yeah, that doesn't work. At all.
-	// Still, we invoke it, for platforms where the following call might actually work...
-	SetDllDirectoryA("");
+	// directory from the default DLL search order"? Yeah, that doesn't work. At all. And as
+	// a matter of fact, Microsoft has now altered their doc to remove that part, though it
+	// is still *currently* being mentioned in their doc for Dynamic-Link Library Security:
+	// https://web.archive.org/web/20250206201109/https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-security
+	// So, Microsoft currently offers NO WAY to easily disable the main vulnerability most
+	// applications suffer from, which is the loading of bloody DLLs from the current/app
+	// dir, even for executables, like Rufus, that are designed from the get go to NEVER EVER
+	// rely on any DLLs there, and would like to DISABLE THIS UTTER BULLSHIT OF AN ENTIRELY
+	// PREVENTABLE SECURITY RISK! The end result of all this is that we have to contend with
+	// delay loading (*when* it actually works) or direct hooking (when it doesn't) and no
+	// longer try to bother with a quick and easy side-loading fix that Microsoft has been
+	// dangling as a lure, for years, but hasn't actually bothered to implement... 
+	// SetDllDirectoryA("");
 
 	// For libraries on the KnownDLLs list, the system will always load them from System32.
 	// For other DLLs we link directly to, we can delay load the DLL and use a delay load
 	// hook to load them from System32. Note that, for this to work, something like:
 	// 'somelib.dll;%(DelayLoadDLLs)' must be added to the 'Delay Loaded Dlls' option of
-	// the linker properties in Visual Studio (which means this won't work with MinGW).
-	// For all other DLLs, use SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32).
-	pfSetDefaultDllDirectories = (SetDefaultDllDirectories_t)
-		GetProcAddress(LoadLibraryW(L"kernel32.dll"), "SetDefaultDllDirectories");
-	if (pfSetDefaultDllDirectories != NULL)
-		pfSetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+	// the linker properties in Visual Studio... which means this won't work with MinGW.
+	// For all other DLLs, use SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32),
+	// though this *STILL* does not prevent the Windows default of looking for DLLs in the
+	// current directories.
+	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
 
 	uprintf("*** " APPLICATION_NAME " init ***\n");
 	its_a_me_mario = GetUserNameA((char*)(uintptr_t)&u, &size) && (u == 7104878);
@@ -3399,8 +3438,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			if ((strchr(tmp, 'p') != NULL) || ((strchr(tmp, 'P') != NULL) && (strchr(tmp, 'P')[1] != 'H')))
 				ini_flags[0] = 'a';
 
-			// Now enable the hogger before processing the rest of the arguments
-			if (!disable_hogger) {
+			// Now enable the hogger before processing the rest of the arguments.
+			// Note that with POSIX shells (e.g. msys) we don't enable the hogger as it is not needed.
+			if (!disable_hogger && getenv("SHELL") == NULL) {
 				// Reattach the console, if we were started from commandline
 				if (AttachConsole(ATTACH_PARENT_PROCESS) != 0) {
 					uprintf("Enabling console line hogger");
@@ -3970,6 +4010,7 @@ extern int TestHashes(void);
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'V')) {
 				if (is_vds_available) {
 					use_vds = !use_vds;
+					SetFileSystemAndClusterSize(NULL);
 					WriteSettingBool(SETTING_USE_VDS, use_vds);
 					PrintStatusTimeout("VDS", use_vds);
 				}

@@ -1,7 +1,7 @@
 /*
  * Rufus: The Reliable USB Formatting Utility
  * Networking functionality (web file download, check for update, etc.)
- * Copyright © 2012-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2012-2025 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <assert.h>
+#include <time.h>
 #include <virtdisk.h>
 
 #include "rufus.h"
@@ -45,6 +46,7 @@
 #include "msapi_utf8.h"
 #include "localization.h"
 #include "bled/bled.h"
+#include "dbx/dbx_info.h"
 
 #include "settings.h"
 
@@ -167,8 +169,8 @@ out:
  * If hProgressDialog is not NULL, this function will send INIT and EXIT messages
  * to the dialog in question, with WPARAM being set to nonzero for EXIT on success
  * and also attempt to indicate progress using an IDC_PROGRESS control
- * Note that when a buffer is used, the actual size of the buffer is one more than its reported
- * size (with the extra byte set to 0) to accommodate for calls that need a NUL-terminated buffer.
+ * Note that when a buffer is used, the actual size of the buffer is two more than its reported
+ * size (with the extra bytes set to 0) to accommodate for calls that need NUL-terminated data.
  */
 uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char* user_agent,
 	BYTE** buffer, HWND hProgressDialog, BOOL bTaskBarProgress)
@@ -177,12 +179,12 @@ uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char*
 	const char* short_name;
 	unsigned char buf[DOWNLOAD_BUFFER_SIZE];
 	char hostname[64], urlpath[128], strsize[32];
-	BOOL r = FALSE;
+	BOOL r = FALSE, use_github_api;
 	DWORD dwSize, dwWritten, dwDownloaded;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	HINTERNET hSession = NULL, hConnection = NULL, hRequest = NULL;
-	URL_COMPONENTSA UrlParts = {sizeof(URL_COMPONENTSA), NULL, 1, (INTERNET_SCHEME)0,
-		hostname, sizeof(hostname), 0, NULL, 1, urlpath, sizeof(urlpath), NULL, 1};
+	URL_COMPONENTSA UrlParts = { sizeof(URL_COMPONENTSA), NULL, 1, (INTERNET_SCHEME)0,
+		hostname, sizeof(hostname), 0, NULL, 1, urlpath, sizeof(urlpath), NULL, 1 };
 	uint64_t size = 0, total_size = 0;
 
 	ErrorStatus = 0;
@@ -223,20 +225,28 @@ uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char*
 	hRequest = HttpOpenRequestA(hConnection, "GET", UrlParts.lpszUrlPath, NULL, NULL, accept_types,
 		INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTP | INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS |
 		INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_HYPERLINK |
-		((UrlParts.nScheme==INTERNET_SCHEME_HTTPS)?INTERNET_FLAG_SECURE:0), (DWORD_PTR)NULL);
+		((UrlParts.nScheme == INTERNET_SCHEME_HTTPS) ? INTERNET_FLAG_SECURE : 0), (DWORD_PTR)NULL);
 	if (hRequest == NULL) {
 		uprintf("Could not open URL %s: %s", url, WindowsErrorString());
 		goto out;
 	}
 
-	if (!HttpSendRequestA(hRequest, request_headers, -1L, NULL, 0)) {
+	// If we are querying the GitHub API, we need to enable raw content and
+	// set 'Accept-Encoding' to 'none' to get the data length.
+	use_github_api = (strstr(url, "api.github.com") != NULL);
+	if (use_github_api && !HttpAddRequestHeadersA(hRequest, "Accept: application/vnd.github.v3.raw",
+		(DWORD)-1, HTTP_ADDREQ_FLAG_ADD)) {
+		uprintf("Unable to enable raw content from GitHub API: %s", WindowsErrorString());
+		goto out;
+	}
+	if (!HttpSendRequestA(hRequest, request_headers[use_github_api ? 0 : 1], -1L, NULL, 0)) {
 		uprintf("Unable to send request: %s", WindowsErrorString());
 		goto out;
 	}
 
 	// Get the file size
 	dwSize = sizeof(DownloadStatus);
-	HttpQueryInfoA(hRequest, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, (LPVOID)&DownloadStatus, &dwSize, NULL);
+	HttpQueryInfoA(hRequest, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, (LPVOID)&DownloadStatus, &dwSize, NULL);
 	if (DownloadStatus != 200) {
 		error_code = ERROR_INTERNET_ITEM_NOT_FOUND;
 		SetLastError(RUFUS_ERROR(error_code));
@@ -271,7 +281,7 @@ uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char*
 			goto out;
 		}
 		// Allocate one extra byte, so that caller can rely on NUL-terminated text if needed
-		*buffer = calloc((size_t)total_size + 1, 1);
+		*buffer = calloc((size_t)total_size + 2, 1);
 		if (*buffer == NULL) {
 			uprintf("Could not allocate buffer for download");
 			goto out;
@@ -648,7 +658,7 @@ BOOL IsDownloadable(const char* url)
 	if (hRequest == NULL)
 		goto out;
 
-	if (!HttpSendRequestA(hRequest, request_headers, -1L, NULL, 0))
+	if (!HttpSendRequestA(hRequest, request_headers[1], -1L, NULL, 0))
 		goto out;
 
 	// Get the file size
