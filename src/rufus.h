@@ -387,14 +387,7 @@ typedef struct {
 	uint16_t revision;
 } winver_t;
 
-/*
- * We can't use the Microsoft enums as we want to have RISC-V and LoongArch
- * and we also translate these to IDR_BASE + Value for resource items, which,
- * if we were to use the Microsoft IMAGE_FILE_MACHINE constants, would force
- * us to leave a 65536 sized gap between bases in order to properly map
- * 0x8664 (x86_64), 0xaa64 (ARM64) and so on...
- * NB: When editing this, make sure to also update the values in resource.h!
- */
+/* We can't use the Microsoft enums as we want to have RISC-V and LoongArch */
 enum ArchType {
 	ARCH_UNKNOWN = 0,
 	ARCH_X86_32,
@@ -855,6 +848,7 @@ extern BOOL HashBuffer(const unsigned type, const uint8_t* buf, const size_t len
 extern BOOL IsFileInDB(const char* path);
 extern BOOL IsSignedBySecureBootAuthority(uint8_t* buf, uint32_t len);
 extern int IsBootloaderRevoked(uint8_t* buf, uint32_t len);
+extern void PrintRevokedBootloaderInfo(void);
 extern BOOL IsBufferInDB(const unsigned char* buf, const size_t len);
 #define printbits(x) _printbits(sizeof(x), &x, 0)
 #define printbitslz(x) _printbits(sizeof(x), &x, 1)
@@ -884,7 +878,6 @@ extern uint8_t* RvaToPhysical(uint8_t* buf, uint32_t rva);
 extern uint32_t FindResourceRva(const wchar_t* name, uint8_t* root, uint8_t* dir, uint32_t* len);
 extern DWORD ListDirectoryContent(StrArray* arr, char* dir, uint8_t type);
 extern BOOL TakeOwnership(LPCSTR lpszOwnFile);
-extern enum ArchType MachineToArch(WORD machine);
 #define GetTextWidth(hDlg, id) GetTextSize(GetDlgItem(hDlg, id), NULL).cx
 
 DWORD WINAPI HashThread(void* param);
