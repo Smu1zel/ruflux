@@ -1,7 +1,7 @@
 /*
  * Rufus: The Reliable USB Formatting Utility
  * Standard User I/O Routines (logging, status, error, etc.)
- * Copyright © 2011-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  * Copyright © 2020 Mattiwatti <mattiwatti@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,6 +35,7 @@
 #include <math.h>
 
 #include "rufus.h"
+#include "ntdll.h"
 #include "missing.h"
 #include "settings.h"
 #include "resource.h"
@@ -99,6 +100,34 @@ void uprintf(const char *format, ...)
 	free(wbuf);
 }
 
+void wuprintf(const wchar_t* format, ...)
+{
+	static wchar_t wbuf[4096];
+	wchar_t* p = wbuf;
+	va_list args;
+	int n;
+
+	va_start(args, format);
+	n = _vsnwprintf_s(p, ARRAYSIZE(wbuf) - 3, _TRUNCATE, format, args);
+	va_end(args);
+
+	p += (n < 0) ? ARRAYSIZE(wbuf) - 3 : n;
+
+	if (n >= 1 && p[-1] == L'\n') {
+		p[-1] = L'\r';
+		*p++ = L'\n';
+		*p = L'\0';
+	}
+
+	// coverity[dont_call]
+	OutputDebugStringW(wbuf);
+	if ((hLog != NULL) && (hLog != INVALID_HANDLE_VALUE)) {
+		Edit_SetSel(hLog, MAX_LOG_SIZE, MAX_LOG_SIZE);
+		Edit_ReplaceSel(hLog, wbuf);
+		Edit_Scroll(hLog, Edit_GetLineCount(hLog), 0);
+	}
+}
+
 void uprintfs(const char* str)
 {
 	wchar_t* wstr;
@@ -111,6 +140,19 @@ void uprintfs(const char* str)
 		Edit_Scroll(hLog, Edit_GetLineCount(hLog), 0);
 	}
 	free(wstr);
+}
+
+void uprint_progress(uint64_t cur_value, uint64_t max_value)
+{
+	static uint64_t last_value = 0;
+	if (cur_value == 0) {
+		last_value = 0;
+		return;
+	}
+	assert(max_value != 0);
+	cur_value = (uint64_t)(((float)cur_value / (float)max_value) * min(MAX_MARKER, (float)max_value));
+	for (; cur_value > last_value && last_value < 80; last_value++)
+		uprintfs("+");
 }
 
 uint32_t read_file(const char* path, uint8_t** buf)
@@ -538,7 +580,17 @@ HANDLE CreateFileWithTimeout(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwS
 	if (hThread != NULL) {
 		if (WaitForSingleObject(hThread, dwTimeOut) == WAIT_TIMEOUT) {
 			CancelSynchronousIo(hThread);
-			WaitForSingleObject(hThread, 30000);
+			switch (WaitForSingleObject(hThread, 30000)) {
+			case WAIT_TIMEOUT:
+				uprintf("File was not created within timeout duration");
+				break;
+			case WAIT_OBJECT_0:
+				uprintf("File creation aborted by user");
+				break;
+			default:
+				uprintf("Error while waiting for file to ne created: %s", WindowsErrorString());
+				break;
+			}
 			params.dwError = WAIT_TIMEOUT;
 		}
 		CloseHandle(hThread);
@@ -646,9 +698,7 @@ DWORD WaitForSingleObjectWithMessages(HANDLE hHandle, DWORD dwMilliseconds)
 #define NtCurrentPeb()					(NtCurrentTeb()->ProcessEnvironmentBlock)
 #define RtlGetProcessHeap()				(NtCurrentPeb()->Reserved4[1]) // NtCurrentPeb()->ProcessHeap, mangled due to deficiencies in winternl.h
 
-PF_TYPE_DECL(NTAPI, NTSTATUS, NtCreateFile, (PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, PIO_STATUS_BLOCK, PLARGE_INTEGER, ULONG, ULONG, ULONG, ULONG, PVOID, ULONG));
 PF_TYPE_DECL(NTAPI, BOOLEAN, RtlDosPathNameToNtPathNameW, (PCWSTR, PUNICODE_STRING, PWSTR*, PVOID));
-PF_TYPE_DECL(NTAPI, BOOLEAN, RtlFreeHeap, (PVOID, ULONG, PVOID));
 PF_TYPE_DECL(NTAPI, VOID, RtlSetLastWin32ErrorAndNtStatusFromNtStatus, (NTSTATUS));
 
 HANDLE CreatePreallocatedFile(const char* lpFileName, DWORD dwDesiredAccess,
@@ -663,9 +713,7 @@ HANDLE CreatePreallocatedFile(const char* lpFileName, DWORD dwDesiredAccess,
 	LARGE_INTEGER allocationSize;
 	NTSTATUS status = STATUS_SUCCESS;
 
-	PF_INIT_OR_SET_STATUS(NtCreateFile, Ntdll);
 	PF_INIT_OR_SET_STATUS(RtlDosPathNameToNtPathNameW, Ntdll);
-	PF_INIT_OR_SET_STATUS(RtlFreeHeap, Ntdll);
 	PF_INIT_OR_SET_STATUS(RtlSetLastWin32ErrorAndNtStatusFromNtStatus, Ntdll);
 
 	if (!NT_SUCCESS(status)) {
@@ -762,10 +810,10 @@ HANDLE CreatePreallocatedFile(const char* lpFileName, DWORD dwDesiredAccess,
 	allocationSize.QuadPart = fileSize;
 
 	// Call NtCreateFile
-	status = pfNtCreateFile(&fileHandle, dwDesiredAccess, &objectAttributes, &ioStatusBlock,
+	status = NtCreateFile(&fileHandle, dwDesiredAccess, &objectAttributes, &ioStatusBlock,
 		&allocationSize, fileAttributes, dwShareMode, dwCreationDisposition, flags, NULL, 0);
 
-	pfRtlFreeHeap(RtlGetProcessHeap(), 0, ntPath.Buffer);
+	RtlFreeHeap(RtlGetProcessHeap(), 0, ntPath.Buffer);
 	wfree(lpFileName);
 	pfRtlSetLastWin32ErrorAndNtStatusFromNtStatus(status);
 

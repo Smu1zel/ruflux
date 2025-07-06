@@ -24,12 +24,6 @@
 #endif
 
 #include <windows.h>
-// Temporary workaround for MinGW32 delay-loading
-// See https://github.com/pbatard/rufus/pull/2513
-#if defined(__MINGW32__)
-#undef DECLSPEC_IMPORT
-#define DECLSPEC_IMPORT __attribute__((visibility("hidden")))
-#endif
 #include <wininet.h>
 #include <netlistmgr.h>
 #include <stdio.h>
@@ -62,7 +56,7 @@ extern HANDLE dialog_handle;
 extern BOOL is_x86_64;
 extern USHORT NativeMachine;
 static DWORD error_code, fido_len = 0;
-static const char* request_headers = "Accept-Encoding: gzip, deflate";
+extern const char* efi_archname[ARCH_MAX];
 
 #if defined(__MINGW32__)
 #define INetworkListManager_get_IsConnectedToInternet INetworkListManager_IsConnectedToInternet
@@ -229,8 +223,16 @@ uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char*
 		goto out;
 	}
 
-	if (!HttpSendRequestA(hRequest, request_headers, -1L, NULL, 0)) {
-		uprintf("Unable to send request: %s", WindowsErrorString());
+	// If we are querying the GitHub API, we need to enable raw content
+	if (strstr(url, "api.github.com") != NULL && !HttpAddRequestHeadersA(hRequest,
+		"Accept: application/vnd.github.v3.raw", (DWORD)-1, HTTP_ADDREQ_FLAG_ADD)) {
+		uprintf("Unable to enable raw content from GitHub API: %s", WindowsErrorString());
+		goto out;
+	}
+	// Must use "Accept-Encoding: identity" to get the file size
+	// This is needed for GitHub as the Microsoft HTTP APIs can't seem to read content-length for
+	// compressed content from GitHub, and using "identity" disables compression.
+	HttpSendRequestA(hRequest, "Accept-Encoding: identity", -1L, NULL, 0);
 		goto out;
 	}
 
@@ -433,7 +435,7 @@ static __inline uint64_t to_uint64_t(uint16_t x[3]) {
 	uint64_t ret = 0;
 	for (i = 0; i < 3; i++)
 		ret = (ret << 16) + x[i];
-	return ret;
+	}
 }
 
 /*
@@ -548,14 +550,7 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 			dwSize = (DWORD)strlen(FORCE_URL);
 #endif
 			IMG_SAVE img_save = { 0 };
-// WTF is wrong with Microsoft's static analyzer reporting a potential buffer overflow here?!?
-#if defined(_MSC_VER)
-#pragma warning(disable: 6386)
-#endif
 			url[min(dwSize, dwAvail)] = 0;
-#if defined(_MSC_VER)
-#pragma warning(default: 6386)
-#endif
 			EXT_DECL(img_ext, GetShortName(url), __VA_GROUP__("*.iso"), __VA_GROUP__(lmprintf(MSG_036)));
 			img_save.Type = VIRTUAL_STORAGE_TYPE_DEVICE_ISO;
 			img_save.ImagePath = FileDialog(TRUE, NULL, &img_ext, NULL);
@@ -646,9 +641,9 @@ BOOL IsDownloadable(const char* url)
 		INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_HYPERLINK |
 		((UrlParts.nScheme == INTERNET_SCHEME_HTTPS) ? INTERNET_FLAG_SECURE : 0), (DWORD_PTR)NULL);
 	if (hRequest == NULL)
-		goto out;
-
-	if (!HttpSendRequestA(hRequest, request_headers, -1L, NULL, 0))
+	// Must use "Accept-Encoding: identity" to get the file size
+	HttpSendRequestA(hRequest, "Accept-Encoding: identity", -1L, NULL, 0);
+	if (!HttpSendRequestA(hRequest, request_headers[1], -1L, NULL, 0))
 		goto out;
 
 	// Get the file size

@@ -1,7 +1,7 @@
 /*
  * Rufus: The Reliable USB Formatting Utility
  * Formatting function calls
- * Copyright © 2011-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,6 @@ static unsigned int sec_buf_pos = 0;
 extern const int nb_steps[FS_MAX];
 extern const char* md5sum_name[2];
 extern uint32_t dur_mins, dur_secs;
-extern uint32_t wim_nb_files, wim_proc_files, wim_extra_files;
 extern BOOL force_large_fat32, enable_ntfs_compression, lock_drive, zero_drive, fast_zeroing, enable_file_indexing;
 extern BOOL write_as_image, use_vds, write_as_esp, is_vds_available, has_ffu_support, use_rufus_mbr;
 extern char* archive_path;
@@ -1085,16 +1084,8 @@ BOOL WritePBR(HANDLE hLogicalVolume)
 
 static void update_progress(const uint64_t processed_bytes)
 {
-	// NB: We don't really care about resetting this value to UINT64_MAX for a new pass.
-	static uint64_t last_value = UINT64_MAX;
-	uint64_t cur_value;
-
 	UpdateProgressWithInfo(OP_FORMAT, MSG_261, processed_bytes, img_report.image_size);
-	cur_value = (processed_bytes * min(80, img_report.image_size)) / img_report.image_size;
-	if (cur_value != last_value) {
-		last_value = cur_value;
-		uprintfs("+");
-	}
+	uprint_progress(processed_bytes, img_report.image_size);
 }
 
 // Some compressed images use streams that aren't multiple of the sector
@@ -1166,7 +1157,6 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 	HANDLE hSourceImage = INVALID_HANDLE_VALUE;
 	DWORD i, read_size[NUM_BUFFERS] = { 0 }, write_size, comp_size, buf_size;
 	uint64_t wb, target_size = bZeroDrive ? SelectedDrive.DiskSize : MIN((uint64_t)SelectedDrive.DiskSize, img_report.image_size);
-	uint64_t cur_value, last_value = 0;
 	int64_t bled_ret;
 	uint8_t* buffer = NULL;
 	uint32_t zero_data, *cmp_buffer = NULL;
@@ -1212,11 +1202,10 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 		}
 
 		read_size[0] = buf_size;
+		uprint_progress(0, 0);
 		for (wb = 0, write_size = 0; wb < target_size; wb += write_size) {
 			UpdateProgressWithInfo(OP_FORMAT, fast_zeroing ? MSG_306 : MSG_286, wb, target_size);
-			cur_value = (wb * 80) / target_size;
-			for (; cur_value > last_value && last_value < 80; last_value++)
-				uprintfs("+");
+			uprint_progress(wb, target_size);
 			// Don't overflow our projected size (mostly for VHDs)
 			if (wb + read_size[0] > target_size)
 				read_size[0] = (DWORD)(target_size - wb);
@@ -1309,6 +1298,7 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 		if_not_assert((uintptr_t)sec_buf% SelectedDrive.SectorSize == 0)
 			goto out;
 		sec_buf_pos = 0;
+		update_progress(0);
 		bled_init(256 * KB, uprintf, NULL, sector_write, update_progress, NULL, &ErrorStatus);
 		bled_ret = bled_uncompress_with_handles(hSourceImage, hPhysicalDrive, img_report.compression_type);
 		bled_exit();
@@ -1363,12 +1353,11 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 		ReadFileAsync(hSourceImage, &buffer[read_bufnum * buf_size], (DWORD)MIN(buf_size, target_size));
 
 		read_size[proc_bufnum] = 1;	// To avoid early loop exit
+		uprint_progress(0, 0);
 		for (wb = 0; read_size[proc_bufnum] != 0; wb += read_size[proc_bufnum]) {
 			// 0. Update the progress
 			UpdateProgressWithInfo(OP_FORMAT, MSG_261, wb, target_size);
-			cur_value = (wb * 80) / target_size;
-			for ( ; cur_value > last_value && last_value < 80; last_value++)
-				uprintfs("+");
+			uprint_progress(wb, target_size);
 
 			if (wb >= target_size)
 				break;
@@ -1384,9 +1373,9 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 
 			// 2. WriteFile fails unless the size is a multiple of sector size
 			if (read_size[read_bufnum] % SelectedDrive.SectorSize != 0) {
-				if_not_assert(HI_ALIGN_X_TO_Y(read_size[read_bufnum], SelectedDrive.SectorSize) <= buf_size)
+				if_not_assert(CEILING_ALIGN(read_size[read_bufnum], SelectedDrive.SectorSize) <= buf_size)
 					goto out;
-				read_size[read_bufnum] = HI_ALIGN_X_TO_Y(read_size[read_bufnum], SelectedDrive.SectorSize);
+				read_size[read_bufnum] = CEILING_ALIGN(read_size[read_bufnum], SelectedDrive.SectorSize);
 			}
 
 			// 3. Switch to the next reading buffer
@@ -1686,8 +1675,8 @@ DWORD WINAPI FormatThread(void* param)
 			physical = GetPhysicalName(SelectedDrive.DeviceNumber);
 			static_sprintf(cmd, "dism /Apply-Ffu /ApplyDrive:%s /ImageFile:\"%s\"", physical, image_path);
 			safe_free(physical);
-			uprintf("Running command: '%s", cmd);
-			cr = RunCommandWithProgress(cmd, sysnative_dir, TRUE, MSG_261);
+			uprintf("Running command: '%s'", cmd);
+			cr = RunCommandWithProgress(cmd, sysnative_dir, TRUE, MSG_261, ".*\r\\[[= ]+([0-9\\.]+)%[= ]+\\].*");
 			if (cr != 0 && !IS_ERROR(ErrorStatus)) {
 				SetLastError(cr);
 				uprintf("Failed to apply FFU image: %s", WindowsErrorString());
@@ -1971,7 +1960,7 @@ DWORD WINAPI FormatThread(void* param)
 						ErrorStatus = RUFUS_ERROR(APPERR(ERROR_CANT_PATCH));
 					} else {
 						efi_dst[sizeof(efi_dst) - sizeof("\\bootx64.efi")] = '\\';
-						if (!WimExtractFile(img_report.wininst_path[0], 1, "Windows\\Boot\\EFI\\bootmgfw.efi", efi_dst, FALSE)) {
+						if (!WimExtractFile(img_report.wininst_path[0], 1, "Windows\\Boot\\EFI\\bootmgfw.efi", efi_dst)) {
 							uprintf("Failed to setup Win7 EFI boot");
 							ErrorStatus = RUFUS_ERROR(APPERR(ERROR_CANT_PATCH));
 						}

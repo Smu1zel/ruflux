@@ -43,10 +43,11 @@
 #include "registry.h"
 #include "settings.h"
 #include "license.h"
+#include "darkmode.h"
 
 /* Globals */
 extern BOOL is_x86_64, appstore_version;
-extern char unattend_username[MAX_USERNAME_LENGTH], *sbat_level_txt;
+extern char unattend_username[MAX_USERNAME_LENGTH], *sbat_level_txt, *sb_active_txt, *sb_revoked_txt;
 extern HICON hSmallIcon, hBigIcon;
 static HICON hMessageIcon = (HICON)INVALID_HANDLE_VALUE;
 static char* szMessageText = NULL;
@@ -315,6 +316,7 @@ INT_PTR CALLBACK LicenseCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	HWND hLicense;
 	switch (message) {
 	case WM_INITDIALOG:
+		SetDarkModeForDlg(hDlg);
 		hLicense = GetDlgItem(hDlg, IDC_LICENSE_TEXT);
 		apply_localization(IDD_LICENSE, hDlg);
 		CenterDialog(hDlg, NULL);
@@ -327,6 +329,7 @@ INT_PTR CALLBACK LicenseCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		style &= ~(ES_RIGHT);
 		SetWindowLongPtr(hLicense, GWL_STYLE, style);
 		SetDlgItemTextA(hDlg, IDC_LICENSE_TEXT, gplv3);
+		SetDarkModeForChild(hDlg);
 		break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
@@ -359,6 +362,7 @@ INT_PTR CALLBACK AboutCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 	switch (message) {
 	case WM_INITDIALOG:
+		SetDarkModeForDlg(hDlg);
 		resized_already = FALSE;
 		// Execute dialog localization
 		apply_localization(IDD_ABOUTBOX, hDlg);
@@ -393,6 +397,7 @@ INT_PTR CALLBACK AboutCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		// Need to send an explicit SetSel to avoid being positioned at the end of richedit control when tabstop is used
 		SendMessage(hEdit[1], EM_SETSEL, 0, 0);
 		SendMessage(hEdit[0], EM_REQUESTRESIZE, 0, 0);
+		SetDarkModeForChild(hDlg);
 		break;
 	case WM_NOTIFY:
 		switch (((LPNMHDR)lParam)->code) {
@@ -465,6 +470,7 @@ INT_PTR CALLBACK NotificationCallback(HWND hDlg, UINT message, WPARAM wParam, LP
 
 	switch (message) {
 	case WM_INITDIALOG:
+		SetDarkModeForDlg(hDlg);
 		// Get the system message box font. See http://stackoverflow.com/a/6057761
 		ncm.cbSize = sizeof(ncm);
 		// If we're compiling with the Vista SDK or later, the NONCLIENTMETRICS struct
@@ -547,6 +553,7 @@ INT_PTR CALLBACK NotificationCallback(HWND hDlg, UINT message, WPARAM wParam, LP
 			ResizeMoveCtrl(hDlg, GetDlgItem(hDlg, IDYES), 0, dh -cbh, 0, 0, 1.0f);
 			ResizeMoveCtrl(hDlg, GetDlgItem(hDlg, IDNO), 0, dh -cbh, 0, 0, 1.0f);
 		}
+		SetDarkModeForChild(hDlg);
 		return (INT_PTR)TRUE;
 	case WM_CTLCOLORSTATIC:
 		// Change the background colour for static text and icon
@@ -676,6 +683,7 @@ static INT_PTR CALLBACK CustomSelectionCallback(HWND hDlg, UINT message, WPARAM 
 
 	switch (message) {
 	case WM_INITDIALOG:
+		SetDarkModeForDlg(hDlg);
 		// Don't overflow our max radio button
 		if (nDialogItems > (IDC_SELECTION_CHOICEMAX - IDC_SELECTION_CHOICE1 + 1)) {
 			uprintf("Warning: Too many options requested for Selection (%d vs %d)",
@@ -782,6 +790,7 @@ static INT_PTR CALLBACK CustomSelectionCallback(HWND hDlg, UINT message, WPARAM 
 		// Set the default selection
 		for (i = 0, m = 1; i < nDialogItems; i++, m <<= 1)
 			Button_SetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + i), (m & selection_dialog_mask) ? BST_CHECKED : BST_UNCHECKED);
+		SetDarkModeForChild(hDlg);
 		return (INT_PTR)TRUE;
 	case WM_CTLCOLORSTATIC:
 		// Change the background colour for static text and icon
@@ -869,6 +878,7 @@ INT_PTR CALLBACK ListCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 
 	switch (message) {
 	case WM_INITDIALOG:
+		SetDarkModeForDlg(hDlg);
 		// Don't overflow our max radio button
 		if (nDialogItems > (IDC_LIST_ITEMMAX - IDC_LIST_ITEM1 + 1)) {
 			uprintf("Warning: Too many items requested for List (%d vs %d)",
@@ -927,6 +937,7 @@ INT_PTR CALLBACK ListCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 		ResizeMoveCtrl(hDlg, GetDlgItem(hDlg, IDCANCEL), 0, dh, 0, 0, 1.0f);
 		ResizeButtonHeight(hDlg, IDOK);
 		ResizeButtonHeight(hDlg, IDCANCEL);
+		SetDarkModeForChild(hDlg);
 		return (INT_PTR)TRUE;
 	case WM_CTLCOLORSTATIC:
 		// Change the background colour for static text and icon
@@ -1049,6 +1060,7 @@ BOOL CreateTooltip(HWND hControl, const char* message, int duration)
 	if (ttlist[i].hTip == NULL) {
 		return FALSE;
 	}
+	SetDarkTheme(ttlist[i].hTip);
 	ttlist[i].hCtrl = hControl;
 
 	// Subclass the tooltip to handle multiline
@@ -1207,12 +1219,14 @@ static DWORD WINAPI CheckForFidoThread(LPVOID param)
 	}
 	safe_free(sbat_entries);
 	safe_free(sbat_level_txt);
+	safe_free(sb_active_txt);
+	safe_free(sb_revoked_txt);
 
 	// Get the latest sbat_level.txt data while we're poking the network for Fido.
 	len = DownloadToFileOrBuffer(RUFUS_URL "/sbat_level.txt", NULL, (BYTE**)&sbat_level_txt, NULL, FALSE);
-	if (len != 0 && len < 512) {
+	if (len != 0 && len < 1 * KB) {
 		sbat_entries = GetSbatEntries(sbat_level_txt);
-		if (sbat_entries != 0) {
+		if (sbat_entries != NULL) {
 			for (i = 0; sbat_entries[i].product != NULL; i++);
 			if (i > 0)
 				uprintf("Found %d additional UEFI revocation filters from remote SBAT", i);
@@ -1272,6 +1286,37 @@ void CreateStaticFont(HDC hDC, HFONT* hFont, BOOL underlined)
 	lf.lfPitchAndFamily = tm.tmPitchAndFamily;
 	GetTextFace(hDC, LF_FACESIZE, lf.lfFaceName);
 	*hFont = CreateFontIndirect(&lf);
+}
+
+void SetHyperLinkFont(HWND hWnd, HDC hDC, HFONT* hFont, BOOL underlined)
+{
+	static BOOL use_static_font = FALSE;
+	LOGFONT lf = { 0 };
+	HFONT hFontTmp = NULL;
+
+	if (*hFont == NULL) {
+		hFontTmp = (HFONT)SendMessage(hWnd, WM_GETFONT, 0, 0);
+		if (hFontTmp != NULL) {
+			GetObject(hFontTmp, sizeof(LOGFONT), &lf);
+			use_static_font = FALSE;
+		} else {
+			NONCLIENTMETRICS ncm = { 0 };
+			ncm.cbSize = sizeof(NONCLIENTMETRICS);
+			if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0)) {
+				lf = ncm.lfStatusFont;
+				use_static_font = FALSE;
+			} else {
+				CreateStaticFont(hDC, hFont, underlined);
+				use_static_font = TRUE;
+			}
+		}
+		if (!use_static_font) {
+			lf.lfUnderline = underlined;
+			*hFont = CreateFontIndirect(&lf);
+		}
+	}
+	if (!use_static_font)
+		SendMessage(hWnd, WM_SETFONT, (WPARAM)*hFont, TRUE);
 }
 
 /*

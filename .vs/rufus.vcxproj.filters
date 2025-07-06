@@ -87,10 +87,22 @@
     <ClCompile Include="..\src\format_fat32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\re.c">
+    <ClCompile Include="..\src\wue.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\wue.c">
+    <ClCompile Include="..\src\xml.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\darkmode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\cregex_compile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\cregex_parse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\cregex_vm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -158,7 +170,7 @@
     <ClInclude Include="..\src\db.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\process.h">
+    <ClInclude Include="..\src\ntdll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ui.h">
@@ -176,9 +188,6 @@
     <ClInclude Include="..\src\winio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\re.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\res\grub\grub_version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -189,6 +198,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\vhd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\efi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\res\dbx\dbx_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\msvc-missing\unistd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\xml.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\darkmode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cregex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

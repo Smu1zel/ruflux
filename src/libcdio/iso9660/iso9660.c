@@ -256,11 +256,10 @@ iso9660_get_dtime (const iso9660_dtime_t *idr_date, bool b_localtime,
     memcpy(num, p_ldate->LT_FIELD, sizeof(p_ldate->LT_FIELD));          \
     num[sizeof(p_ldate->LT_FIELD)] = '\0';                              \
     errno = 0;                                                          \
-    tmp = strtol(num,                                                   \
-                 (char **)NULL, 10);                                    \
-    if ( tmp < INT_MIN || tmp > INT_MAX ||                              \
-         ((unsigned long)tmp + ADD_CONSTANT) > INT_MAX ||               \
-         (tmp + ADD_CONSTANT) < INT_MIN )                               \
+    tmp = strtol(num, (char **)NULL, 10);                               \
+    if ( tmp == LONG_MIN || tmp == LONG_MAX ||                          \
+         (uint64_t)tmp + ADD_CONSTANT >= (uint64_t)LONG_MAX ||          \
+         (uint64_t)tmp + ADD_CONSTANT <= (uint64_t)LONG_MIN )           \
       return false;                                                     \
     p_tm->TM_FIELD = tmp + ADD_CONSTANT;                                \
   }
@@ -381,7 +380,7 @@ iso9660_set_ltime_with_timezone(const struct tm *p_tm,
 
   if (!p_tm) return;
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__DARWIN_C_ANSI)
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 #endif
   snprintf(_pvd_date, 17,
@@ -753,6 +752,7 @@ iso9660_dir_add_entry_su(void *dir,
     unsigned int ofs_last_rec = 0;
 
     offset = 0;
+    // coverity[tainted_data]
     while (offset < dsize)
       {
         if (!dir8[offset])

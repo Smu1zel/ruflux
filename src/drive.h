@@ -1,7 +1,7 @@
 /*
  * Rufus: The Reliable USB Formatting Utility
  * Drive access function calls
- * Copyright © 2011-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@
 #define FP_LARGE_FAT32                      0x00010000
 #define FP_NO_BOOT                          0x00020000
 #define FP_CREATE_PERSISTENCE_CONF          0x00040000
+#define FP_NO_PROGRESS                      0x00080000
 
 #define FILE_FLOPPY_DISKETTE                0x00000004
 
@@ -59,22 +60,6 @@
 #define VDS_RESCAN_REENUMERATE              0x00000002
 
 #define VDS_SET_ERROR(hr) do { if (hr != S_OK) { SetLastError((DWORD)hr); ErrorStatus = RUFUS_ERROR(ERROR_GEN_FAILURE); } } while(0)
-
-#if !defined(__MINGW32__)
-typedef enum _FSINFOCLASS {
-	FileFsVolumeInformation = 1,
-	FileFsLabelInformation,
-	FileFsSizeInformation,
-	FileFsDeviceInformation,
-	FileFsAttributeInformation,
-	FileFsControlInformation,
-	FileFsFullSizeInformation,
-	FileFsObjectIdInformation,
-	FileFsDriverPathInformation,
-	FileFsVolumeFlagsInformation,
-	FileFsMaximumInformation
-} FS_INFORMATION_CLASS, *PFS_INFORMATION_CLASS;
-#endif
 
 /* We need a redef of these MS structure */
 typedef struct {

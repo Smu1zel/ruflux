@@ -87,26 +87,29 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_rufus_OBJECTS = rufus-badblocks.$(OBJEXT) rufus-dev.$(OBJEXT) \
-	rufus-dos.$(OBJEXT) rufus-dos_locale.$(OBJEXT) \
-	rufus-drive.$(OBJEXT) rufus-format.$(OBJEXT) \
-	rufus-format_ext.$(OBJEXT) rufus-format_fat32.$(OBJEXT) \
-	rufus-hash.$(OBJEXT) rufus-icon.$(OBJEXT) rufus-iso.$(OBJEXT) \
+am_rufus_OBJECTS = rufus-badblocks.$(OBJEXT) rufus-darkmode.$(OBJEXT) \
+	rufus-dev.$(OBJEXT) rufus-dos.$(OBJEXT) \
+	rufus-dos_locale.$(OBJEXT) rufus-drive.$(OBJEXT) \
+	rufus-format.$(OBJEXT) rufus-format_ext.$(OBJEXT) \
+	rufus-format_fat32.$(OBJEXT) rufus-hash.$(OBJEXT) \
+	rufus-icon.$(OBJEXT) rufus-iso.$(OBJEXT) \
 	rufus-localization.$(OBJEXT) rufus-net.$(OBJEXT) \
 	rufus-parser.$(OBJEXT) rufus-pki.$(OBJEXT) \
-	rufus-process.$(OBJEXT) rufus-re.$(OBJEXT) \
+	rufus-process.$(OBJEXT) rufus-cregex_compile.$(OBJEXT) \
+	rufus-cregex_parse.$(OBJEXT) rufus-cregex_vm.$(OBJEXT) \
 	rufus-rufus.$(OBJEXT) rufus-smart.$(OBJEXT) \
 	rufus-stdfn.$(OBJEXT) rufus-stdio.$(OBJEXT) \
 	rufus-stdlg.$(OBJEXT) rufus-syslinux.$(OBJEXT) \
-	rufus-ui.$(OBJEXT) rufus-vhd.$(OBJEXT) rufus-wue.$(OBJEXT)
+	rufus-ui.$(OBJEXT) rufus-vhd.$(OBJEXT) rufus-wue.$(OBJEXT) \
+	rufus-xml.$(OBJEXT)
 rufus_OBJECTS = $(am_rufus_OBJECTS)
 am__DEPENDENCIES_1 =
 rufus_DEPENDENCIES = rufus_rc.o bled/libbled.a ext2fs/libext2fs.a \
 	ms-sys/libmssys.a syslinux/libfat/libfat.a \
 	syslinux/libinstaller/libinstaller.a syslinux/win/libwin.a \
 	libcdio/iso9660/libiso9660.a libcdio/udf/libudf.a \
-	libcdio/driver/libdriver.a $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	libcdio/driver/libdriver.a wimlib/libwim.a \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 rufus_LINK = $(CCLD) $(rufus_CFLAGS) $(CFLAGS) $(rufus_LDFLAGS) \
 	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
@@ -272,27 +275,25 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = ../.mingw bled ext2fs ms-sys syslinux/libfat syslinux/libinstaller syslinux/win libcdio/iso9660 libcdio/udf libcdio/driver ../res/loc
+SUBDIRS = ../.mingw bled ext2fs ms-sys syslinux/libfat syslinux/libinstaller syslinux/win libcdio/iso9660 libcdio/udf libcdio/driver wimlib ../res/loc
 # As far as I can tell, the following libraries are *not* vulnerable to side-loading, so we link using their regular version:
-NONVULNERABLE_LIBS = -lsetupapi -lole32 -lgdi32 -lshlwapi -lcrypt32 -lcomctl32 -luuid
+NONVULNERABLE_LIBS = -lole32 -lgdi32 -lshlwapi -lcomctl32 -luuid -lntdll
 # The following libraries are vulnerable (or have an unknown vulnerability status), so we link using our delay-loaded replacement:
 # See https://github.com/pbatard/rufus/issues/2272
-# Oh, and don't bother trying to delay load cfgmgr32.dll, even with the DECLSPEC_IMPORT __attribute__((visibility("hidden")))
-# override. It just DOESN'T BLOODY WORK and you will waste HOURS on a wild goose chase!!!
-VULNERABLE_LIBS = -ldwmapi-delaylib -lversion-delaylib -lvirtdisk-delaylib -lwininet-delaylib -lwintrust-delaylib
+VULNERABLE_LIBS = -lcrypt32-delaylib -ldwmapi-delaylib -lsetupapi-delaylib -luxtheme-delaylib -lversion-delaylib -lvirtdisk-delaylib -lwininet-delaylib -lwintrust-delaylib
 AM_V_WINDRES_0 = @echo "  RC     $@";$(WINDRES)
 AM_V_WINDRES_1 = $(WINDRES)
 AM_V_WINDRES_ = $(AM_V_WINDRES_$(AM_DEFAULT_VERBOSITY))
 AM_V_WINDRES = $(AM_V_WINDRES_$(V))
-rufus_SOURCES = badblocks.c dev.c dos.c dos_locale.c drive.c format.c format_ext.c format_fat32.c hash.c icon.c iso.c \
-	localization.c net.c parser.c pki.c process.c re.c rufus.c smart.c stdfn.c stdio.c stdlg.c syslinux.c ui.c vhd.c wue.c
+rufus_SOURCES = badblocks.c darkmode.c dev.c dos.c dos_locale.c drive.c format.c format_ext.c format_fat32.c hash.c icon.c iso.c localization.c \
+	 net.c parser.c pki.c process.c cregex_compile.c cregex_parse.c cregex_vm.c rufus.c smart.c stdfn.c stdio.c stdlg.c syslinux.c ui.c vhd.c wue.c xml.c
 
-rufus_CFLAGS = -I$(srcdir)/ms-sys/inc -I$(srcdir)/syslinux/libfat -I$(srcdir)/syslinux/libinstaller -I$(srcdir)/syslinux/win -I$(srcdir)/libcdio $(AM_CFLAGS) \
-	-DEXT2_FLAT_INCLUDES=0 -DSOLUTION=rufus
+rufus_CFLAGS = -I$(srcdir)/ms-sys/inc -I$(srcdir)/syslinux/libfat -I$(srcdir)/syslinux/libinstaller -I$(srcdir)/syslinux/win -I$(srcdir)/libcdio -I$(srcdir)/wimlib -I$(srcdir)/../res $(AM_CFLAGS) \
+	-DEXT2_FLAT_INCLUDES=0 -D_RUFUS -DSOLUTION=rufus
 
-rufus_LDFLAGS = $(AM_LDFLAGS) -mwindows -L ../.mingw
+rufus_LDFLAGS = $(AM_LDFLAGS) -mwindows -L../.mingw
 rufus_LDADD = rufus_rc.o bled/libbled.a ext2fs/libext2fs.a ms-sys/libmssys.a syslinux/libfat/libfat.a syslinux/libinstaller/libinstaller.a syslinux/win/libwin.a \
-	libcdio/iso9660/libiso9660.a libcdio/udf/libudf.a libcdio/driver/libdriver.a $(NONVULNERABLE_LIBS) $(VULNERABLE_LIBS)
+	libcdio/iso9660/libiso9660.a libcdio/udf/libudf.a libcdio/driver/libdriver.a wimlib/libwim.a $(NONVULNERABLE_LIBS) $(VULNERABLE_LIBS)
 
 all: all-recursive
 
@@ -353,6 +354,12 @@ rufus-badblocks.o: badblocks.c
 
 rufus-badblocks.obj: badblocks.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-badblocks.obj `if test -f 'badblocks.c'; then $(CYGPATH_W) 'badblocks.c'; else $(CYGPATH_W) '$(srcdir)/badblocks.c'; fi`
+
+rufus-darkmode.o: darkmode.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-darkmode.o `test -f 'darkmode.c' || echo '$(srcdir)/'`darkmode.c
+
+rufus-darkmode.obj: darkmode.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-darkmode.obj `if test -f 'darkmode.c'; then $(CYGPATH_W) 'darkmode.c'; else $(CYGPATH_W) '$(srcdir)/darkmode.c'; fi`
 
 rufus-dev.o: dev.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-dev.o `test -f 'dev.c' || echo '$(srcdir)/'`dev.c
@@ -444,11 +451,23 @@ rufus-process.o: process.c
 rufus-process.obj: process.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-process.obj `if test -f 'process.c'; then $(CYGPATH_W) 'process.c'; else $(CYGPATH_W) '$(srcdir)/process.c'; fi`
 
-rufus-re.o: re.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-re.o `test -f 're.c' || echo '$(srcdir)/'`re.c
+rufus-cregex_compile.o: cregex_compile.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-cregex_compile.o `test -f 'cregex_compile.c' || echo '$(srcdir)/'`cregex_compile.c
 
-rufus-re.obj: re.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-re.obj `if test -f 're.c'; then $(CYGPATH_W) 're.c'; else $(CYGPATH_W) '$(srcdir)/re.c'; fi`
+rufus-cregex_compile.obj: cregex_compile.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-cregex_compile.obj `if test -f 'cregex_compile.c'; then $(CYGPATH_W) 'cregex_compile.c'; else $(CYGPATH_W) '$(srcdir)/cregex_compile.c'; fi`
+
+rufus-cregex_parse.o: cregex_parse.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-cregex_parse.o `test -f 'cregex_parse.c' || echo '$(srcdir)/'`cregex_parse.c
+
+rufus-cregex_parse.obj: cregex_parse.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-cregex_parse.obj `if test -f 'cregex_parse.c'; then $(CYGPATH_W) 'cregex_parse.c'; else $(CYGPATH_W) '$(srcdir)/cregex_parse.c'; fi`
+
+rufus-cregex_vm.o: cregex_vm.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-cregex_vm.o `test -f 'cregex_vm.c' || echo '$(srcdir)/'`cregex_vm.c
+
+rufus-cregex_vm.obj: cregex_vm.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-cregex_vm.obj `if test -f 'cregex_vm.c'; then $(CYGPATH_W) 'cregex_vm.c'; else $(CYGPATH_W) '$(srcdir)/cregex_vm.c'; fi`
 
 rufus-rufus.o: rufus.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-rufus.o `test -f 'rufus.c' || echo '$(srcdir)/'`rufus.c
@@ -503,6 +522,12 @@ rufus-wue.o: wue.c
 
 rufus-wue.obj: wue.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-wue.obj `if test -f 'wue.c'; then $(CYGPATH_W) 'wue.c'; else $(CYGPATH_W) '$(srcdir)/wue.c'; fi`
+
+rufus-xml.o: xml.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-xml.o `test -f 'xml.c' || echo '$(srcdir)/'`xml.c
+
+rufus-xml.obj: xml.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-xml.obj `if test -f 'xml.c'; then $(CYGPATH_W) 'xml.c'; else $(CYGPATH_W) '$(srcdir)/xml.c'; fi`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.

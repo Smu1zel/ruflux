@@ -44,6 +44,7 @@
 
 #include "rufus.h"
 #include "ui.h"
+#include "vhd.h"
 #include "drive.h"
 #include "libfat.h"
 #include "missing.h"
@@ -69,8 +70,6 @@ _Static_assert(256 * KB >= ISO_BLOCKSIZE, "Can't set PROGRESS_THRESHOLD");
 CdIo_t* cdio_open (const char* psz_source, driver_id_t driver_id) {return NULL;}
 void cdio_destroy (CdIo_t* p_cdio) {}
 
-uint32_t GetInstallWimVersion(const char* iso);
-
 typedef struct {
 	BOOLEAN is_cfg;
 	BOOLEAN is_conf;
@@ -81,7 +80,10 @@ typedef struct {
 } EXTRACT_PROPS;
 
 RUFUS_IMG_REPORT img_report;
+FILE* fd_md5sum = NULL;
 int64_t iso_blocking_status = -1;
+uint64_t total_blocks, extra_blocks, nb_blocks, last_nb_blocks;
+
 extern uint64_t md5sum_totalbytes;
 extern BOOL preserve_timestamps, enable_ntfs_compression, validate_md5sum;
 extern HANDLE format_thread;
@@ -124,10 +126,8 @@ const char* old_c32_name[NB_OLD_C32] = OLD_C32_NAMES;
 static const int64_t old_c32_threshold[NB_OLD_C32] = OLD_C32_THRESHOLD;
 static uint8_t joliet_level = 0;
 static uint32_t md5sum_size = 0;
-static uint64_t total_blocks, extra_blocks, nb_blocks, last_nb_blocks;
 static BOOL scan_only = FALSE;
-static FILE* fd_md5sum = NULL;
-static StrArray config_path, isolinux_path;
+static StrArray config_path, isolinux_path, grub_filesystems;
 static char symlinked_syslinux[MAX_PATH], *md5sum_data = NULL, *md5sum_pos = NULL;
 
 // Ensure filenames do not contain invalid FAT32 or NTFS characters
@@ -161,6 +161,83 @@ static void log_handler (cdio_log_level_t level, const char *message)
 	uprintf("libcdio: %s", message);
 }
 
+// Returns TRUE if a path appears in md5sum.txt
+static BOOL is_in_md5sum(char* path)
+{
+	BOOL found = FALSE;
+	char c[3], * p, * pos = md5sum_pos, * nul_pos;
+
+	// If we are creating the md5sum file from scratch, every file is in it.
+	if (fd_md5sum != NULL)
+		return TRUE;
+
+	// If we don't have an existing file at this stage, then no file is in it.
+	if (md5sum_size == 0 || md5sum_data == NULL)
+		return FALSE;
+
+	// We should have a "X:/xyz" path
+	assert(path[1] == ':' && path[2] == '/');
+
+	// Modify the path to have " ./xyz"
+	c[0] = path[0];
+	c[1] = path[1];
+	path[0] = ' ';
+	path[1] = '.';
+
+	// Search for the string in the remainder of the md5sum.txt
+	// NB: md5sum_data is always NUL terminated.
+	p = strstr(pos, path);
+	// Cater for the case where we matched a partial string and look for the full one
+	while (p != NULL && p[strlen(path)] != '\n' && p[strlen(path)] != '\r' && p[strlen(path)] != '\0') {
+		pos = p + strlen(path);
+		p = strstr(pos, path);
+	}
+	found = (p != NULL);
+	// If not found in remainder and we have a remainder, loop to search from beginning
+	if (!found && pos != md5sum_data) {
+		nul_pos = pos;
+		c[2] = *nul_pos;
+		*nul_pos = 0;
+		p = strstr(md5sum_data, path);
+		while (p != NULL && p[strlen(path)] != '\n' && p[strlen(path)] != '\r' && p[strlen(path)] != '\0') {
+			pos = p + strlen(path);
+			p = strstr(pos, path);
+		}
+		*nul_pos = c[2];
+		found = (p != NULL);
+	}
+
+	path[0] = c[0];
+	path[1] = c[1];
+	if (found)
+		md5sum_pos = p + strlen(path);
+	return found;
+}
+
+static void _print_extracted_file(char* psz_fullpath, uint64_t file_length, BOOL split)
+{
+	size_t nul_pos;
+
+	if (psz_fullpath == NULL)
+		return;
+	// Replace slashes with backslashes and append the size to the path for UI display
+	to_windows_path(psz_fullpath);
+	nul_pos = strlen(psz_fullpath);
+	safe_sprintf(&psz_fullpath[nul_pos], 24, " (%s)", SizeToHumanReadable(file_length, TRUE, FALSE));
+	uprintf(split ? "Splitting: %s" : "Extracting: %s", psz_fullpath);
+	safe_sprintf(&psz_fullpath[nul_pos], 24, " (%s)", SizeToHumanReadable(file_length, FALSE, FALSE));
+	PrintStatus(0, MSG_000, psz_fullpath);	// MSG_000 is "%s"
+	// Remove the appended size for extraction
+	psz_fullpath[nul_pos] = 0;
+	// ISO9660 cannot handle backslashes
+	to_unix_path(psz_fullpath);
+	// Update md5sum_totalbytes as needed
+	if (is_in_md5sum(psz_fullpath))
+		md5sum_totalbytes += file_length;
+}
+#define print_extracted_file(p, l) _print_extracted_file(p, l, FALSE)
+#define print_split_file(p, l) _print_extracted_file(p, l, TRUE)
+
 /*
  * Scan and set ISO properties
  * Returns true if the the current file does not need to be processed further
@@ -169,7 +246,7 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 	const char* psz_fullpath, EXTRACT_PROPS *props)
 {
 	size_t i, j, k, len;
-	char bootloader_name[32];
+	char bootloader_name[32], path[MAX_PATH];
 
 	// Check for an isolinux/syslinux config file anywhere
 	memset(props, 0, sizeof(EXTRACT_PROPS));
@@ -215,6 +292,26 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 		if ((psz_dirname != NULL) && (psz_dirname[0] == 0) && (safe_stricmp(psz_basename, ldlinux_name) == 0)) {
 			uprintf("Skipping '%s' file from ISO image", psz_basename);
 			return TRUE;
+		}
+
+		// Split a >4GB install.wim if the target filesystem is FAT
+		if (file_length >= 4 * GB && psz_dirname != NULL && IS_FAT(fs_type) && img_report.has_4GB_file == 0x81) {
+			if (safe_stricmp(&psz_dirname[max(0, ((int)safe_strlen(psz_dirname)) -
+				((int)strlen(sources_str)))], sources_str) == 0) {
+				for (i = 0; i < ARRAYSIZE(wininst_name) - 1; i++) {
+					if (safe_stricmp(psz_basename, wininst_name[i]) == 0 && file_length >= 4 * GB) {
+						print_split_file((char*)psz_fullpath, file_length);
+						char* dst = safe_strdup(psz_fullpath);
+						dst[strlen(dst) - 3] = 's';
+						dst[strlen(dst) - 2] = 'w';
+						dst[strlen(dst) - 1] = 'm';
+						static_sprintf(path, "%s|%s/%s", image_path, psz_dirname, psz_basename);
+						WimSplitFile(path, dst);
+						free(dst);
+						return TRUE;
+					}
+				}
+			}
 		}
 	} else {	// Scan-time checks
 		// Check for GRUB artifacts
@@ -327,6 +424,8 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 							static_sprintf(img_report.wininst_path[img_report.wininst_index],
 								"?:%s", psz_fullpath);
 							img_report.wininst_index++;
+							if (file_length >= 4 * GB)
+								img_report.has_4GB_file |= 0x80;
 						}
 					}
 				}
@@ -357,7 +456,7 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 				img_report.has_old_c32[i] = TRUE;
 		}
 		if (file_length >= 4 * GB)
-			img_report.has_4GB_file = TRUE;
+			img_report.has_4GB_file++;
 		// Compute projected size needed (NB: ISO_BLOCKSIZE = UDF_BLOCKSIZE)
 		if (file_length != 0)
 			total_blocks += (file_length + (ISO_BLOCKSIZE - 1)) / ISO_BLOCKSIZE;
@@ -496,81 +595,6 @@ static void fix_config(const char* psz_fullpath, const char* psz_path, const cha
 		StrArrayAdd(&modified_files, psz_fullpath, TRUE);
 
 	free(src);
-}
-
-// Returns TRUE if a path appears in md5sum.txt
-static BOOL is_in_md5sum(char* path)
-{
-	BOOL found = FALSE;
-	char c[3], *p, *pos = md5sum_pos, *nul_pos;
-
-	// If we are creating the md5sum file from scratch, every file is in it.
-	if (fd_md5sum != NULL)
-		return TRUE;
-
-	// If we don't have an existing file at this stage, then no file is in it.
-	if (md5sum_size == 0 || md5sum_data == NULL)
-		return FALSE;
-
-	// We should have a "X:/xyz" path
-	assert(path[1] == ':' && path[2] == '/');
-
-	// Modify the path to have " ./xyz"
-	c[0] = path[0];
-	c[1] = path[1];
-	path[0] = ' ';
-	path[1] = '.';
-
-	// Search for the string in the remainder of the md5sum.txt
-	// NB: md5sum_data is always NUL terminated.
-	p = strstr(pos, path);
-	// Cater for the case where we matched a partial string and look for the full one
-	while (p != NULL && p[strlen(path)] != '\n' && p[strlen(path)] != '\r' && p[strlen(path)] != '\0') {
-		pos = p + strlen(path);
-		p = strstr(pos, path);
-	}
-	found = (p != NULL);
-	// If not found in remainder and we have a remainder, loop to search from beginning
-	if (!found && pos != md5sum_data) {
-		nul_pos = pos;
-		c[2] = *nul_pos;
-		*nul_pos = 0;
-		p = strstr(md5sum_data, path);
-		while (p != NULL && p[strlen(path)] != '\n' && p[strlen(path)] != '\r' && p[strlen(path)] != '\0') {
-			pos = p + strlen(path);
-			p = strstr(pos, path);
-		}
-		*nul_pos = c[2];
-		found = (p != NULL);
-	}
-
-	path[0] = c[0];
-	path[1] = c[1];
-	if (found)
-		md5sum_pos = p + strlen(path);
-	return found;
-}
-
-static void print_extracted_file(char* psz_fullpath, uint64_t file_length)
-{
-	size_t nul_pos;
-
-	if (psz_fullpath == NULL)
-		return;
-	// Replace slashes with backslashes and append the size to the path for UI display
-	to_windows_path(psz_fullpath);
-	nul_pos = strlen(psz_fullpath);
-	safe_sprintf(&psz_fullpath[nul_pos], 24, " (%s)", SizeToHumanReadable(file_length, TRUE, FALSE));
-	uprintf("Extracting: %s", psz_fullpath);
-	safe_sprintf(&psz_fullpath[nul_pos], 24, " (%s)", SizeToHumanReadable(file_length, FALSE, FALSE));
-	PrintStatus(0, MSG_000, psz_fullpath);	// MSG_000 is "%s"
-	// Remove the appended size for extraction
-	psz_fullpath[nul_pos] = 0;
-	// ISO9660 cannot handle backslashes
-	to_unix_path(psz_fullpath);
-	// Update md5sum_totalbytes as needed
-	if (is_in_md5sum(psz_fullpath))
-		md5sum_totalbytes += file_length;
 }
 
 // Convert from time_t to FILETIME
@@ -1011,7 +1035,7 @@ out:
 	return r;
 }
 
-void GetGrubVersion(char* buf, size_t buf_size)
+void GetGrubVersion(char* buf, size_t buf_size, const char* source)
 {
 	// In typical "I'll make my own Open Source... with blackjack and hookers!" fashion,
 	// IBM/Red-Hat/Fedora took it upon themselves to "fix" the double space typo from the
@@ -1023,6 +1047,7 @@ void GetGrubVersion(char* buf, size_t buf_size)
 	const char* grub_version_str[] = { "GRUB  version %s", "GRUB version %s" };
 	const char* grub_debug_is_enabled_str = "grub_debug_is_enabled";
 	const size_t max_string_size = 32;	// The strings above *MUST* be no longer than this value
+	char grub_version[192] = { 0 };
 	size_t i, j;
 	BOOL has_grub_debug_is_enabled = FALSE;
 
@@ -1030,15 +1055,24 @@ void GetGrubVersion(char* buf, size_t buf_size)
 	if (buf_size > max_string_size) {
 		for (i = 0; i < buf_size - max_string_size; i++) {
 			for (j = 0; j < ARRAYSIZE(grub_version_str); j++) {
-				if (memcmp(&buf[i], grub_version_str[j], strlen(grub_version_str[j]) + 1) == 0)
-					static_strcpy(img_report.grub2_version, &buf[i + strlen(grub_version_str[j]) + 1]);
+				if (memcmp(&buf[i], grub_version_str[j], strlen(grub_version_str[j])) == 0) {
+					// For CentOS, who decided to add a '\n' after "GRUB  version %s"
+					if (buf[i + strlen(grub_version_str[j]) + 1] == '\0')
+						i++;
+					static_strcpy(grub_version, &buf[i + strlen(grub_version_str[j]) + 1]);
+				}
 			}
 			if (memcmp(&buf[i], grub_debug_is_enabled_str, strlen(grub_debug_is_enabled_str)) == 0)
 				has_grub_debug_is_enabled = TRUE;
 		}
 	}
 
-	uprintf("  Reported Grub version: %s", img_report.grub2_version);
+	uprintf("  Detected GRUB version: %s (from '%s')", grub_version, source);
+
+	if (img_report.grub2_version[0] != 0)
+		return;
+
+	static_strcpy(img_report.grub2_version, grub_version);
 
 	// <Shakes fist angrily> "KASPERSKYYYYYY!!!..." (https://github.com/pbatard/rufus/issues/467)
 	// But seriously, these guys should know better than "security" through obscurity...
@@ -1080,7 +1114,7 @@ void GetGrubVersion(char* buf, size_t buf_size)
 		// Make sure we append '-nonstandard' and '-gdie' before the sanitized label.
 		BOOL append_label = (safe_strcmp(img_report.grub2_version, "2.06") == 0);
 		// Must be in the same order as we have on the server
-		if (img_report.has_grub2 > 1)
+		if ((img_report.has_grub2 & 0x7f) > 1)
 			safe_strcat(img_report.grub2_version, sizeof(img_report.grub2_version), "-nonstandard");
 		if (has_grub_debug_is_enabled)
 			safe_strcat(img_report.grub2_version, sizeof(img_report.grub2_version), "-gdie");
@@ -1092,13 +1126,61 @@ void GetGrubVersion(char* buf, size_t buf_size)
 	}
 }
 
+void GetGrubFs(char* buf, size_t buf_size)
+{
+	const char* grub_fshelp_str = "fshelp";
+	const size_t max_string_size = 32;
+	size_t i;
+
+	if (buf_size > max_string_size) {
+		for (i = 0; i < buf_size - max_string_size; i++) {
+			if (memcmp(&buf[i], grub_fshelp_str, strlen(grub_fshelp_str) + 1) == 0) {
+				if (buf[i + strlen(grub_fshelp_str) + 1] != 0 && strlen(&buf[i + strlen(grub_fshelp_str) + 1]) < 12) {
+					StrArrayAddUnique(&grub_filesystems, &buf[i + strlen(grub_fshelp_str) + 1], TRUE);
+				}
+			}
+		}
+	}
+}
+
+void GetEfiBootInfo(char* buf, size_t buf_size, const char* source)
+{
+	// Data to help us identify the EFI bootloader type
+	const struct {
+		const char* label;
+		const char* search_string;
+	} boot_info[] = {
+		{ "Shim", "UEFI SHIM\n$Version: "},
+		// NB: There's also an ID=systemd-boot\nVERSION="x.y.z" footer
+		// in the Arch systemd-boot EFI binary, but I'm not sure if we
+		// can count on this metadata footer to always be present...
+		{ "systemd-boot", "#### LoaderInfo: systemd-boot " },
+	};
+	const size_t max_string_size = 64;
+	size_t i, j, k;
+
+	if (buf_size > max_string_size) {
+		for (i = 0; i < buf_size - max_string_size; i++) {
+			for (j = 0; j < ARRAYSIZE(boot_info); j++) {
+				if (memcmp(&buf[i], boot_info[j].search_string, strlen(boot_info[j].search_string)) == 0) {
+					i += strlen(boot_info[j].search_string);
+					for (k = 0; k < 32 && i + k < buf_size - 1 && !isspace(buf[i + k]); k++);
+					buf[i + k] = '\0';
+					uprintf("  Detected %s version: %s (from '%s')", boot_info[j].label, &buf[i], source);
+					return;
+				}
+			}
+		}
+	}
+}
+
 BOOL ExtractISO(const char* src_iso, const char* dest_dir, BOOL scan)
 {
 	const char* basedir[] = { "i386", "amd64", "minint" };
-	const char* tmp_sif = ".\\txtsetup.sif~";
 	int k, r = 1;
-	char *tmp, *buf = NULL, *ext, *spacing = "  ";
+	char *tmp, *ext, *spacing = "  ";
 	char path[MAX_PATH], path2[16];
+	uint8_t* buf = NULL;
 	uint16_t sl_version;
 	size_t i, j, size, sl_index = 0;
 	FILE* fd;
@@ -1126,6 +1208,7 @@ BOOL ExtractISO(const char* src_iso, const char* dest_dir, BOOL scan)
 		// String array of all isolinux/syslinux locations
 		StrArrayCreate(&config_path, 8);
 		StrArrayCreate(&isolinux_path, 8);
+		StrArrayCreate(&grub_filesystems, 8);
 		PrintInfo(0, MSG_202);
 	} else {
 		uprintf("Extracting files...");
@@ -1213,7 +1296,9 @@ try_iso:
 out:
 	iso_blocking_status = -1;
 	if (scan_only) {
+		const char* fs_name[] = { "fat", "exfat", "ntfs" };
 		struct __stat64 stat;
+		char fses[256] = { 0 };
 		// Find if there is a mismatch between the ISO size, as reported by the PVD, and the actual file size
 		if ((iso9660_ifs_read_pvd(p_iso, &pvd)) && (_stat64U(src_iso, &stat) == 0))
 			img_report.mismatch_size = (int64_t)(iso9660_get_pvd_space_size(&pvd)) * ISO_BLOCKSIZE - stat.st_size;
@@ -1253,10 +1338,8 @@ out:
 			uprintf("  Will use '%s' for Syslinux", img_report.cfg_path);
 			// Extract all of the isolinux.bin files we found to identify their versions
 			for (i = 0; i < isolinux_path.Index; i++) {
-				char isolinux_tmp[MAX_PATH];
-				static_sprintf(isolinux_tmp, "%sisolinux.tmp", temp_dir);
-				size = (size_t)ExtractISOFile(src_iso, isolinux_path.String[i], isolinux_tmp, FILE_ATTRIBUTE_NORMAL);
-				if ((size == 0) || (read_file(isolinux_tmp, (uint8_t**)&buf) != size)) {
+				size = (size_t)ReadISOFileToBuffer(src_iso, isolinux_path.String[i], &buf);
+				if (size == 0) {
 					uprintf("  Could not access %s", isolinux_path.String[i]);
 				} else {
 					sl_version = GetSyslinuxVersion(buf, size, &ext);
@@ -1265,7 +1348,7 @@ out:
 						img_report.sl_version = sl_version;
 						sl_index = i;
 					} else if ((img_report.sl_version != sl_version) || (safe_strcmp(img_report.sl_version_ext, ext) != 0)) {
-						uprintf("  Found conflicting isolinux versions:\r\n  '%s' (%d.%02d%s) vs '%s' (%d.%02d%s)",
+						uprintf("  Found conflicting Isolinux versions:\r\n  '%s' (%d.%02d%s) vs '%s' (%d.%02d%s)",
 							isolinux_path.String[sl_index], SL_MAJOR(img_report.sl_version), SL_MINOR(img_report.sl_version),
 							img_report.sl_version_ext, isolinux_path.String[i], SL_MAJOR(sl_version), SL_MINOR(sl_version), ext);
 						// Workaround for Antergos and other ISOs, that have multiple Syslinux versions.
@@ -1279,7 +1362,6 @@ out:
 					}
 					safe_free(buf);
 				}
-				DeleteFileU(isolinux_tmp);
 			}
 			if (img_report.sl_version != 0) {
 				static_sprintf(img_report.sl_version_str, "%d.%02d",
@@ -1306,43 +1388,75 @@ out:
 			// during scan, to see if /minint was provided for OsLoadOptions, as it decides
 			// whether we should use 0x80 or 0x81 as the disk ID in the MBR
 			static_sprintf(path, "/%s/txtsetup.sif",
-				basedir[((img_report.winpe&WINPE_I386) == WINPE_I386)?0:((img_report.winpe&WINPE_AMD64) == WINPE_AMD64?1:2)]);
-			ExtractISOFile(src_iso, path, tmp_sif, FILE_ATTRIBUTE_NORMAL);
-			tmp = get_token_data_file("OsLoadOptions", tmp_sif);
+				basedir[((img_report.winpe & WINPE_I386) == WINPE_I386) ? 0 : ((img_report.winpe & WINPE_AMD64) == WINPE_AMD64 ? 1 : 2)]);
+			size = (size_t)ReadISOFileToBuffer(src_iso, path, &buf);
+			tmp = get_token_data_buffer("OsLoadOptions", 1, buf, size);
 			if (tmp != NULL) {
 				for (i = 0; i < strlen(tmp); i++)
 					tmp[i] = (char)tolower(tmp[i]);
 				uprintf("  Checking txtsetup.sif:\r\n  OsLoadOptions = %s", tmp);
 				img_report.uses_minint = (strstr(tmp, "/minint") != NULL);
+				safe_free(tmp);
 			}
-			DeleteFileU(tmp_sif);
-			safe_free(tmp);
+			safe_free(buf);
 		}
 		if (HAS_WININST(img_report)) {
-			img_report.wininst_version = GetInstallWimVersion(src_iso);
+			static_sprintf(path, "%s|%s", image_path, &img_report.wininst_path[0][2]);
+			img_report.wininst_version = GetWimVersion(path);
 		}
 		if (img_report.has_grub2) {
 			char grub_path[128];
-			static_sprintf(grub_path, "%s/normal.mod", &grub_dirname[img_report.has_grub2 - 1][1]);
+			static_sprintf(grub_path, "/%s/normal.mod", &grub_dirname[img_report.has_grub2 - 1][1]);
 			// In case we have a GRUB2 based iso, we extract boot/grub/i386-pc/normal.mod to parse its version
 			img_report.grub2_version[0] = 0;
-			// coverity[swapped_arguments]
-			if (GetTempFileNameU(temp_dir, APPLICATION_NAME, 0, path) != 0) {
-				size = (size_t)ExtractISOFile(src_iso, grub_path, path, FILE_ATTRIBUTE_NORMAL);
-				if ((size == 0) || (read_file(path, (uint8_t**)&buf) != size))
-					uprintf("  Could not read Grub version from '%s'", grub_path);
-				else
-					GetGrubVersion(buf, size);
-				safe_free(buf);
-				DeleteFileU(path);
-			}
+			size = (size_t)ReadISOFileToBuffer(src_iso, grub_path, &buf);
+			if (size == 0)
+				uprintf("  Could not read Grub version from '%s'", grub_path);
+			else
+				GetGrubVersion(buf, size, grub_path);
+			safe_free(buf);
 			if (img_report.grub2_version[0] == 0) {
 				uprintf("  Could not detect Grub version");
-				img_report.has_grub2 = 0;
+				img_report.has_grub2 &= 0x80;
 			}
 		}
+		for (j = 0; j < ARRAYSIZE(img_report.efi_boot_entry); j++) {
+			if (!img_report.efi_boot_entry[j].path[0])
+				continue;
+			if (img_report.efi_boot_entry[j].type == EBT_GRUB) {
+				size = (size_t)ReadISOFileToBuffer(src_iso, img_report.efi_boot_entry[j].path, &buf);
+				if (size == 0) {
+					uprintf("  Could not read Grub version from '%s'", img_report.efi_boot_entry[j].path);
+				} else {
+					img_report.has_grub2 |= 0x80;
+					GetGrubVersion(buf, size, img_report.efi_boot_entry[j].path);
+					GetGrubFs(buf, size);
+				}
+				safe_free(buf);
+			} else if (img_report.efi_boot_entry[j].type == EBT_MAIN) {
+				size = (size_t)ReadISOFileToBuffer(src_iso, img_report.efi_boot_entry[j].path, &buf);
+				if (size == 0) {
+					uprintf("  Could not parse '%s'", img_report.efi_boot_entry[j].path);
+				} else {
+					GetEfiBootInfo(buf, size, img_report.efi_boot_entry[j].path);
+				}
+				safe_free(buf);
+			}
+		}
+		for (i = 0; i < (int)grub_filesystems.Index; i++) {
+			if (i != 0)
+				static_strcat(fses, ", ");
+			static_strcat(fses, grub_filesystems.String[i]);
+			for (j = 0; j < ARRAYSIZE(fs_name); j++)
+				if (stricmp(grub_filesystems.String[i], fs_name[j]) == 0)
+					img_report.has_grub2_fs |= (1 << j);
+		}
+		if (*fses)
+			uprintf("  Supported GRUB filesystems: %s", fses);
+
 		StrArrayDestroy(&config_path);
 		StrArrayDestroy(&isolinux_path);
+		StrArrayDestroy(&grub_filesystems);
 		SendMessage(hMainDialog, UM_PROGRESS_EXIT, 0, 0);
 	} else {
 		// Solus and other ISOs only provide EFI boot files in a FAT efi.img
@@ -1469,7 +1583,7 @@ int64_t ExtractISOFile(const char* iso, const char* iso_file, const char* dest_f
 	file_handle = CreateFileU(dest_file, GENERIC_READ | GENERIC_WRITE,
 		FILE_SHARE_READ, NULL, CREATE_ALWAYS, attributes, NULL);
 	if (file_handle == INVALID_HANDLE_VALUE) {
-		uprintf("  Could not create file %s: %s", dest_file, WindowsErrorString());
+		uprintf("Could not create file %s: %s", dest_file, WindowsErrorString());
 		goto out;
 	}
 
@@ -1496,9 +1610,9 @@ int64_t ExtractISOFile(const char* iso, const char* iso_file, const char* dest_f
 			uprintf("Error reading UDF file %s", iso_file);
 			goto out;
 		}
-		buf_size = (DWORD)MIN(file_length, read_size);
+		buf_size = (DWORD)MIN(file_length, (int64_t)read_size);
 		if (!WriteFileWithRetry(file_handle, buf, buf_size, &wr_size, WRITE_RETRIES)) {
-			uprintf("  Error writing file %s: %s", dest_file, WindowsErrorString());
+			uprintf("Error writing file %s: %s", dest_file, WindowsErrorString());
 			goto out;
 		}
 		file_length -= buf_size;
@@ -1526,12 +1640,12 @@ try_iso:
 		memset(buf, 0, ISO_BLOCKSIZE);
 		lsn = p_statbuf->lsn + (lsn_t)i;
 		if (iso9660_iso_seek_read(p_iso, buf, lsn, 1) != ISO_BLOCKSIZE) {
-			uprintf("  Error reading ISO9660 file %s at LSN %lu", iso_file, (long unsigned int)lsn);
+			uprintf("Error reading ISO9660 file %s at LSN %lu", iso_file, (long unsigned int)lsn);
 			goto out;
 		}
 		buf_size = (DWORD)MIN(file_length, ISO_BLOCKSIZE);
 		if (!WriteFileWithRetry(file_handle, buf, buf_size, &wr_size, WRITE_RETRIES)) {
-			uprintf("  Error writing file %s: %s", dest_file, WindowsErrorString());
+			uprintf("Error writing file %s: %s", dest_file, WindowsErrorString());
 			goto out;
 		}
 		file_length -= buf_size;
@@ -1642,71 +1756,6 @@ out:
 	if (ret == 0)
 		safe_free(*buf);
 	return ret;
-}
-
-uint32_t GetInstallWimVersion(const char* iso)
-{
-	char *wim_path = NULL, buf[UDF_BLOCKSIZE] = { 0 };
-	uint32_t* wim_header = (uint32_t*)buf, r = 0xffffffff;
-	iso9660_t* p_iso = NULL;
-	udf_t* p_udf = NULL;
-	udf_dirent_t *p_udf_root = NULL, *p_udf_file = NULL;
-	iso9660_stat_t *p_statbuf = NULL;
-
-	wim_path = safe_strdup(&img_report.wininst_path[0][2]);
-	if (wim_path == NULL)
-		goto out;
-	// UDF indiscriminately accepts slash or backslash delimiters,
-	// but ISO-9660 requires slash
-	to_unix_path(wim_path);
-
-	// First try to open as UDF - fallback to ISO if it failed
-	p_udf = udf_open(iso);
-	if (p_udf == NULL)
-		goto try_iso;
-
-	p_udf_root = udf_get_root(p_udf, true, 0);
-	if (p_udf_root == NULL) {
-		uprintf("Could not locate UDF root directory");
-		goto out;
-	}
-	p_udf_file = udf_fopen(p_udf_root, wim_path);
-	if (!p_udf_file) {
-		uprintf("Could not locate file %s in ISO image", wim_path);
-		goto out;
-	}
-	if (udf_read_block(p_udf_file, buf, 1) != UDF_BLOCKSIZE) {
-		uprintf("Error reading UDF file %s", wim_path);
-		goto out;
-	}
-	r = wim_header[3];
-	goto out;
-
-try_iso:
-	p_iso = iso9660_open_ext(iso, ISO_EXTENSION_MASK);
-	if (p_iso == NULL) {
-		uprintf("Could not open image '%s'", iso);
-		goto out;
-	}
-	p_statbuf = iso9660_ifs_stat_translate(p_iso, wim_path);
-	if (p_statbuf == NULL) {
-		uprintf("Could not get ISO-9660 file information for file %s", wim_path);
-		goto out;
-	}
-	if (iso9660_iso_seek_read(p_iso, buf, p_statbuf->lsn, 1) != ISO_BLOCKSIZE) {
-		uprintf("Error reading ISO-9660 file %s at LSN %d", wim_path, p_statbuf->lsn);
-		goto out;
-	}
-	r = wim_header[3];
-
-out:
-	iso9660_stat_free(p_statbuf);
-	udf_dirent_free(p_udf_root);
-	udf_dirent_free(p_udf_file);
-	iso9660_close(p_iso);
-	udf_close(p_udf);
-	safe_free(wim_path);
-	return bswap_uint32(r);
 }
 
 #define ISO_NB_BLOCKS 16
@@ -1957,7 +2006,7 @@ out:
 }
 
 // TODO: If we can't get save to ISO from virtdisk, we might as well drop this
-static DWORD WINAPI IsoSaveImageThread(void* param)
+static DWORD WINAPI OpticalDiscSaveImageThread(void* param)
 {
 	BOOL s;
 	DWORD rSize, wSize;
@@ -2063,7 +2112,7 @@ out:
 	ExitThread(0);
 }
 
-void IsoSaveImage(void)
+void OpticalDiscSaveImage(void)
 {
 	static IMG_SAVE img_save = { 0 };
 	char filename[33] = "disc_image.iso";
@@ -2094,7 +2143,7 @@ void IsoSaveImage(void)
 	// Disable all controls except cancel
 	EnableControls(FALSE, FALSE);
 	InitProgress(TRUE);
-	format_thread = CreateThread(NULL, 0, IsoSaveImageThread, &img_save, 0, NULL);
+	format_thread = CreateThread(NULL, 0, OpticalDiscSaveImageThread, &img_save, 0, NULL);
 	if (format_thread != NULL) {
 		uprintf("\r\nSave to ISO operation started");
 		PrintInfo(0, -1);
@@ -2105,4 +2154,34 @@ void IsoSaveImage(void)
 		safe_free(img_save.ImagePath);
 		PostMessage(hMainDialog, UM_FORMAT_COMPLETED, (WPARAM)FALSE, 0);
 	}
+}
+
+// Create an ISO image from the currently selected drive, using oscdimg.exe
+DWORD WINAPI IsoSaveImageThread(void* param)
+{
+	DWORD r;
+	IMG_SAVE* img_save = (IMG_SAVE*)param;
+	char cmd[2 * MAX_PATH], letters[27], * label;
+
+	if (!GetDriveLabel(SelectedDrive.DeviceNumber, letters, &label, TRUE) || letters[0] == '\0')
+		ExitThread(ERROR_NOT_FOUND);
+	// Save to UDF only, as Microsoft's implementation of ISO-9660 doesn't support multiextent
+	// and produces BROKEN images if you try to add files larger than 4 GB.
+	// Plus ISO-9660/Joliet limits labels to 16 characters and has issues with long paths.
+	static_sprintf(cmd, "%s\\%s\\oscdimg.exe -g -h -k -l\"%s\" -m -u2 -udfver102 %c:\\ %s",
+		app_data_dir, FILES_DIR, label, letters[0], img_save->ImagePath);
+	uprintf("Running command: '%s'", cmd);
+	// For detecting typical oscdimg commandline progress report of type: "\r15.5% complete"
+	r = RunCommandWithProgress(cmd, sysnative_dir, FALSE, MSG_261, ".*\r([0-9\\.]+)% complete.*");
+	if (r != 0 && !IS_ERROR(ErrorStatus)) {
+		SetLastError(r);
+		uprintf("Failed to write ISO image: %s", WindowsErrorString());
+		ErrorStatus = RUFUS_ERROR(SCODE_CODE(r));
+	}
+	PostMessage(hMainDialog, UM_FORMAT_COMPLETED, (WPARAM)TRUE, 0);
+	if (!IS_ERROR(ErrorStatus))
+		uprintf("Saved '%s'", img_save->ImagePath);
+	safe_free(img_save->DevicePath);
+	safe_free(img_save->ImagePath);
+	ExitThread(r);
 }

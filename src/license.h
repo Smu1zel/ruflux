@@ -1,7 +1,7 @@
 /*
  * Rufus: The Reliable USB Formatting Utility
  * Licensing Data
- * Copyright © 2011-2023 Pete Batard <pete@akeo.ie>
+ * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +55,10 @@ const char* additional_copyrights =
 "https://www.gnu.org/software/libcdio\\line\n"
 "GNU General Public License (GPL) v3 or later\\line\n"
 "\\line\n"
+"WIM image manipulation support from wimlib by Carl Thijssen and Eric Biggers:\\line\n"
+"https://wimlib.net\\line\n"
+"GNU General Public License (GPL) v3 or later\\line\n"
+"\\line\n"
 "Syslinux support from Syslinux by H. Peter Anvin et al.:\\line\n"
 "https://syslinux.org/\\line\n"
 "GNU General Public License (GPL) v2 or later\\line\n"
@@ -79,6 +83,10 @@ const char* additional_copyrights =
 "Large FAT32 volume formatting from fat32format by Tom Thornhill:\\line\n"
 "http://www.ridgecrop.demon.co.uk/index.htm?fat32format.htm\\line\n"
 "GNU General Public License (GPL) v2 or later\\line\n"
+"\\line\n"
+"XML parsing support from ezxml by Aaron Voisine:\\line\n"
+"https://ezxml.sourceforge.net/\\line\n"
+"MIT license\\line\n"
 "\\line\n"
 "fmifs.dll usage based on Formatx by Mark Russinovich:\\line\n"
 "https://svn.reactos.org/reactos/trunk/reactos/dll/win32/fmifs\\line\n"
@@ -146,9 +154,12 @@ const char* additional_copyrights =
 "https://tortoisesvn.net/, https://tortoisegit.org/\\line\n"
 "GNU General Public License (GPL) v2 or later\\line\n"
 "\\line\n"
-"Regular Expression handling from tiny-regex-c by kokke:\\line\n"
-"https://github.com/kokke/tiny-regex-c\\line\n"
-"Public Domain\\line\n"
+"Dark Mode support by ozone10\\line\n"
+"https://github.com/ozone10\\line\n"
+"\\line\n"
+"Regular Expression parser from tiny-regex-c by Jim Huang (jserv):\\line\n"
+"https://github.com/jserv/cregex\\line\n"
+"BSD 2-Clause\\line\n"
 "\\line\n"
 "All other references can be found in the source.\\line\n}";
 

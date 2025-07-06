@@ -368,8 +368,7 @@ uninstall-am:
 
 
 .PHONY: all
-# Ideally, we would also have cfgmgr32-delaylib here, but it doesn't actually delay load... :(
-all: dwmapi-delaylib.lib version-delaylib.lib virtdisk-delaylib.lib wininet-delaylib.lib wintrust-delaylib.lib
+all: crypt32-delaylib.lib dwmapi-delaylib.lib setupapi-delaylib.lib uxtheme-delaylib.lib version-delaylib.lib virtdisk-delaylib.lib wininet-delaylib.lib wintrust-delaylib.lib
 
 %.def64: %.def
 	$(AM_V_SED) "s/@.*//" $< >$@
@@ -378,7 +377,7 @@ all: dwmapi-delaylib.lib version-delaylib.lib virtdisk-delaylib.lib wininet-dela
 	$(AM_V_DLLTOOL) --input-def $< --output-delaylib $@ --dllname $(basename $<).dll
 
 clean:
-	$(RM) -rf *.lib
+	$(RM) -f $(CURDIR)/*.lib
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
