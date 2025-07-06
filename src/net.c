@@ -223,19 +223,6 @@ uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char*
 		goto out;
 	}
 
-	// If we are querying the GitHub API, we need to enable raw content
-	if (strstr(url, "api.github.com") != NULL && !HttpAddRequestHeadersA(hRequest,
-		"Accept: application/vnd.github.v3.raw", (DWORD)-1, HTTP_ADDREQ_FLAG_ADD)) {
-		uprintf("Unable to enable raw content from GitHub API: %s", WindowsErrorString());
-		goto out;
-	}
-	// Must use "Accept-Encoding: identity" to get the file size
-	// This is needed for GitHub as the Microsoft HTTP APIs can't seem to read content-length for
-	// compressed content from GitHub, and using "identity" disables compression.
-	HttpSendRequestA(hRequest, "Accept-Encoding: identity", -1L, NULL, 0);
-		goto out;
-	}
-
 	// Get the file size
 	dwSize = sizeof(DownloadStatus);
 	HttpQueryInfoA(hRequest, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, (LPVOID)&DownloadStatus, &dwSize, NULL);
@@ -436,7 +423,6 @@ static __inline uint64_t to_uint64_t(uint16_t x[3]) {
 	for (i = 0; i < 3; i++)
 		ret = (ret << 16) + x[i];
 	}
-}
 
 /*
  * Download an ISO through Fido
@@ -642,9 +628,7 @@ BOOL IsDownloadable(const char* url)
 		((UrlParts.nScheme == INTERNET_SCHEME_HTTPS) ? INTERNET_FLAG_SECURE : 0), (DWORD_PTR)NULL);
 	if (hRequest == NULL)
 	// Must use "Accept-Encoding: identity" to get the file size
-	HttpSendRequestA(hRequest, "Accept-Encoding: identity", -1L, NULL, 0);
-	if (!HttpSendRequestA(hRequest, request_headers[1], -1L, NULL, 0))
-		goto out;
+
 
 	// Get the file size
 	dwSize = sizeof(DownloadStatus);

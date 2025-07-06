@@ -2338,9 +2338,6 @@ int IsBootloaderRevoked(uint8_t* buf, uint32_t len)
 
 	if (!PE256Buffer(buf, len, hash))
 		return -1;
-	// Check for UEFI DBX revocation
-	if (IsRevokedByDbx(hash, buf, len))
-		revoked = 1;
 	// Check for Microsoft SSP revocation
 	for (i = 0; revoked == 0 && i < pe256ssp_size * SHA256_HASHSIZE; i += SHA256_HASHSIZE)
 		if (memcmp(hash, &pe256ssp[i], SHA256_HASHSIZE) == 0)

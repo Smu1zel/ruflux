@@ -58,7 +58,7 @@ static inline BOOL IsAtLeastWin10Build(DWORD buildNumber)
 
 static inline BOOL IsAtLeastWin10(void)
 {
-	return IsAtLeastWin10Build(WIN10_22H2);
+	return IsAtLeastWin10Build(WIN10_1607);
 }
 
 static inline BOOL IsAtLeastWin11(void)

@@ -3323,7 +3323,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// For all other DLLs, use SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32),
 	// though this *STILL* does not prevent the Windows default of looking for DLLs in the
 	// current directories.
-	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+	pfSetDefaultDllDirectories =
+	    (SetDefaultDllDirectories_t)GetProcAddress(LoadLibraryW(L"kernel32.dll"), "SetDefaultDllDirectories");
+	if (pfSetDefaultDllDirectories != NULL)
+		pfSetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
 
 	uprintf("*** " APPLICATION_NAME " init ***\n");
 	its_a_me_mario = GetUserNameA((char*)(uintptr_t)&u, &size) && (u == 7104878);
