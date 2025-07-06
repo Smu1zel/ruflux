@@ -25,7 +25,7 @@
 extern BOOL is_darkmode_enabled;
 
 typedef enum _WindowsBuild {
-	WIN10_1607 = 17763,
+	WIN10_1607 = 14393,
 	WIN11_21H2 = 22000,
 } WindowsBuild;
 
