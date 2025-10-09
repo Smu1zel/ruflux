@@ -3792,12 +3792,19 @@ relaunch:
 	if ((relaunch_rc.left > -65536) && (relaunch_rc.top > -65536))
 		SetWindowPos(hDlg, HWND_TOP, relaunch_rc.left, relaunch_rc.top, 0, 0, SWP_NOSIZE);
 
-	// Enable drag-n-drop through the message filter
-	ChangeWindowMessageFilterEx(hDlg, WM_DROPFILES, MSGFLT_ADD, NULL);
-	ChangeWindowMessageFilterEx(hDlg, WM_COPYDATA, MSGFLT_ADD, NULL);
-	// CopyGlobalData is needed since we are running elevated
-	ChangeWindowMessageFilterEx(hDlg, WM_COPYGLOBALDATA, MSGFLT_ADD, NULL);
-
+	if (WindowsVersion.Version >= WINDOWS_7) {
+		// Enable drag-n-drop through the message filter
+		ChangeWindowMessageFilterEx(hDlg, WM_DROPFILES, MSGFLT_ADD, NULL);
+		ChangeWindowMessageFilterEx(hDlg, WM_COPYDATA, MSGFLT_ADD, NULL);
+		// CopyGlobalData is needed since we are running elevated
+		ChangeWindowMessageFilterEx(hDlg, WM_COPYGLOBALDATA, MSGFLT_ADD, NULL);
+	}
+	else {
+		// Vista can't do all that, so use this deprecated method
+		ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+		ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
+		ChangeWindowMessageFilter(WM_COPYGLOBALDATA, MSGFLT_ADD);
+	}
 	// Set the hook to automatically close Windows' "You need to format the disk in drive..." prompt
 	SetAlertPromptMessages();
 	if (!SetAlertPromptHook())

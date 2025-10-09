@@ -1,6 +1,6 @@
 SUBDIRS = ../.mingw bled ext2fs ms-sys syslinux/libfat syslinux/libinstaller syslinux/win libcdio/iso9660 libcdio/udf libcdio/driver wimlib ../res/loc
 # As far as I can tell, the following libraries are *not* vulnerable to side-loading, so we link using their regular version:
-NONVULNERABLE_LIBS = -lole32 -lgdi32 -lshlwapi -lcomctl32 -luuid -lntdll
+NONVULNERABLE_LIBS = -lole32 -lgdi32 -lshlwapi -lcomctl32 -luuid -lntdll -lpsapi
 # The following libraries are vulnerable (or have an unknown vulnerability status), so we link using our delay-loaded replacement:
 # See https://github.com/pbatard/rufus/issues/2272
 VULNERABLE_LIBS = -lcrypt32-delaylib -ldwmapi-delaylib -lsetupapi-delaylib -luxtheme-delaylib -lversion-delaylib -lvirtdisk-delaylib -lwininet-delaylib -lwintrust-delaylib
