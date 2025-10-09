@@ -37,7 +37,7 @@ const char* additional_copyrights =
 "UI redesign concept by Fahad Al-Riyami\\line\n"
 "Used with kind authorization\\line\n"
 "\\line\n"
-"Ruflux icon by PC Unleashed:\\line\n"
+"Rufus icon by PC Unleashed:\\line\n"
 "Freeware\\line\n"
 "\\line\n"
 "Additional icons courtesy of Axialis Software:\\line\n"
