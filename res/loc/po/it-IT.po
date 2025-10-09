@@ -169,7 +169,7 @@ msgstr "Controlla ora"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
 msgid "Check For Updates - Rufus"
-msgstr "Rufus - Controllo aggiornamenti"
+msgstr "Ruflux - Controllo aggiornamenti"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -402,12 +402,12 @@ msgid "Multiple Partitions"
 msgstr "Partizioni multiple"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - Svuotamento buffer"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - Svuotamento buffer"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Cancellazione"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Cancellazione"
 
 #. • MSG_050
 msgid "Success."
@@ -1081,8 +1081,8 @@ msgid "Click to select..."
 msgstr "Fai clic per selezionare..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - Utility affidabile per la formattazione di unità USB"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - Utility affidabile per la formattazione di unità USB"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * SMART HDD vs Flash detection (using ATA over USB, S.M.A.R.T., etc.)
  * Copyright © 2013-2014 Pete Batard <pete@akeo.ie>
  *

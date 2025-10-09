@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Settings access, through either registry or INI file
  * Copyright © 2015-2024 Pete Batard <pete@akeo.ie>
  *
@@ -33,6 +33,7 @@ extern char* ini_file;
 #define SETTING_ADVANCED_MODE_FORMAT        "ShowAdvancedFormatOptions"
 #define SETTING_COMM_CHECK                  "CommCheck64"
 #define SETTING_DEFAULT_THREAD_PRIORITY     "DefaultThreadPriority"
+#define SETTING_DISABLE_DARK_MODE           "DisableDarkMode"
 #define SETTING_DISABLE_FAKE_DRIVES_CHECK   "DisableFakeDrivesCheck"
 #define SETTING_DISABLE_LGP                 "DisableLGP"
 #define SETTING_DISABLE_RUFUS_MBR           "DisableRufusMBR"
@@ -47,7 +48,10 @@ extern char* ini_file;
 #define SETTING_EXPERT_MODE                 "ExpertMode"
 #define SETTING_FORCE_LARGE_FAT32_FORMAT    "ForceLargeFat32Formatting"
 #define SETTING_IGNORE_BOOT_MARKER          "IgnoreBootMarker"
+#define SETTING_INCLUDE_BETAS               "CheckForBetas"
+#define SETTING_LAST_UPDATE                 "LastUpdateCheck"
 #define SETTING_LOCALE                      "Locale"
+#define SETTING_UPDATE_INTERVAL             "UpdateCheckInterval"
 #define SETTING_USE_EXT_VERSION             "UseExtVersion"
 #define SETTING_USE_PROPER_SIZE_UNITS       "UseProperSizeUnits"
 #define SETTING_USE_UDF_VERSION             "UseUdfVersion"
@@ -55,6 +59,7 @@ extern char* ini_file;
 #define SETTING_PERSISTENT_LOG              "PersistentLog"
 #define SETTING_PREFERRED_SAVE_IMAGE_TYPE   "PreferredSaveImageType"
 #define SETTING_PRESERVE_TIMESTAMPS         "PreserveTimestamps"
+#define SETTING_VERBOSE_UPDATES             "VerboseUpdateCheck"
 #define SETTING_WUE_OPTIONS                 "WindowsUserExperienceOptions"
 
 

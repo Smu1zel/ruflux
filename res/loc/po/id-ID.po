@@ -404,12 +404,12 @@ msgid "Multiple Partitions"
 msgstr "Banyak Partisi"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
+msgid "Ruflux - Flushing buffers"
 msgstr ""
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Pembatalan"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Pembatalan"
 
 #. • MSG_050
 msgid "Success."
@@ -1086,8 +1086,8 @@ msgid "Click to select..."
 msgstr "Klik untuk memilih..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - Utilitas Pemformatan USB yang Handal"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - Utilitas Pemformatan USB yang Handal"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

@@ -1,6 +1,6 @@
 /******************************************************************
     Copyright (C) 2009  Henrik Carlqvist
-    Modified for Rufus/Windows (C) 2011-2019  Pete Batard
+    Modified for Ruflux/Windows (C) 2011-2019  Pete Batard
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ int64_t write_sectors(HANDLE hDrive, uint64_t SectorSize,
    {
       /* Some large drives return 0, even though all the data was written - See github #787 */
       if (large_drive && Size == 0) {
-         uprintf("Warning: Possible short write\n");
+         uprintf("WARNING: Possible short write\n");
          return 0;
       }
       uprintf("write_sectors: Write error\n");

@@ -1,5 +1,5 @@
 /*
- * First 440 bytes of Rufus MBR
+ * First 440 bytes of Ruflux MBR
  * https://github.com/pbatard/rufus/tree/master/res/mbr
  * Copyright © 2012-2014 Pete Batard <pete@akeo.ie>
  */

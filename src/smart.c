@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * SMART HDD vs Flash detection (using ATA over USB, S.M.A.R.T., etc.)
  * Copyright © 2013-2023 Pete Batard <pete@akeo.ie>
  *
@@ -417,7 +417,7 @@ BOOL SmartGetVersion(HANDLE hdevice)
  *
  * What you have below, then, is our *current best guess* at differentiating UFDs
  * from HDDs. But short of a crystal ball, this remains just a guess, which may be
- * way off mark. Still, you are also reminded that Rufus does produce PROMINENT
+ * way off mark. Still, you are also reminded that Ruflux does produce PROMINENT
  * warnings before you format a drive, and also provides extensive info about the
  * drive (from the tooltips and the log) => PAY ATTENTION TO THESE OR PAY THE PRICE!
  *

@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Networking functionality (web file download, check for update, etc.)
  * Copyright © 2012-2025 Pete Batard <pete@akeo.ie>
  *
@@ -31,6 +31,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <assert.h>
+#include <time.h>
 #include <virtdisk.h>
 
 #include "rufus.h"
@@ -39,6 +40,7 @@
 #include "msapi_utf8.h"
 #include "localization.h"
 #include "bled/bled.h"
+#include "dbx/dbx_info.h"
 
 #include "settings.h"
 
@@ -48,14 +50,15 @@
 #define DEFAULT_UPDATE_INTERVAL (24*3600)
 
 DWORD DownloadStatus;
-BYTE* fido_script = NULL;
+BYTE* whitebar_script = NULL;
 HANDLE update_check_thread = NULL;
 
 extern loc_cmd* selected_locale;
 extern HANDLE dialog_handle;
 extern BOOL is_x86_64;
 extern USHORT NativeMachine;
-static DWORD error_code, fido_len = 0;
+static DWORD error_code, whitebar_len = 0;
+static BOOL force_update_check = FALSE;
 extern const char* efi_archname[ARCH_MAX];
 
 #if defined(__MINGW32__)
@@ -161,8 +164,8 @@ out:
  * If hProgressDialog is not NULL, this function will send INIT and EXIT messages
  * to the dialog in question, with WPARAM being set to nonzero for EXIT on success
  * and also attempt to indicate progress using an IDC_PROGRESS control
- * Note that when a buffer is used, the actual size of the buffer is one more than its reported
- * size (with the extra byte set to 0) to accommodate for calls that need a NUL-terminated buffer.
+ * Note that when a buffer is used, the actual size of the buffer is two more than its reported
+ * size (with the extra bytes set to 0) to accommodate for calls that need NUL-terminated data.
  */
 uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char* user_agent,
 	BYTE** buffer, HWND hProgressDialog, BOOL bTaskBarProgress)
@@ -175,8 +178,8 @@ uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char*
 	DWORD dwSize, dwWritten, dwDownloaded;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	HINTERNET hSession = NULL, hConnection = NULL, hRequest = NULL;
-	URL_COMPONENTSA UrlParts = {sizeof(URL_COMPONENTSA), NULL, 1, (INTERNET_SCHEME)0,
-		hostname, sizeof(hostname), 0, NULL, 1, urlpath, sizeof(urlpath), NULL, 1};
+	URL_COMPONENTSA UrlParts = { sizeof(URL_COMPONENTSA), NULL, 1, (INTERNET_SCHEME)0,
+		hostname, sizeof(hostname), 0, NULL, 1, urlpath, sizeof(urlpath), NULL, 1 };
 	uint64_t size = 0, total_size = 0;
 
 	ErrorStatus = 0;
@@ -217,15 +220,26 @@ uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char*
 	hRequest = HttpOpenRequestA(hConnection, "GET", UrlParts.lpszUrlPath, NULL, NULL, accept_types,
 		INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTP | INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS |
 		INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_HYPERLINK |
-		((UrlParts.nScheme==INTERNET_SCHEME_HTTPS)?INTERNET_FLAG_SECURE:0), (DWORD_PTR)NULL);
+		((UrlParts.nScheme == INTERNET_SCHEME_HTTPS) ? INTERNET_FLAG_SECURE : 0), (DWORD_PTR)NULL);
 	if (hRequest == NULL) {
 		uprintf("Could not open URL %s: %s", url, WindowsErrorString());
 		goto out;
 	}
 
+	// If we are querying the GitHub API, we need to enable raw content
+	if (strstr(url, "api.github.com") != NULL && !HttpAddRequestHeadersA(hRequest,
+		"Accept: application/vnd.github.v3.raw", (DWORD)-1, HTTP_ADDREQ_FLAG_ADD)) {
+		uprintf("Unable to enable raw content from GitHub API: %s", WindowsErrorString());
+		goto out;
+	}
+	// Must use "Accept-Encoding: identity" to get the file size
+	// This is needed for GitHub as the Microsoft HTTP APIs can't seem to read content-length for
+	// compressed content from GitHub, and using "identity" disables compression.
+	HttpSendRequestA(hRequest, "Accept-Encoding: identity", -1L, NULL, 0);
+
 	// Get the file size
 	dwSize = sizeof(DownloadStatus);
-	HttpQueryInfoA(hRequest, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, (LPVOID)&DownloadStatus, &dwSize, NULL);
+	HttpQueryInfoA(hRequest, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, (LPVOID)&DownloadStatus, &dwSize, NULL);
 	if (DownloadStatus != 200) {
 		error_code = ERROR_INTERNET_ITEM_NOT_FOUND;
 		SetLastError(RUFUS_ERROR(error_code));
@@ -260,7 +274,7 @@ uint64_t DownloadToFileOrBufferEx(const char* url, const char* file, const char*
 			goto out;
 		}
 		// Allocate one extra byte, so that caller can rely on NUL-terminated text if needed
-		*buffer = calloc((size_t)total_size + 1, 1);
+		*buffer = calloc((size_t)total_size + 2, 1);
 		if (*buffer == NULL) {
 			uprintf("Could not allocate buffer for download");
 			goto out;
@@ -383,8 +397,7 @@ out:
 	if ((bPromptOnError) && (DownloadStatus != 200)) {
 		PrintInfo(0, MSG_242);
 		SetLastError(error_code);
-		MessageBoxExU(hMainDialog, IS_ERROR(ErrorStatus) ? StrError(ErrorStatus, FALSE) : WindowsErrorString(),
-			lmprintf(MSG_044), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+		Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_044), IS_ERROR(ErrorStatus) ? StrError(ErrorStatus, FALSE) : WindowsErrorString());
 	}
 	safe_closehandle(hFile);
 	free(url_sig);
@@ -422,10 +435,348 @@ static __inline uint64_t to_uint64_t(uint16_t x[3]) {
 	uint64_t ret = 0;
 	for (i = 0; i < 3; i++)
 		ret = (ret << 16) + x[i];
+	return ret;
+}
+
+BOOL UseLocalDbx(int arch)
+{
+	char reg_name[32];
+	static_sprintf(reg_name, "DBXTimestamp_%s", efi_archname[arch]);
+	return (uint64_t)ReadSetting64(reg_name) > dbx_info[arch - 1].timestamp;
+}
+
+static void CheckForDBXUpdates(int verbose)
+{
+	int i, r;
+	char reg_name[32], timestamp_url[256], path[MAX_PATH];
+	char *p, *c, *rep, *buf = NULL;
+	struct tm t = { 0 };
+	uint64_t size, timestamp;
+	BOOL already_prompted = FALSE;
+
+	for (i = 0; i < ARRAYSIZE(dbx_info); i++) {
+		// Get the epoch of the last commit
+		timestamp = 0;
+		static_strcpy(timestamp_url, dbx_info[i].url);
+		p = strstr(timestamp_url, "contents/");
+		if (p == NULL)
+			continue;
+		*p = 0;
+		rep = replace_char(&p[9], '/', "%2F");
+		static_strcat(timestamp_url, "commits?path=");
+		static_strcat(timestamp_url, rep);
+		free(rep);
+		static_strcat(timestamp_url, "&page=1&per_page=1");
+		vuprintf("Querying %s for DBX update timestamp", timestamp_url);
+		size = DownloadToFileOrBuffer(timestamp_url, NULL, (BYTE**)&buf, NULL, FALSE);
+		if (size == 0)
+			continue;
+		// Assumes that the GitHub JSON commit dates are of the form:
+		// "date":[ ]*"2025-02-24T20:20:22Z"
+		p = strstr(buf, "\"date\":");
+		if (p == NULL) {
+			safe_free(buf);
+			continue;
+		}
+		c = &p[7];
+		while (*c == ' ' || *c == '"')
+			c++;
+		p = c;
+		while (*c != '"' && *c != '\0')
+			c++;
+		*c = 0;
+		// "Thank you, X3J11 ANSI committee, for introducing the well thought through 'struct tm'", said ABSOLUTELY NOONE ever!
+		r = sscanf(p, "%d-%d-%dT%d:%d:%dZ", &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &t.tm_sec);
+		safe_free(buf);
+		if (r != 6)
+			continue;
+		t.tm_year -= 1900;
+		t.tm_mon -= 1;
+		timestamp = _mkgmtime64(&t);
+		vuprintf("DBX update timestamp is %" PRId64, timestamp);
+		static_sprintf(reg_name, "DBXTimestamp_%s", efi_archname[i + 1]);
+		// Check if we have an external DBX that is newer than embedded/last downloaded
+		if (timestamp <= MAX(dbx_info[i].timestamp, (uint64_t)ReadSetting64(reg_name)))
+			continue;
+		if (!already_prompted) {
+			r = Notification(MB_YESNO | MB_ICONWARNING, lmprintf(MSG_353), lmprintf(MSG_354));
+			already_prompted = TRUE;
+			if (r != IDYES)
+				break;
+			IGNORE_RETVAL(_chdirU(app_data_dir));
+			IGNORE_RETVAL(_mkdir(FILES_DIR));
+			IGNORE_RETVAL(_chdir(FILES_DIR));
+		}
+		static_sprintf(path, "%s\\%s\\dbx_%s.bin", app_data_dir, FILES_DIR, efi_archname[i + 1]);
+		if (DownloadToFileOrBuffer(dbx_info[i].url, path, NULL, NULL, FALSE) != 0) {
+			WriteSetting64(reg_name, timestamp);
+			uprintf("Saved %s as 'dbx_%s.bin'", dbx_info[i].url, efi_archname[i + 1]);
+		} else
+			uprintf("WARNING: Failed to download %s", dbx_info[i].url);
 	}
+}
 
 /*
- * Download an ISO through Fido
+ * Background thread to check for updates (including UEFI DBX updates)
+ */
+static DWORD WINAPI CheckForUpdatesThread(LPVOID param)
+{
+	BOOL releases_only = TRUE, found_new_version = FALSE;
+	int status = 0;
+	const char* server_url = RUFUS_URL "/";
+	int i, j, k, max_channel, verbose = 0, verpos[4];
+	static const char* channel[] = { "release", "beta", "test" };		// release channel
+	const char* accept_types[] = { "*/*\0", NULL };
+	char* buf = NULL;
+	char agent[64], hostname[64], urlpath[128], sigpath[256];
+	DWORD dwSize, dwDownloaded, dwTotalSize, dwStatus;
+	BYTE *sig = NULL;
+	HINTERNET hSession = NULL, hConnection = NULL, hRequest = NULL;
+	URL_COMPONENTSA UrlParts = { sizeof(URL_COMPONENTSA), NULL, 1, (INTERNET_SCHEME)0,
+		hostname, sizeof(hostname), 0, NULL, 1, urlpath, sizeof(urlpath), NULL, 1 };
+	SYSTEMTIME ServerTime, LocalTime;
+	FILETIME FileTime;
+	int64_t local_time = 0, reg_time, server_time, update_interval;
+	verbose = ReadSetting32(SETTING_VERBOSE_UPDATES);
+	// Without this the FileDialog will produce error 0x8001010E when compiled for Vista or later
+	IGNORE_RETVAL(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE));
+	// Unless the update was forced, wait a while before performing the update check
+	if (!force_update_check) {
+		// It would of course be a lot nicer to use a timer and wake the thread, but my
+		// development time is limited and this is FASTER to implement.
+		do {
+			for (i = 0; ( i < 30) && (!force_update_check); i++)
+				Sleep(500);
+		} while ((!force_update_check) && ((op_in_progress || (dialog_showing > 0))));
+		if (!force_update_check) {
+			if ((ReadSetting32(SETTING_UPDATE_INTERVAL) == -1)) {
+				vuprintf("Check for updates disabled, as per settings.");
+				goto out;
+			}
+			reg_time = ReadSetting64(SETTING_LAST_UPDATE);
+			update_interval = (int64_t)ReadSetting32(SETTING_UPDATE_INTERVAL);
+			if (update_interval == 0) {
+				WriteSetting32(SETTING_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL);
+				update_interval = DEFAULT_UPDATE_INTERVAL;
+			}
+			GetSystemTime(&LocalTime);
+			if (!SystemTimeToFileTime(&LocalTime, &FileTime))
+				goto out;
+			local_time = ((((int64_t)FileTime.dwHighDateTime) << 32) + FileTime.dwLowDateTime) / 10000000;
+			vvuprintf("Local time: %" PRId64, local_time);
+			if (local_time < reg_time + update_interval) {
+				vuprintf("Next update check in %" PRId64 " seconds.", reg_time + update_interval - local_time);
+				goto out;
+			}
+		}
+	}
+
+	// Perform the DBX Update check
+	PrintInfoDebug(3000, MSG_352);
+	CheckForDBXUpdates(verbose);
+
+	PrintInfoDebug(3000, MSG_243);
+	status++;	// 1
+
+	if (!InternetCrackUrlA(server_url, (DWORD)safe_strlen(server_url), 0, &UrlParts))
+		goto out;
+	hostname[sizeof(hostname)-1] = 0;
+
+	static_sprintf(agent, APPLICATION_NAME "/%d.%d.%d (Windows NT %lu.%lu%s)",
+		rufus_version[0], rufus_version[1], rufus_version[2],
+		WindowsVersion.Major, WindowsVersion.Minor, is_WOW64() ? "; WOW64" : "");
+	hSession = GetInternetSession(NULL, FALSE);
+	if (hSession == NULL)
+		goto out;
+	hConnection = InternetConnectA(hSession, UrlParts.lpszHostName, UrlParts.nPort,
+		NULL, NULL, INTERNET_SERVICE_HTTP, 0, (DWORD_PTR)NULL);
+	if (hConnection == NULL)
+		goto out;
+
+	status++;	// 2
+	// BETAs are only made available when the application arch is x86_64
+	if (is_x86_64)
+		releases_only = !ReadSettingBool(SETTING_INCLUDE_BETAS);
+
+	// Test releases get their own distribution channel (and also force beta checks)
+#if defined(TEST)
+	max_channel = (int)ARRAYSIZE(channel);
+#else
+	max_channel = releases_only ? 1 : (int)ARRAYSIZE(channel) - 1;
+#endif
+	vuprintf("Using %s for the update check", RUFUS_URL);
+	for (k = 0; (k < max_channel) && (!found_new_version); k++) {
+		// Get the arch name and convert it lowercase
+		char* archname = strdup(GetArchName(WindowsVersion.Arch));
+		safe_strtolower(archname);
+		// Free any previous buffers we might have used
+		safe_free(buf);
+		safe_free(sig);
+		uprintf("Checking %s channel...", channel[k]);
+		// At this stage we can query the server for various update version files.
+		// We first try to lookup for "<appname>_<os_arch>_<os_version_major>_<os_version_minor>.ver"
+		// and then remove each of the <os_> components until we find our match. For instance, we may first
+		// look for rufus_win_x64_6.2.ver (Win8 x64) but only get a match for rufus_win_x64_6.ver (Vista x64 or later)
+		// This allows sunsetting OS versions (eg XP) or providing different downloads for different archs/groups.
+		// Note that for BETAs, we only catter for x64 regardless of the OS arch.
+		static_sprintf(urlpath, "%s%s%s_win_%s_%lu.%lu.ver", APPLICATION_NAME, (k == 0) ? "": "_",
+			(k == 0) ? "" : channel[k], archname, WindowsVersion.Major, WindowsVersion.Minor);
+		safe_free(archname);
+		vuprintf("Base update check: %s", urlpath);
+		for (i = 0, j = (int)safe_strlen(urlpath) - 5; (j > 0) && (i < ARRAYSIZE(verpos)); j--) {
+			if ((urlpath[j] == '.') || (urlpath[j] == '_')) {
+				verpos[i++] = j;
+			}
+		}
+		assert(i == ARRAYSIZE(verpos));
+
+		UrlParts.lpszUrlPath = urlpath;
+		UrlParts.dwUrlPathLength = sizeof(urlpath);
+		for (i = 0; i < ARRAYSIZE(verpos); i++) {
+			vvuprintf("Trying %s", UrlParts.lpszUrlPath);
+			hRequest = HttpOpenRequestA(hConnection, "GET", UrlParts.lpszUrlPath, NULL, NULL, accept_types,
+				INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTP | INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS |
+				INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_HYPERLINK |
+				((UrlParts.nScheme == INTERNET_SCHEME_HTTPS) ? INTERNET_FLAG_SECURE : 0), (DWORD_PTR)NULL);
+			if (hRequest == NULL) {
+				uprintf("Unable to send request: %s", WindowsErrorString());
+				goto out;
+			}
+			// Must use "Accept-Encoding: identity" to get the file size
+			HttpSendRequestA(hRequest, "Accept-Encoding: identity", -1L, NULL, 0);
+
+			// Ensure that we get a text file
+			dwSize = sizeof(dwStatus);
+			dwStatus = 404;
+			HttpQueryInfoA(hRequest, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, (LPVOID)&dwStatus, &dwSize, NULL);
+			if (dwStatus == 200)
+				break;
+			InternetCloseHandle(hRequest);
+			hRequest = NULL;
+			safe_strcpy(&urlpath[verpos[i]], 5, ".ver");
+		}
+		if (dwStatus != 200) {
+			vuprintf("Could not find a %s version file on server %s", channel[k], server_url);
+			if ((releases_only) || (k + 1 >= ARRAYSIZE(channel)))
+				goto out;
+			continue;
+		}
+		vuprintf("Found match for %s on server %s", urlpath, server_url);
+
+		// We also get a date from the web server, which we'll use to avoid out of sync check,
+		// in case some set their clock way into the future and back.
+		// On the other hand, if local clock is set way back in the past, we will never check.
+		dwSize = sizeof(ServerTime);
+		// If we can't get a date we can trust, don't bother...
+		if ( (!HttpQueryInfoA(hRequest, HTTP_QUERY_DATE|HTTP_QUERY_FLAG_SYSTEMTIME, (LPVOID)&ServerTime, &dwSize, NULL))
+			|| (!SystemTimeToFileTime(&ServerTime, &FileTime)) )
+			goto out;
+		server_time = ((((int64_t)FileTime.dwHighDateTime) << 32) + FileTime.dwLowDateTime) / 10000000;
+		vvuprintf("Server time: %" PRId64, server_time);
+		// Always store the server response time - the only clock we trust!
+		WriteSetting64(SETTING_LAST_UPDATE, server_time);
+		// Might as well let the user know
+		if (!force_update_check) {
+			if ((local_time > server_time + 600) || (local_time < server_time - 600)) {
+				uprintf("IMPORTANT: Your local clock is more than 10 minutes in the %s. Unless you fix this, "
+					APPLICATION_NAME " may not be able to check for updates...",
+					(local_time > server_time + 600)?"future":"past");
+			}
+		}
+
+		dwSize = sizeof(dwTotalSize);
+		if (!HttpQueryInfoA(hRequest, HTTP_QUERY_CONTENT_LENGTH|HTTP_QUERY_FLAG_NUMBER, (LPVOID)&dwTotalSize, &dwSize, NULL))
+			goto out;
+
+		// Make sure the file is NUL terminated
+		buf = (char*)calloc(dwTotalSize + 1, 1);
+		if (buf == NULL)
+			goto out;
+		// This is a version file - we should be able to gulp it down in one go
+		if (!InternetReadFile(hRequest, buf, dwTotalSize, &dwDownloaded) || (dwDownloaded != dwTotalSize))
+			goto out;
+		vuprintf("Successfully downloaded version file (%d bytes)", dwTotalSize);
+
+		// Now download the signature file
+		static_sprintf(sigpath, "%s/%s.sig", server_url, urlpath);
+		dwDownloaded = (DWORD)DownloadToFileOrBuffer(sigpath, NULL, &sig, NULL, FALSE);
+		if ((dwDownloaded != RSA_SIGNATURE_SIZE) || (!ValidateOpensslSignature(buf, dwTotalSize, sig, dwDownloaded))) {
+			uprintf("FATAL: Version signature is invalid ✗");
+			goto out;
+		}
+		vuprintf("Version signature is valid ✓");
+
+		status++;
+		parse_update(buf, dwTotalSize + 1);
+
+		vuprintf("UPDATE DATA:");
+		vuprintf("  version: %d.%d.%d (%s)", update.version[0], update.version[1], update.version[2], channel[k]);
+		vuprintf("  platform_min: %d.%d", update.platform_min[0], update.platform_min[1]);
+		vuprintf("  url: %s", update.download_url);
+
+		found_new_version = ((to_uint64_t(update.version) > to_uint64_t(rufus_version)) || (force_update))
+			&& ((WindowsVersion.Major > update.platform_min[0])
+				|| ((WindowsVersion.Major == update.platform_min[0]) && (WindowsVersion.Minor >= update.platform_min[1])));
+		uprintf("N%sew %s version found%c", found_new_version ? "" : "o n", channel[k], found_new_version ? '!' : '.');
+	}
+
+out:
+	safe_free(buf);
+	safe_free(sig);
+	if (hRequest)
+		InternetCloseHandle(hRequest);
+	if (hConnection)
+		InternetCloseHandle(hConnection);
+	if (hSession)
+		InternetCloseHandle(hSession);
+	switch (status) {
+	case 1:
+		PrintInfoDebug(3000, MSG_244);
+		break;
+	case 2:
+		PrintInfoDebug(3000, MSG_245);
+		break;
+	case 3:
+	case 4:
+		PrintInfo(3000, found_new_version ? MSG_246 : MSG_247);
+	default:
+		break;
+	}
+	// Start the new download after cleanup
+	if (found_new_version) {
+		// User may have started an operation while we were checking
+		while ((!force_update_check) && (op_in_progress || (dialog_showing > 0))) {
+			Sleep(15000);
+		}
+		DownloadNewVersion();
+	} else if (force_update_check) {
+		PostMessage(hMainDialog, UM_NO_UPDATE, 0, 0);
+	}
+	force_update_check = FALSE;
+	update_check_thread = NULL;
+	CoUninitialize();
+	ExitThread(0);
+}
+
+/*
+ * Initiate a check for updates. If force is true, ignore the wait period
+ */
+BOOL CheckForUpdates(BOOL force)
+{
+	force_update_check = force;
+	if (update_check_thread != NULL)
+		return FALSE;
+
+	update_check_thread = CreateThread(NULL, 0, CheckForUpdatesThread, NULL, 0, NULL);
+	if (update_check_thread == NULL) {
+		uprintf("Unable to start update check thread");
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/*
+ * Download an ISO through Whitebar
  */
 static DWORD WINAPI DownloadISOThread(LPVOID param)
 {
@@ -444,7 +795,7 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 
 	// Use a GUID as random unique string, else ill-intentioned security "researchers"
 	// may either spam our pipe or replace our script to fool antivirus solutions into
-	// thinking that Rufus is doing something malicious...
+	// thinking that Ruflux is doing something malicious...
 	IGNORE_RETVAL(CoCreateGuid(&guid));
 	// coverity[fixed_size_dest]
 	strcpy(&pipe[9], GuidToString(&guid, TRUE));
@@ -459,29 +810,29 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 	IGNORE_RETVAL(dwCompressedSize);
 	IGNORE_RETVAL(uncompressed_size);
 	// In test mode, just use our local script
-	static_strcpy(script_path, "D:\\Projects\\Fido\\Fido.ps1");
+	static_strcpy(script_path, "D:\\Projects\\Whitebar\\Whitebar.ps1");
 #else
 	// If we don't have the script, download it
-	if (fido_script == NULL) {
-		dwCompressedSize = (DWORD)DownloadToFileOrBuffer(fido_url, NULL, &compressed, hMainDialog, FALSE);
+	if (whitebar_script == NULL) {
+		dwCompressedSize = (DWORD)DownloadToFileOrBuffer(whitebar_url, NULL, &compressed, hMainDialog, FALSE);
 		if (dwCompressedSize == 0)
 			goto out;
 		uncompressed_size = *((uint64_t*)&compressed[5]);
 		if ((uncompressed_size < 1 * MB) && (bled_init(0, uprintf, NULL, NULL, NULL, NULL, &ErrorStatus) >= 0)) {
-			fido_script = malloc((size_t)uncompressed_size);
-			size = bled_uncompress_from_buffer_to_buffer(compressed, dwCompressedSize, fido_script, (size_t)uncompressed_size, BLED_COMPRESSION_LZMA);
+			whitebar_script = malloc((size_t)uncompressed_size);
+			size = bled_uncompress_from_buffer_to_buffer(compressed, dwCompressedSize, whitebar_script, (size_t)uncompressed_size, BLED_COMPRESSION_LZMA);
 			bled_exit();
 		}
 		safe_free(compressed);
 		if (size != uncompressed_size) {
 			uprintf("FATAL: Could not uncompressed download script");
-			safe_free(fido_script);
+			safe_free(whitebar_script);
 			ErrorStatus = RUFUS_ERROR(ERROR_INVALID_DATA);
 			SendMessage(hProgress, PBM_SETSTATE, (WPARAM)PBST_ERROR, 0);
 			SetTaskbarProgressState(TASKBAR_ERROR);
 			goto out;
 		}
-		fido_len = (DWORD)size;
+		whitebar_len = (DWORD)size;
 		SendMessage(hProgress, PBM_SETSTATE, (WPARAM)PBST_NORMAL, 0);
 		SetTaskbarProgressState(TASKBAR_NORMAL);
 		SetTaskbarProgressValue(0, MAX_PROGRESS);
@@ -489,7 +840,7 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 	}
 	PrintInfo(0, MSG_148);
 
-	assert((fido_script != NULL) && (fido_len != 0));
+	assert((whitebar_script != NULL) && (whitebar_len != 0));
 
 	static_sprintf(script_path, "%s%s.ps1", temp_dir, GuidToString(&guid, TRUE));
 	hFile = CreateFileU(script_path, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_READONLY, NULL);
@@ -497,7 +848,7 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 		uprintf("Unable to create download script '%s': %s", script_path, WindowsErrorString());
 		goto out;
 	}
-	if ((!WriteFile(hFile, fido_script, fido_len, &dwSize, NULL)) || (dwSize != fido_len)) {
+	if ((!WriteFile(hFile, whitebar_script, whitebar_len, &dwSize, NULL)) || (dwSize != whitebar_len)) {
 		uprintf("Unable to write download script '%s': %s", script_path, WindowsErrorString());
 		goto out;
 	}
@@ -551,10 +902,10 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 				SendMessage(hMainDialog, UM_PROGRESS_EXIT, 0, 0);
 				if (SCODE_CODE(ErrorStatus) == ERROR_CANCELLED) {
 					uprintf("Download cancelled by user");
-					Notification(MSG_INFO, NULL, NULL, lmprintf(MSG_211), lmprintf(MSG_041));
+					Notification(MB_ICONINFORMATION | MB_CLOSE, lmprintf(MSG_211), lmprintf(MSG_041));
 					PrintInfo(0, MSG_211);
 				} else {
-					Notification(MSG_ERROR, NULL, NULL, lmprintf(MSG_194, GetShortName(url)), lmprintf(MSG_043, WindowsErrorString()));
+					Notification(MB_ICONERROR | MB_CLOSE, lmprintf(MSG_194, GetShortName(url)), lmprintf(MSG_043, WindowsErrorString()));
 					PrintInfo(0, MSG_212);
 				}
 			} else {
@@ -627,8 +978,10 @@ BOOL IsDownloadable(const char* url)
 		INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_HYPERLINK |
 		((UrlParts.nScheme == INTERNET_SCHEME_HTTPS) ? INTERNET_FLAG_SECURE : 0), (DWORD_PTR)NULL);
 	if (hRequest == NULL)
-	// Must use "Accept-Encoding: identity" to get the file size
+		goto out;
 
+	// Must use "Accept-Encoding: identity" to get the file size
+	HttpSendRequestA(hRequest, "Accept-Encoding: identity", -1L, NULL, 0);
 
 	// Get the file size
 	dwSize = sizeof(DownloadStatus);

@@ -1,5 +1,5 @@
 /*
-* Rufus: The Reliable USB Formatting Utility
+* Ruflux: Another USB Formatting Utility
 * Windows I/O redefinitions, that would be totally unnecessary had
 * Microsoft done a proper job with their asynchronous APIs.
 * Copyright © 2021-2024 Pete Batard <pete@akeo.ie>
@@ -168,10 +168,11 @@ static __inline BOOL GetSizeAsync(HANDLE h, LPDWORD lpNumberOfBytes)
 		return FALSE;
 	}
 	fd->Overlapped.bOffsetUpdated = TRUE;
-	// GetOverlappedResultEx isn't supported on Windows 7
+	// Windows 7 doesn't support GetOverlappedResultEx
 	if (!GetOverlappedResult(fd->hFile, (OVERLAPPED*)&fd->Overlapped,
-		lpNumberOfBytes, (fd->iStatus < 0)))
-		return (GetLastError() == ERROR_HANDLE_EOF || GetLastError() == ERROR_SECTOR_NOT_FOUND);
+		lpNumberOfBytes, (fd->iStatus < 0))) {
+		return (GetLastError() == ERROR_HANDLE_EOF);
+}
 	fd->Overlapped.Offset += *lpNumberOfBytes;
 	return TRUE;
 }

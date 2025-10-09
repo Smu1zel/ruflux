@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * UI-related function calls
  * Copyright © 2018-2024 Pete Batard <pete@akeo.ie>
  *
@@ -176,7 +176,7 @@ void GetMainButtonsWidth(HWND hDlg)
 	bw = rc.right - rc.left;
 
 	for (i = 0; i < ARRAYSIZE(main_button_ids); i++) {
-		// Make sure we add extra space for the SELECT split button (i == 0) if Fido is enabled
+		// Make sure we add extra space for the SELECT split button (i == 0) if Whitebar is enabled
 		bw = max(bw, GetTextWidth(hDlg, main_button_ids[i]) + ((i == 0) ? (3 * cbw) / 2 : cbw));
 	}
 	// The 'CLOSE' button is also be used to display 'CANCEL' and we sometimes
@@ -579,7 +579,7 @@ void SetSectionHeaders(HWND hDlg, HFONT* hFont)
 		memset(wtmp, 0, sizeof(wtmp));
 		GetWindowTextW(hCtrl, wtmp, ARRAYSIZE(wtmp) - 4);
 		wlen = wcslen(wtmp);
-		if_not_assert(wlen < ARRAYSIZE(wtmp) - 2)
+		if_assert_fails(wlen < ARRAYSIZE(wtmp) - 2)
 			break;
 		wtmp[wlen++] = L' ';
 		wtmp[wlen++] = L' ';
@@ -1040,8 +1040,8 @@ static INT_PTR CALLBACK ProgressCallback(HWND hCtrl, UINT message, WPARAM wParam
 
 void CreateAdditionalControls(HWND hDlg)
 {
-	int buttons_list[] = { IDC_LANG, IDC_ABOUT, IDC_LOG };
-	int bitmaps_list[] = { 0, 1, 3 };
+	int buttons_list[] = { IDC_LANG, IDC_ABOUT, IDC_SETTINGS, IDC_LOG };
+	int bitmaps_list[] = { 0, 1, 2, 3 };
 	HINSTANCE hDll;
 	HIMAGELIST hToolbarImageList;
 	HICON hIcon, hIconUp, hIconDown;
@@ -1100,6 +1100,7 @@ void CreateAdditionalControls(HWND hDlg)
 	GetWindowRect(GetDlgItem(hDlg, IDC_ADVANCED_DRIVE_PROPERTIES), &rc);
 	MapWindowPoints(NULL, hDlg, (POINT*)&rc, 2);
 	SendMessage(hAdvancedDeviceToolbar, TB_GETIDEALSIZE, (WPARAM)FALSE, (LPARAM)&sz);
+	// TB_GETIDEALSIZE doesn't work on Windows 7.
 	if (sz.cx < 16)
 		sz.cx = fw;
 	SetWindowPos(hAdvancedDeviceToolbar, hTargetSystem, rc.left + toolbar_dx, rc.top, sz.cx, rc.bottom - rc.top, 0);

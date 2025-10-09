@@ -413,12 +413,12 @@ msgid "Multiple Partitions"
 msgstr "درایو بیش از یک پارتیشن دارد"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - در حال تخلیه میان‌گیر (بافر)"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - در حال تخلیه میان‌گیر (بافر)"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - در حال لغو کردن"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - در حال لغو کردن"
 
 #. • MSG_050
 msgid "Success."
@@ -1085,7 +1085,7 @@ msgid "Click to select..."
 msgstr "برای انتخاب کلیک کنید..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
+msgid "Ruflux - The Reliable USB Formatting Utility"
 msgstr "Rufus، ابزاری کاربردی و قابل‌اطمینان برای فرمت کردن درایوهای USB"
 
 #. • MSG_175

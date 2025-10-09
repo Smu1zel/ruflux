@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * PKI functions (code signing, etc.)
  * Copyright © 2015-2024 Pete Batard <pete@akeo.ie>
  *
@@ -455,7 +455,8 @@ int GetIssuerCertificateInfo(uint8_t* cert, cert_info_t* info)
 	// Build a certificate chain to get the issuer (CA) certificate.
 	memset(&chainPara, 0, sizeof(chainPara));
 	chainPara.cbSize = sizeof(CERT_CHAIN_PARA);
-	if (!CertGetCertificateChain(NULL, pCertContext[0], NULL, hStore, &chainPara, 0, NULL, &pChainContext)) {
+	if (!CertGetCertificateChain(NULL, pCertContext[0], NULL, hStore, &chainPara,
+		CERT_CHAIN_CACHE_ONLY_URL_RETRIEVAL | CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, NULL, &pChainContext)) {
 		uprintf("PKI: Failed to build certificate chain. Error code: %s", WinPKIErrorString());
 		goto out;
 	}
@@ -706,7 +707,7 @@ uint64_t GetSignatureTimeStamp(const char* path)
 		uprintf("Note: '%s' has nested timestamp %s", (path==NULL)?mpath:path, TimestampToHumanReadable(nested_timestamp));
 	if ((timestamp != 0ULL) && (nested_timestamp != 0ULL)) {
 		if (_abs64(nested_timestamp - timestamp) > 100) {
-			uprintf("PKI: Signature timestamp and nested timestamp differ by more than a minute. "
+			uprintf("PKI: Signature timestamp (%lld) and nested timestamp (%lld) differ by more than a minute. "
 				"This could indicate something very nasty...", timestamp, nested_timestamp);
 			timestamp = 0ULL;
 		}
@@ -742,7 +743,7 @@ LONG ValidateSignature(HWND hDlg, const char* path)
 	if (signature_name == NULL) {
 		uprintf("PKI: Could not get signature name");
 		if (hDlg != INVALID_HANDLE_VALUE)
-			MessageBoxExU(hDlg, lmprintf(MSG_284), lmprintf(MSG_283), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_283), lmprintf(MSG_284));
 		return TRUST_E_NOSIGNATURE;
 	}
 	for (i = 0; i < ARRAYSIZE(cert_name); i++) {
@@ -751,9 +752,8 @@ LONG ValidateSignature(HWND hDlg, const char* path)
 	}
 	if (i >= ARRAYSIZE(cert_name)) {
 		uprintf("PKI: Signature '%s' is unexpected...", signature_name);
-		if ((hDlg == INVALID_HANDLE_VALUE) || (MessageBoxExU(hDlg,
-			lmprintf(MSG_285, signature_name), lmprintf(MSG_283),
-			MB_YESNO | MB_ICONWARNING | MB_IS_RTL, selected_langid) != IDYES))
+		if ((hDlg == INVALID_HANDLE_VALUE) || (Notification(MB_YESNO | MB_ICONWARNING,
+			lmprintf(MSG_283), lmprintf(MSG_285, signature_name)) != IDYES))
 			return TRUST_E_EXPLICIT_DISTRUST;
 	}
 
@@ -785,7 +785,7 @@ LONG ValidateSignature(HWND hDlg, const char* path)
 	safe_free(trust_file.pcwszFilePath);
 	switch (r) {
 	case ERROR_SUCCESS:
-		// hDlg = INVALID_HANDLE_VALUE is used when validating the Fido PS1 script
+		// hDlg = INVALID_HANDLE_VALUE is used when validating the Whitebar PS1 script
 		if (hDlg == INVALID_HANDLE_VALUE)
 			break;
 		// Verify that the timestamp of the downloaded update is in the future of our current one.
@@ -802,18 +802,18 @@ LONG ValidateSignature(HWND hDlg, const char* path)
 			}
 		}
 		if ((r != ERROR_SUCCESS) && (force_update < 2))
-			MessageBoxExU(hDlg, lmprintf(MSG_300), lmprintf(MSG_299), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_299), lmprintf(MSG_300));
 		break;
 	case TRUST_E_NOSIGNATURE:
 		// Should already have been reported, but since we have a custom message for it...
 		uprintf("PKI: File does not appear to be signed: %s", WinPKIErrorString());
 		if (hDlg != INVALID_HANDLE_VALUE)
-			MessageBoxExU(hDlg, lmprintf(MSG_284), lmprintf(MSG_283), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_283), lmprintf(MSG_284));
 		break;
 	default:
 		uprintf("PKI: Failed to validate signature: %s", WinPKIErrorString());
 		if (hDlg != INVALID_HANDLE_VALUE)
-			MessageBoxExU(hDlg, lmprintf(MSG_240), lmprintf(MSG_283), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_283), lmprintf(MSG_240));
 		break;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Formatting function calls
  * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  *
@@ -116,7 +116,7 @@ static BOOLEAN __stdcall FormatExCallback(FILE_SYSTEM_CALLBACK_COMMAND Command, 
 	if (IS_ERROR(ErrorStatus))
 		return FALSE;
 
-	if_not_assert((actual_fs_type >= 0) && (actual_fs_type < FS_MAX))
+	if_assert_fails((actual_fs_type >= 0) && (actual_fs_type < FS_MAX))
 		return FALSE;
 
 	switch(Command) {
@@ -745,7 +745,7 @@ static BOOL ClearMBRGPT(HANDLE hPhysicalDrive, LONGLONG DiskSize, DWORD SectorSi
 	}
 	liFilePointer.QuadPart = 0ULL;
 	if (!SetFilePointerEx(hPhysicalDrive, liFilePointer, &liFilePointer, FILE_BEGIN) || (liFilePointer.QuadPart != 0ULL))
-		uprintf("Warning: Could not reset disk position");
+		uprintf("WARNING: Could not reset disk position");
 	if (!WriteFileWithRetry(hPhysicalDrive, pZeroBuf, (DWORD)(SectorSize * num_sectors_to_clear), NULL, WRITE_RETRIES))
 		goto out;
 	CHECK_FOR_USER_CANCEL;
@@ -769,9 +769,9 @@ out:
 static BOOL WriteMBR(HANDLE hPhysicalDrive)
 {
 	BOOL r = FALSE;
-	DWORD size;
 	BOOL needs_masquerading = HAS_WINPE(img_report) && (!img_report.uses_minint);
-	unsigned char* buffer = NULL;
+	DWORD size;
+	uint8_t* buffer = NULL;
 	FAKE_FD fake_fd = { 0 };
 	FILE* fp = (FILE*)&fake_fd;
 	const char* using_msg = "Using %s MBR";
@@ -783,7 +783,7 @@ static BOOL WriteMBR(HANDLE hPhysicalDrive)
 		// Add a notice with a protective MBR
 		fake_fd._handle = (char*)hPhysicalDrive;
 		set_bytes_per_sector(SelectedDrive.SectorSize);
-		uprintf(using_msg, "Rufus protective");
+		uprintf(using_msg, "Ruflux protective");
 		r = write_rufus_msg_mbr(fp);
 		goto notify;
 	}
@@ -808,7 +808,7 @@ static BOOL WriteMBR(HANDLE hPhysicalDrive)
 		if (buffer[0x1c2] == 0x0e) {
 			uprintf("Partition is already FAT16 LBA...");
 		} else if ((buffer[0x1c2] != 0x04) && (buffer[0x1c2] != 0x06)) {
-			uprintf("Warning: converting a non FAT16 partition to FAT16 LBA: FS type=0x%02x", buffer[0x1c2]);
+			uprintf("WARNING: converting a non FAT16 partition to FAT16 LBA: FS type=0x%02x", buffer[0x1c2]);
 		}
 		buffer[0x1c2] = 0x0e;
 		break;
@@ -816,7 +816,7 @@ static BOOL WriteMBR(HANDLE hPhysicalDrive)
 		if (buffer[0x1c2] == 0x0c) {
 			uprintf("Partition is already FAT32 LBA...");
 		} else if (buffer[0x1c2] != 0x0b) {
-			uprintf("Warning: converting a non FAT32 partition to FAT32 LBA: FS type=0x%02x", buffer[0x1c2]);
+			uprintf("WARNING: converting a non FAT32 partition to FAT32 LBA: FS type=0x%02x", buffer[0x1c2]);
 		}
 		buffer[0x1c2] = 0x0c;
 		break;
@@ -884,7 +884,7 @@ static BOOL WriteMBR(HANDLE hPhysicalDrive)
 		goto notify;
 	}
 
-	// If everything else failed, fall back to a conventional Windows/Rufus MBR
+	// If everything else failed, fall back to a conventional Windows/Ruflux MBR
 windows_mbr:
 	if (needs_masquerading || use_rufus_mbr) {
 		uprintf(using_msg, APPLICATION_NAME);
@@ -1099,9 +1099,9 @@ static int sector_write(int fd, const void* _buf, unsigned int count)
 
 	if (sec_size == 0)
 		sec_size = 512;
-	if_not_assert(sec_size <= 64 * KB)
+	if_assert_fails(sec_size <= 64 * KB)
 		return -1;
-	if_not_assert(count <= 1 * GB)
+	if_assert_fails(count <= 1 * GB)
 		return -1;
 
 	// If we are on a sector boundary and count is multiple of the
@@ -1111,7 +1111,7 @@ static int sector_write(int fd, const void* _buf, unsigned int count)
 
 	// If we have an existing partial sector, fill and write it
 	if (sec_buf_pos > 0) {
-		if_not_assert(sec_size >= sec_buf_pos)
+		if_assert_fails(sec_size >= sec_buf_pos)
 			return -1;
 		fill_size = min(sec_size - sec_buf_pos, count);
 		memcpy(&sec_buf[sec_buf_pos], buf, fill_size);
@@ -1134,13 +1134,13 @@ static int sector_write(int fd, const void* _buf, unsigned int count)
 		// Detect overflows
 		// coverity[overflow]
 		int v = fill_size + written;
-		if_not_assert(v >= fill_size)
+		if_assert_fails(v >= fill_size)
 			return -1;
 		else
 			return v;
 	}
 	sec_buf_pos = count - fill_size - written;
-	if_not_assert(sec_buf_pos < sec_size)
+	if_assert_fails(sec_buf_pos < sec_size)
 		return -1;
 
 	// Keep leftover bytes, if any, in the sector buffer
@@ -1171,7 +1171,7 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 	// We poked the MBR and other stuff, so we need to rewind
 	li.QuadPart = 0;
 	if (!SetFilePointerEx(hPhysicalDrive, li, NULL, FILE_BEGIN))
-		uprintf("Warning: Unable to rewind image position - wrong data might be copied!");
+		uprintf("WARNING: Unable to rewind image position - wrong data might be copied!");
 	UpdateProgressWithInfoInit(NULL, FALSE);
 
 	if (bZeroDrive) {
@@ -1184,7 +1184,7 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 			uprintf("Could not allocate disk zeroing buffer");
 			goto out;
 		}
-		if_not_assert((uintptr_t)buffer % SelectedDrive.SectorSize == 0)
+		if_assert_fails((uintptr_t)buffer % SelectedDrive.SectorSize == 0)
 			goto out;
 
 		// Clear buffer
@@ -1197,7 +1197,7 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 				uprintf("Could not allocate disk comparison buffer");
 				goto out;
 			}
-			if_not_assert((uintptr_t)cmp_buffer % SelectedDrive.SectorSize == 0)
+			if_assert_fails((uintptr_t)cmp_buffer % SelectedDrive.SectorSize == 0)
 				goto out;
 		}
 
@@ -1295,7 +1295,7 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 			uprintf("Could not allocate disk write buffer");
 			goto out;
 		}
-		if_not_assert((uintptr_t)sec_buf% SelectedDrive.SectorSize == 0)
+		if_assert_fails((uintptr_t)sec_buf% SelectedDrive.SectorSize == 0)
 			goto out;
 		sec_buf_pos = 0;
 		update_progress(0);
@@ -1319,7 +1319,7 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 			goto out;
 		}
 	} else {
-		if_not_assert(img_report.compression_type != IMG_COMPRESSION_FFU)
+		if_assert_fails(img_report.compression_type != IMG_COMPRESSION_FFU)
 			goto out;
 		// VHD/VHDX require mounting the image first
 		if (img_report.compression_type == IMG_COMPRESSION_VHD ||
@@ -1346,7 +1346,7 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 			uprintf("Could not allocate disk write buffer");
 			goto out;
 		}
-		if_not_assert((uintptr_t)buffer% SelectedDrive.SectorSize == 0)
+		if_assert_fails((uintptr_t)buffer% SelectedDrive.SectorSize == 0)
 			goto out;
 
 		// Start the initial read
@@ -1373,7 +1373,7 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 
 			// 2. WriteFile fails unless the size is a multiple of sector size
 			if (read_size[read_bufnum] % SelectedDrive.SectorSize != 0) {
-				if_not_assert(CEILING_ALIGN(read_size[read_bufnum], SelectedDrive.SectorSize) <= buf_size)
+				if_assert_fails(CEILING_ALIGN(read_size[read_bufnum], SelectedDrive.SectorSize) <= buf_size)
 					goto out;
 				read_size[read_bufnum] = CEILING_ALIGN(read_size[read_bufnum], SelectedDrive.SectorSize);
 			}
@@ -1533,7 +1533,7 @@ DWORD WINAPI FormatThread(void* param)
 	safe_unlockclose(hPhysicalDrive);
 	PrintInfo(0, MSG_239, lmprintf(MSG_307));
 	if (!is_vds_available || !DeletePartition(DriveIndex, 0, TRUE)) {
-		uprintf("Warning: Could not delete partition(s): %s", is_vds_available ? WindowsErrorString() : "VDS is not available");
+		uprintf("WARNING: Could not delete partition(s): %s", is_vds_available ? WindowsErrorString() : "VDS is not available");
 		SetLastError(ErrorStatus);
 		ErrorStatus = 0;
 		// If we couldn't delete partitions, Windows give us trouble unless we
@@ -1640,8 +1640,7 @@ DWORD WINAPI FormatThread(void* param)
 				fprintf(log_fd, APPLICATION_NAME " bad blocks check ended on: %04d.%02d.%02d %02d:%02d:%02d",
 				lt.wYear, lt.wMonth, lt.wDay, lt.wHour, lt.wMinute, lt.wSecond);
 				fclose(log_fd);
-				r = MessageBoxExU(hMainDialog, lmprintf(MSG_012, bb_msg, logfile),
-					lmprintf(MSG_010), MB_ABORTRETRYIGNORE | MB_ICONWARNING | MB_IS_RTL, selected_langid);
+				r = Notification(MB_ABORTRETRYIGNORE | MB_ICONWARNING, lmprintf(MSG_010), lmprintf(MSG_012, bb_msg, logfile));
 			} else {
 				// We didn't get any errors => delete the log file
 				fclose(log_fd);
@@ -1669,7 +1668,7 @@ DWORD WINAPI FormatThread(void* param)
 		if (img_report.compression_type == IMG_COMPRESSION_FFU) {
 			char cmd[MAX_PATH + 128], *physical = NULL;
 			// Should have been filtered out beforehand
-			if_not_assert(has_ffu_support)
+			if_assert_fails(has_ffu_support)
 				goto out;
 			safe_unlockclose(hPhysicalDrive);
 			physical = GetPhysicalName(SelectedDrive.DeviceNumber);
@@ -1846,7 +1845,7 @@ DWORD WINAPI FormatThread(void* param)
 	// the name we proposed, and we require an exact label, to patch config files.
 	if ((fs_type < FS_EXT2) && !GetVolumeInformationU(drive_name, img_report.usb_label,
 		ARRAYSIZE(img_report.usb_label), NULL, NULL, NULL, NULL, 0)) {
-		uprintf("Warning: Failed to refresh label: %s", WindowsErrorString());
+		uprintf("WARNING: Failed to refresh label: %s", WindowsErrorString());
 	} else if (IS_EXT(fs_type)) {
 		const char* ext_label = GetExtFsLabel(DriveIndex, 0);
 		if (ext_label != NULL)
@@ -1858,7 +1857,7 @@ DWORD WINAPI FormatThread(void* param)
 			// All good
 		} else if (target_type == TT_UEFI) {
 			// For once, no need to do anything - just check our sanity
-			if_not_assert((boot_type == BT_IMAGE) && IS_EFI_BOOTABLE(img_report) && (fs_type <= FS_NTFS)) {
+			if_assert_fails((boot_type == BT_IMAGE) && IS_EFI_BOOTABLE(img_report) && (fs_type <= FS_NTFS)) {
 				ErrorStatus = RUFUS_ERROR(ERROR_INSTALL_FAILURE);
 				goto out;
 			}
@@ -1933,7 +1932,7 @@ DWORD WINAPI FormatThread(void* param)
 						ErrorStatus = RUFUS_ERROR(APPERR(ERROR_CANT_PATCH));
 				}
 			} else {
-				if_not_assert(!img_report.is_windows_img)
+				if_assert_fails(!img_report.is_windows_img)
 					goto out;
 				if (!ExtractISO(image_path, drive_name, FALSE)) {
 					if (!IS_ERROR(ErrorStatus))
@@ -1945,7 +1944,7 @@ DWORD WINAPI FormatThread(void* param)
 					uprintf("Installing: %s (KolibriOS loader)", kolibri_dst);
 					if (ExtractISOFile(image_path, "HD_Load/USB_Boot/MTLD_F32", kolibri_dst,
 						FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) == 0) {
-						uprintf("Warning: loader installation failed - KolibriOS will not boot!");
+						uprintf("WARNING: Loader installation failed - KolibriOS will not boot!");
 					}
 				}
 				// EFI mode selected, with no 'boot###.efi' but Windows 7 x64's 'bootmgr.efi' (bit #0)
@@ -2005,7 +2004,7 @@ DWORD WINAPI FormatThread(void* param)
 		UpdateProgress(OP_EXTRACT_ZIP, 0.0f);
 		drive_name[2] = 0;
 		if (archive_path != NULL && fs_type < FS_EXT2 && !ExtractZip(archive_path, drive_name) && !IS_ERROR(ErrorStatus))
-			uprintf("Warning: Could not copy additional files");
+			uprintf("WARNING: Could not copy additional files");
 	}
 
 out:

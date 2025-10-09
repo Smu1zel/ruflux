@@ -404,11 +404,11 @@ msgid "Multiple Partitions"
 msgstr "Несколько разделов"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
+msgid "Ruflux - Flushing buffers"
 msgstr "Очистка буферов"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
+msgid "Ruflux - Cancellation"
 msgstr "Отмена"
 
 #. • MSG_050
@@ -1226,8 +1226,8 @@ msgid "Click to select..."
 msgstr "Нажмите для выбора..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - Надёжная утилита для форматирования USB-дисков"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - Надёжная утилита для форматирования USB-дисков"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"
@@ -2150,7 +2150,7 @@ msgid ""
 "Rufus is a utility that helps format and create bootable USB flash drives, "
 "such as USB keys/pendrives, memory sticks, etc."
 msgstr ""
-"Rufus - это утилита для форматирования и создания загрузочных флеш-"
+"Ruflux - это утилита для форматирования и создания загрузочных флеш-"
 "накопителей USB."
 
 #. • MSG_901

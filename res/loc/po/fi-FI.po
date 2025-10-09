@@ -402,12 +402,12 @@ msgid "Multiple Partitions"
 msgstr "Useita osioita"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - Tyhjennetään puskuria"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - Tyhjennetään puskuria"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Peruutus"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Peruutus"
 
 #. • MSG_050
 msgid "Success."
@@ -1076,8 +1076,8 @@ msgid "Click to select..."
 msgstr "Paina valitaksesi..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - Luotettava USB-alustusohjelma"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - Luotettava USB-alustusohjelma"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

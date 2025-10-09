@@ -402,12 +402,12 @@ msgid "Multiple Partitions"
 msgstr "Partiții multiple"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - Curățare buffer"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - Curățare buffer"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Anulare"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Anulare"
 
 #. • MSG_050
 msgid "Success."
@@ -1076,8 +1076,8 @@ msgid "Click to select..."
 msgstr "Dați click pentru a selecta..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - Instrumentul de încredere pentru formatări USB"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - Instrumentul de încredere pentru formatări USB"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

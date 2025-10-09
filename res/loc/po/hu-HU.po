@@ -403,12 +403,12 @@ msgid "Multiple Partitions"
 msgstr "Több partíció"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - Pufferek kiürítése"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - Pufferek kiürítése"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Megszakítás"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Megszakítás"
 
 #. • MSG_050
 msgid "Success."
@@ -1077,8 +1077,8 @@ msgid "Click to select..."
 msgstr "Kattints a kiválasztáshoz..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - A megbízható USB-formázó segédprogram"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - A megbízható USB-formázó segédprogram"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

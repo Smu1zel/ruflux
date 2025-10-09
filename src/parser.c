@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Elementary Unicode compliant find/replace parser
  * Copyright © 2012-2025 Pete Batard <pete@akeo.ie>
  *
@@ -1588,9 +1588,12 @@ sbat_entry_t* GetSbatEntries(char* sbatlevel)
 		return NULL;
 
 	num_entries = 1;
-	for (i = 0; sbatlevel[i] != '\0'; i++)
+	for (i = 0; sbatlevel[i] != '\0'; i++) {
 		if (sbatlevel[i] == '\n')
 			num_entries++;
+		if (sbatlevel[i] == '\r')
+			sbatlevel[i] = '\n';
+	}
 
 	sbat_list = calloc(num_entries + 1, sizeof(sbat_entry_t));
 	if (sbat_list == NULL)
@@ -1643,7 +1646,6 @@ sbat_entry_t* GetSbatEntries(char* sbatlevel)
  * Parse a list of SHA-1 certificate hexascii thumbprints.
  * List must be freed by the caller.
  */
-
 thumbprint_list_t* GetThumbprintEntries(char* thumbprints_txt)
 {
 	uint32_t i, j, num_entries;

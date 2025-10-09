@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Licensing Data
  * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  *
@@ -23,11 +23,12 @@ const char* about_blurb_format =
 "\\fs18%s\\line\n"
 "\\line\n"
 "%s\\line\n"
+RUFUS_URL "\\line\n"
 "\\fs3 \\line\n"
 "\\fs18%s\\line\n"
 "\\line\n"
 "%s\\line\n"
-"https://github.com/Smu1zel/rufus-7/issues\\line\n"
+"https://github.com/pbatard/rufus/issues\\line\n"
 "\\line\n"
 "\\b\\fs19 %s\\b0}";
 
@@ -36,7 +37,7 @@ const char* additional_copyrights =
 "UI redesign concept by Fahad Al-Riyami\\line\n"
 "Used with kind authorization\\line\n"
 "\\line\n"
-"Rufus icon by PC Unleashed:\\line\n"
+"Ruflux icon by PC Unleashed:\\line\n"
 "Freeware\\line\n"
 "\\line\n"
 "Additional icons courtesy of Axialis Software:\\line\n"

@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * GPT Partition Types
  * Copyright © 2020 Pete Batard <pete@akeo.ie>
  *

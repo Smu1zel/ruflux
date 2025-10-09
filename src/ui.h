@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * UI-related function calls
  * Copyright © 2018 Pete Batard <pete@akeo.ie>
  *
@@ -75,7 +75,7 @@ enum update_progress_type {
 #define STALL_START_TIME 5000
 
 // Time between screen refreshes will not be shorter than this.
-// NB: In Rufus' case, "screen" means the text overlaid on the progress bar.
+// NB: In Ruflux' case, "screen" means the text overlaid on the progress bar.
 #define SCREEN_REFRESH_INTERVAL 200
 
 // Don't refresh the ETA too often to avoid jerkiness in predictions.

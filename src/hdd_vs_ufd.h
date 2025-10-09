@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * SMART HDD vs Flash detection - isHDD() tables
  * Copyright © 2013-2023 Pete Batard <pete@akeo.ie>
  *

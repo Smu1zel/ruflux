@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Dark mode UI implementation
  * Copyright © 2025 ozone10
  *
@@ -25,7 +25,9 @@
 extern BOOL is_darkmode_enabled;
 
 typedef enum _WindowsBuild {
-	WIN10_1607 = 14393,
+	WIN10_1809 = 17763, // first build to support dark mode
+	WIN10_1903 = 18362,
+	WIN10_22H2 = 19045,
 	WIN11_21H2 = 22000,
 } WindowsBuild;
 
@@ -139,7 +141,8 @@ static __inline void SetDarkModeForDlg(HWND hWnd)
 
 static __inline void InitAndSetDarkModeForMainDlg(HWND hWnd)
 {
-	if (GetDarkModeFromRegistry()) {
+	is_darkmode_enabled = GetDarkModeFromRegistry();
+	if (is_darkmode_enabled) {
 		InitDarkMode(hWnd);
 		InitAccentColor();
 		SetDarkModeForDlg(hWnd);

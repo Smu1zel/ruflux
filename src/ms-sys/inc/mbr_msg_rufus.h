@@ -1,5 +1,5 @@
 /*
- * Rufus message MBR - Displays an ASCII text message contained in the
+ * Ruflux message MBR - Displays an ASCII text message contained in the
  * 4 KB of sectors starting at LBA 34 (i.e. after the primary GPT if any).
  * See https://github.com/pbatard/rufus/tree/master/res/mbr
  * Copyright © 2019-2022 Pete Batard <pete@akeo.ie>

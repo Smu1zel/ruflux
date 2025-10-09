@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Device detection and enumeration
  * Copyright © 2014-2025 Pete Batard <pete@akeo.ie>
  *
@@ -112,16 +112,21 @@ static BOOL GetUSBProperties(char* parent_path, char* device_id, usb_device_prop
 		conn_info_v2.SupportedUsbProtocols.Usb300 = 1;
 		if (!DeviceIoControl(handle, IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX_V2, &conn_info_v2, size, &conn_info_v2, size, &size, NULL)) {
 			uprintf("Could not get node connection information (V2) for device '%s': %s", device_id, WindowsErrorString());
-		} else if (conn_info_v2.Flags.DeviceIsOperatingAtSuperSpeedPlusOrHigher) {
+		}
+		else if (conn_info_v2.Flags.DeviceIsOperatingAtSuperSpeedPlusOrHigher) {
 			props->speed = USB_SPEED_SUPER_PLUS;
-		} else if (conn_info_v2.Flags.DeviceIsOperatingAtSuperSpeedOrHigher) {
+		}
+		else if (conn_info_v2.Flags.DeviceIsOperatingAtSuperSpeedOrHigher) {
 			props->speed = USB_SPEED_SUPER;
-		} else if (conn_info_v2.Flags.DeviceIsSuperSpeedPlusCapableOrHigher) {
+		}
+		else if (conn_info_v2.Flags.DeviceIsSuperSpeedPlusCapableOrHigher) {
 			props->lower_speed = 2;
-		} else if (conn_info_v2.Flags.DeviceIsSuperSpeedCapableOrHigher) {
+		}
+		else if (conn_info_v2.Flags.DeviceIsSuperSpeedCapableOrHigher) {
 			props->lower_speed = 1;
 		}
 	}
+	
 
 out:
 	safe_closehandle(handle);
@@ -139,7 +144,7 @@ BOOL CyclePort(int index)
 	DWORD size;
 	USB_CYCLE_PORT_PARAMS cycle_port;
 
-	if_not_assert(index < MAX_DRIVES)
+	if_assert_fails(index < MAX_DRIVES)
 		return -1;
 	// Wait at least 10 secs between resets
 	if (GetTickCount64() < LastReset + 10000ULL) {
@@ -193,7 +198,7 @@ int CycleDevice(int index)
 	SP_DEVINFO_DATA dev_info_data;
 	SP_PROPCHANGE_PARAMS propchange_params;
 
-	if_not_assert(index < MAX_DRIVES)
+	if_assert_fails(index < MAX_DRIVES)
 		return ERROR_INVALID_DRIVE;
 	if ((index < 0) || (safe_strlen(rufus_drive[index].id) < 8))
 		return ERROR_INVALID_PARAMETER;
@@ -463,7 +468,7 @@ BOOL GetDevices(DWORD devnum)
 		// Non-USB card reader drivers - This list *MUST* start with "SD" (delimiter)
 		// See http://itdoc.hitachi.co.jp/manuals/3021/30213B5200e/DMDS0094.HTM
 		// Also  http://www.carrona.org/dvrref.php. NB: All members from this list should have
-		// been reported as enumerators by Rufus, when Enum Debug is enabled.
+		// been reported as enumerators by Ruflux, when Enum Debug is enabled.
 		"SD", "PCISTOR", "RTSOR", "JMCR", "JMCF", "RIMMPTSK", "RIMSPTSK", "RISD", "RIXDPTSK",
 		"TI21SONY", "ESD7SK", "ESM7SK", "O2MD", "O2SD", "VIACR", "GLREADER"
 	};
@@ -480,7 +485,7 @@ BOOL GetDevices(DWORD devnum)
 	char letter_name[] = " (?:)";
 	char drive_name[] = "?:\\";
 	char setting_name[32];
-	char uefi_togo_check[] = "?:\\EFI\\Rufus\\ntfs_x64.efi";
+	char uefi_togo_check[] = "?:\\EFI\\Ruflux\\ntfs_x64.efi";
 	char scsi_card_name_copy[16];
 	BOOL r = FALSE, found = FALSE, post_backslash;
 	HDEVINFO dev_info = NULL;
@@ -588,9 +593,9 @@ BOOL GetDevices(DWORD devnum)
 
 	// Better safe than sorry. And yeah, we could have used arrays of
 	// arrays to avoid this, but it's more readable this way.
-	if_not_assert((uasp_start > 0) && (uasp_start < ARRAYSIZE(usbstor_name)))
+	if_assert_fails((uasp_start > 0) && (uasp_start < ARRAYSIZE(usbstor_name)))
 		goto out;
-	if_not_assert((card_start > 0) && (card_start < ARRAYSIZE(genstor_name)))
+	if_assert_fails((card_start > 0) && (card_start < ARRAYSIZE(genstor_name)))
 		goto out;
 
 	devid_list = NULL;
@@ -678,7 +683,7 @@ BOOL GetDevices(DWORD devnum)
 				}
 				// Also test for "_SD&" instead of "_SD_" and so on to allow for devices like
 				// "SCSI\DiskRicoh_Storage_SD&REV_3.0" to be detected.
-				if_not_assert(strlen(scsi_card_name_copy) > 1)
+				if_assert_fails(strlen(scsi_card_name_copy) > 1)
 					continue;
 				scsi_card_name_copy[strlen(scsi_card_name_copy) - 1] = '&';
 				if (safe_strstr(buffer, scsi_card_name_copy) != NULL) {
@@ -771,7 +776,7 @@ BOOL GetDevices(DWORD devnum)
 					uuprintf("  Matched with (GP) ID[%03d]: %s", j, device_id);
 				}
 				if ((uintptr_t)htab_devid.table[j].data > 0) {
-					uuprintf("  Matched with Hub[%d]: '%s'", (uintptr_t)htab_devid.table[j].data,
+					uuprintf("  Matched with Hub[%llu]: '%s'", (uintptr_t)htab_devid.table[j].data,
 							dev_if_path.String[(uintptr_t)htab_devid.table[j].data]);
 					if (GetUSBProperties(dev_if_path.String[(uintptr_t)htab_devid.table[j].data], device_id, &props)) {
 						method_str = "";
@@ -930,7 +935,7 @@ BOOL GetDevices(DWORD devnum)
 				}
 				if ((!enable_HDDs) && (!props.is_VHD) && (!props.is_CARD) &&
 					((score = IsHDD(drive_index, (uint16_t)props.vid, (uint16_t)props.pid, buffer)) > 0)) {
-					uprintf("Device eliminated because it was detected as a Hard Drive (score %d > 0)", score);
+					uprintf("Device eliminated because it was detected as a Hard Drive or SSD (score %d > 0)", score);
 					if (!list_non_usb_removable_drives)
 						uprintf("If this device is not a Hard Drive or SSD, please e-mail the author of this application");
 					uprintf("NOTE: You can enable the listing of Hard Drives under 'advanced drive properties'");
@@ -1010,7 +1015,7 @@ BOOL GetDevices(DWORD devnum)
 				rufus_drive[num_drives].display_name = safe_strdup(display_name);
 				rufus_drive[num_drives].label = safe_strdup(label);
 				rufus_drive[num_drives].size = drive_size;
-				if_not_assert(rufus_drive[num_drives].size != 0)
+				if_assert_fails(rufus_drive[num_drives].size != 0)
 					break;
 				if (hub_path != NULL) {
 					rufus_drive[num_drives].hub = safe_strdup(hub_path);
@@ -1018,7 +1023,7 @@ BOOL GetDevices(DWORD devnum)
 				}
 				num_drives++;
 				if (num_drives >= MAX_DRIVES)
-					uprintf("Warning: Found more than %d drives - ignoring remaining ones...", MAX_DRIVES);
+					uprintf("WARNING: Found more than %d drives - ignoring remaining ones...", MAX_DRIVES);
 				safe_free(devint_detail_data);
 				break;
 			}

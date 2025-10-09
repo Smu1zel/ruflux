@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Extract icon from executable and set autorun.inf
  * Copyright © 2012-2024 Pete Batard <pete@akeo.ie>
  *

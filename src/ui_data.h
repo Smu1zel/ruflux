@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * UI element lists
  * Copyright © 2018-2024 Pete Batard <pete@akeo.ie>
  *

@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Dark mode UI implementation
  * Copyright © 2025 ozone10
  *
@@ -32,6 +32,7 @@
 
 #include "rufus.h"
 #include "ui.h"
+#include "settings.h"
 #include "darkmode.h"
 
 PF_TYPE_DECL(WINAPI, BOOL, AllowDarkModeForWindow, (HWND, BOOL));
@@ -39,7 +40,7 @@ PF_TYPE_DECL(WINAPI, PreferredAppMode, SetPreferredAppMode, (PreferredAppMode));
 PF_TYPE_DECL(WINAPI, VOID, FlushMenuThemes, (VOID));
 PF_TYPE_DECL(WINAPI, BOOL, SetWindowCompositionAttribute, (HWND, WINDOWCOMPOSITIONATTRIBDATA*));
 
-BOOL is_darkmode_enabled = FALSE;
+BOOL is_darkmode_enabled = FALSE, toggle_dark_mode = FALSE;
 
 static COLORREF color_accent = TOOLBAR_ICON_COLOR;
 
@@ -58,7 +59,7 @@ static inline BOOL IsAtLeastWin10Build(DWORD buildNumber)
 
 static inline BOOL IsAtLeastWin10(void)
 {
-	return IsAtLeastWin10Build(WIN10_1607);
+	return IsAtLeastWin10Build(WIN10_1809);
 }
 
 static inline BOOL IsAtLeastWin11(void)
@@ -80,12 +81,23 @@ BOOL GetDarkModeFromRegistry(void)
 {
 	DWORD data = 0, size = sizeof(data);
 
-	is_darkmode_enabled = FALSE;
-	if (RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-		L"AppsUseLightTheme", RRF_RT_REG_DWORD, NULL, &data, &size) == ERROR_SUCCESS)
+	if (!IsAtLeastWin10() || IsHighContrast())
+		return FALSE;
+
+	if (ReadSettingBool(SETTING_DISABLE_DARK_MODE))
+		return FALSE;
+
+	if (toggle_dark_mode) {
+		toggle_dark_mode = FALSE;
+		return !is_darkmode_enabled;
+	}
+
+	if (RegGetValueA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+		"AppsUseLightTheme", RRF_RT_REG_DWORD, NULL, &data, &size) == ERROR_SUCCESS)
 		// Dark mode is 0, light mode is 1
-		is_darkmode_enabled = (data == 0);
-	return is_darkmode_enabled;
+		return (data == 0);
+
+	return FALSE;
 }
 
 void InitDarkMode(HWND hWnd)
@@ -112,10 +124,15 @@ void SetDarkTitleBar(HWND hWnd)
 		DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &is_darkmode_enabled, sizeof(is_darkmode_enabled));
 		return;
 	}
-	if (IsAtLeastWin10()) {
+	if (IsAtLeastWin10Build(WIN10_1903)) {
 		PF_INIT_OR_OUT(SetWindowCompositionAttribute, user32);
 		WINDOWCOMPOSITIONATTRIBDATA data = { WCA_USEDARKMODECOLORS, &is_darkmode_enabled, sizeof(is_darkmode_enabled) };
 		pfSetWindowCompositionAttribute(hWnd, &data);
+		return;
+	}
+	// only for Windows 10 1809 build 17763
+	if (IsAtLeastWin10()) {
+		SetPropW(hWnd, L"UseImmersiveDarkModeColors", (HANDLE)(intptr_t)is_darkmode_enabled);
 		return;
 	}
 
@@ -172,7 +189,7 @@ BOOL InitAccentColor(void)
 	return FALSE;
 }
 
-// Rufus uses monocolour icons, so changing colour is easy
+// Ruflux uses monocolour icons, so changing colour is easy
 BOOL ChangeIconColor(HICON* hIcon, COLORREF new_color)
 {
 	HDC hdcScreen = NULL, hdcBitmap = NULL;

@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -94,9 +94,9 @@ static char uppercase_select[2][64], uppercase_start[64], uppercase_close[64], u
 extern HANDLE update_check_thread;
 extern HIMAGELIST hUpImageList, hDownImageList;
 extern BOOL enable_iso, enable_joliet, enable_rockridge, enable_extra_hashes, is_bootloader_revoked;
-extern BOOL validate_md5sum, cpu_has_sha1_accel, cpu_has_sha256_accel;
-extern BYTE* fido_script;
-extern HWND hFidoDlg;
+extern BOOL validate_md5sum, cpu_has_sha1_accel, cpu_has_sha256_accel, toggle_dark_mode;
+extern BYTE* whitebar_script;
+extern HWND hWhitebarDlg;
 extern uint8_t* grub2_buf;
 extern long grub2_len;
 extern char* szStatusMessage;
@@ -143,7 +143,7 @@ char embedded_sl_version_str[2][12] = { "?.??", "?.??" };
 char embedded_sl_version_ext[2][32];
 char ClusterSizeLabel[MAX_CLUSTER_SIZES][64];
 char msgbox[1024], msgbox_title[32], *ini_file = NULL, *image_path = NULL, *short_image_path;
-char *archive_path = NULL, image_option_txt[128], *fido_url = NULL, *save_image_type = NULL;
+char *archive_path = NULL, image_option_txt[128], *whitebar_url = NULL, *save_image_type = NULL;
 char *sbat_level_txt = NULL, *sb_active_txt = NULL, *sb_revoked_txt = NULL;
 StrArray BlockingProcessList, ImageList;
 // Number of steps for each FS for FCC_STRUCTURE_PROGRESS
@@ -192,8 +192,13 @@ static void SetAllowedFileSystems(void)
 		if ((image_path == NULL) || !HAS_NTFSLESS_GRUB(img_report))
 			allowed_filesystem[FS_NTFS] = TRUE;
 		// Don't allow anything besides NTFS if the image is not compatible
-		if ((image_path != NULL) && !IS_FAT32_COMPAT(img_report))
-			break;
+		if ((image_path != NULL) && !IS_FAT32_COMPAT(img_report)) {
+			// Only disable FAT32 if we have NTFS enabled
+			if (allowed_filesystem[FS_NTFS])
+				break;
+			// Else, print a warning
+			uprintf("WARNING: FAT32 has been forcefully enabled, but this image may not work with FAT32.");
+		}
 		if (!HAS_WINDOWS(img_report) || (target_type != TT_BIOS) || allow_dual_uefi_bios) {
 			if (!HAS_WINTOGO(img_report) || (ComboBox_GetCurItemData(hImageOption) != IMOP_WIN_TO_GO)) {
 				allowed_filesystem[FS_FAT16] = TRUE;
@@ -955,7 +960,7 @@ BOOL CALLBACK LogCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	LONG_PTR style;
 	DWORD log_size;
 	char *log_buffer = NULL, *filepath;
-	EXT_DECL(log_ext, "rufus.log", __VA_GROUP__("*.log"), __VA_GROUP__("Rufus log"));
+	EXT_DECL(log_ext, "rufus.log", __VA_GROUP__("*.log"), __VA_GROUP__("Ruflux log"));
 	switch (message) {
 	case WM_INITDIALOG:
 		SetDarkModeForDlg(hDlg);
@@ -1067,8 +1072,7 @@ static void CALLBACK BlockingTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD
 			// A write or close operation hasn't made any progress since our last check
 			user_notified = TRUE;
 			uprintf("Blocking I/O operation detected\n");
-			MessageBoxExU(hMainDialog, lmprintf(MSG_080), lmprintf(MSG_048),
-				MB_OK|MB_ICONINFORMATION|MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONINFORMATION, lmprintf(MSG_048), lmprintf(MSG_080));
 		} else {
 			last_iso_blocking_status = iso_blocking_status;
 		}
@@ -1096,8 +1100,8 @@ static void DisplayISOProps(void)
 	if (img_report.mismatch_size > 0) {
 		uprintf("  ERROR: Detected that file on disk has been truncated by %s!",
 			SizeToHumanReadable(img_report.mismatch_size, FALSE, FALSE));
-		MessageBoxExU(hMainDialog, lmprintf(MSG_298, SizeToHumanReadable(img_report.mismatch_size, FALSE, FALSE)),
-			lmprintf(MSG_297), MB_ICONWARNING | MB_IS_RTL, selected_langid);
+		Notification(MB_OK | MB_ICONWARNING, lmprintf(MSG_297),
+			lmprintf(MSG_298, SizeToHumanReadable(img_report.mismatch_size, FALSE, FALSE)));
 	} else if (img_report.mismatch_size < 0) {
 		// Not an error (ISOHybrid?), but we report it just in case
 		uprintf("  Note: File on disk is larger than reported ISO size by %s...",
@@ -1149,7 +1153,7 @@ static void DisplayISOProps(void)
 // Insert the image name into the Boot selection dropdown and (re)populate the Image option dropdown
 static void UpdateImage(BOOL update_image_option_only)
 {
-	if_not_assert(image_index != 0)
+	if_assert_fails(image_index != 0)
 		return;
 
 	if (!update_image_option_only) {
@@ -1169,6 +1173,30 @@ static void UpdateImage(BOOL update_image_option_only)
 		IGNORE_RETVAL(ComboBox_SetItemData(hImageOption, ComboBox_AddStringU(hImageOption, lmprintf(MSG_117)), IMOP_WIN_STANDARD));
 	IGNORE_RETVAL(ComboBox_SetItemData(hImageOption, ComboBox_AddStringU(hImageOption, lmprintf(MSG_118)), IMOP_WIN_TO_GO));
 	IGNORE_RETVAL(ComboBox_SetCurSel(hImageOption, imop_win_sel));
+}
+
+enum ArchType MachineToArch(WORD machine)
+{
+	switch (machine) {
+	case IMAGE_FILE_MACHINE_I386:
+		return ARCH_X86_32;
+	case IMAGE_FILE_MACHINE_AMD64:
+		return ARCH_X86_64;
+	case IMAGE_FILE_MACHINE_ARM:
+		return ARCH_ARM_32;
+	case IMAGE_FILE_MACHINE_ARM64:
+		return ARCH_ARM_64;
+	case IMAGE_FILE_MACHINE_IA64:
+		return ARCH_IA_64;
+	case IMAGE_FILE_MACHINE_RISCV64:
+		return ARCH_RISCV_64;
+	case IMAGE_FILE_MACHINE_LOONGARCH64:
+		return ARCH_LOONGARCH_64;
+	case IMAGE_FILE_MACHINE_EBC:
+		return ARCH_EBC;
+	default:
+		return ARCH_UNKNOWN;
+	}
 }
 
 /// <summary>
@@ -1212,36 +1240,14 @@ static uint8_t FindArch(const char* path)
 		goto out;
 	}
 
-	switch (pImageNTHeader->FileHeader.Machine) {
-	case IMAGE_FILE_MACHINE_I386:
-		ret = ARCH_X86_32;
-		break;
-	case IMAGE_FILE_MACHINE_AMD64:
-		ret = ARCH_X86_64;
-		break;
-	case IMAGE_FILE_MACHINE_ARM:
-		ret = ARCH_ARM_32;
-		break;
-	case IMAGE_FILE_MACHINE_ARM64:
-		ret = ARCH_ARM_64;
-		break;
-	case IMAGE_FILE_MACHINE_IA64:
-		ret = ARCH_IA_64;
-		break;
-	case IMAGE_FILE_MACHINE_RISCV64:
-		ret = ARCH_RISCV_64;
-		break;
-	case IMAGE_FILE_MACHINE_EBC:
-		ret = ARCH_EBC;
-		break;
-	}
+	ret = MachineToArch(pImageNTHeader->FileHeader.Machine);
 
 out:
 	if (pImageDOSHeader != NULL)
 		UnmapViewOfFile(pImageDOSHeader);
 	safe_closehandle(hFileMapping);
 	safe_closehandle(hFile);
-	assert(ret < ARCH_MAX);
+	assert(ret != 0 && ret < ARCH_MAX);
 	return ret;
 }
 
@@ -1334,9 +1340,9 @@ DWORD WINAPI ImageScanThread(LPVOID param)
 		(!img_report.is_iso && (img_report.is_bootable_img <= 0) && !img_report.is_windows_img)) {
 		// Failed to scan image
 		if (img_report.is_bootable_img < 0)
-			MessageBoxExU(hMainDialog, lmprintf(MSG_322, image_path), lmprintf(MSG_042), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_042), lmprintf(MSG_322, image_path));
 		else
-			MessageBoxExU(hMainDialog, lmprintf(MSG_082), lmprintf(MSG_081), MB_OK | MB_ICONINFORMATION | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONINFORMATION, lmprintf(MSG_081), lmprintf(MSG_082));
 		// Make sure to relinquish image_path before we call UpdateImage
 		// otherwise the boot selection dropdown won't be properly reset.
 		safe_free(image_path);
@@ -1425,8 +1431,7 @@ DWORD WINAPI ImageScanThread(LPVOID param)
 		// If we have an ISOHybrid, but without an ISO method we support, disable ISO support altogether
 		if (IS_DD_BOOTABLE(img_report) && (img_report.disable_iso ||
 				(!IS_BIOS_BOOTABLE(img_report) && !IS_EFI_BOOTABLE(img_report)))) {
-			MessageBoxExU(hMainDialog, lmprintf(MSG_321), lmprintf(MSG_274, "ISOHybrid"),
-				MB_OK | MB_ICONINFORMATION | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONINFORMATION, lmprintf(MSG_274, "ISOHybrid"), lmprintf(MSG_321));
 			uprintf("Note: DD image mode enforced since this ISOHybrid is not ISO mode compatible.");
 			img_report.is_iso = FALSE;
 		}
@@ -1436,7 +1441,7 @@ DWORD WINAPI ImageScanThread(LPVOID param)
 		// No boot method that we support
 		PrintInfo(0, MSG_081);
 		safe_free(image_path);
-		MessageBoxExU(hMainDialog, lmprintf(MSG_082), lmprintf(MSG_081), MB_OK | MB_ICONINFORMATION | MB_IS_RTL, selected_langid);
+		Notification(MB_OK | MB_ICONINFORMATION, lmprintf(MSG_081), lmprintf(MSG_082));
 		PrintStatus(0, MSG_086);
 		EnableControls(TRUE, FALSE);
 	} else {
@@ -1513,11 +1518,11 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 	}
 
 	if (boot_type == BT_IMAGE) {
-		if_not_assert(image_path != NULL)
+		if_assert_fails(image_path != NULL)
 			goto out;
 		if ((size_check) && (img_report.projected_size > (uint64_t)SelectedDrive.DiskSize)) {
 			// This ISO image is too big for the selected target
-			MessageBoxExU(hMainDialog, lmprintf(MSG_089), lmprintf(MSG_088), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_088), lmprintf(MSG_089));
 			goto out;
 		}
 
@@ -1531,8 +1536,7 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 				msg = lmprintf(MSG_340);
 				break;
 			}
-			r = MessageBoxExU(hMainDialog, lmprintf(MSG_339, msg), lmprintf(MSG_338),
-				MB_OKCANCEL | MB_ICONWARNING | MB_IS_RTL, selected_langid);
+			r = Notification(MB_OKCANCEL | MB_ICONWARNING, lmprintf(MSG_338), lmprintf(MSG_339, msg));
 			if (r == IDCANCEL)
 				goto out;
 		}
@@ -1574,21 +1578,21 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 		if (is_windows_to_go) {
 			if (fs_type != FS_NTFS) {
 				// Windows To Go only works for NTFS
-				MessageBoxExU(hMainDialog, lmprintf(MSG_097, "Windows To Go"), lmprintf(MSG_092), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+				Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_092), lmprintf(MSG_097, "Windows To Go"));
 				goto out;
 			}
 			if (SelectedDrive.MediaType != FixedMedia) {
 				if ((target_type == TT_UEFI) && (partition_type == PARTITION_STYLE_GPT) && (WindowsVersion.BuildNumber < 15000)) {
 					// Up to Windows 10 Creators Update (1703), we were screwed, since we need access to 2 partitions at the same time.
 					// Thankfully, the newer Windows allow mounting multiple partitions on the same REMOVABLE drive.
-					MessageBoxExU(hMainDialog, lmprintf(MSG_198), lmprintf(MSG_190), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+					Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_190), lmprintf(MSG_198));
 					goto out;
 				}
 			}
 			// If multiple versions are available, asks the user to select one before we commit to format the drive
 			switch(SetWinToGoIndex()) {
 			case -1:
-				MessageBoxExU(hMainDialog, lmprintf(MSG_073), lmprintf(MSG_291), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+				Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_291), lmprintf(MSG_073));
 				// fall through
 			case -2:
 				goto out;
@@ -1634,7 +1638,7 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 		} else if (target_type == TT_UEFI) {
 			if (!IS_EFI_BOOTABLE(img_report)) {
 				// Unsupported ISO
-				MessageBoxExU(hMainDialog, lmprintf(MSG_091), lmprintf(MSG_090), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+				Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_090), lmprintf(MSG_091));
 				goto out;
 			}
 		} else if ( ((fs_type == FS_NTFS) && !HAS_WINDOWS(img_report) && !HAS_GRUB(img_report) && 
@@ -1643,16 +1647,16 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 					 (!HAS_REACTOS(img_report)) && !HAS_KOLIBRIOS(img_report) && (!HAS_GRUB(img_report)))
 				 || ((IS_FAT(fs_type)) && (HAS_WINDOWS(img_report) || HAS_WININST(img_report)) && (!allow_dual_uefi_bios)) ) {
 			// Incompatible FS and ISO
-			MessageBoxExU(hMainDialog, lmprintf(MSG_096), lmprintf(MSG_092), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_092), lmprintf(MSG_096));
 			goto out;
 		} else if ((fs_type == FS_FAT16) && HAS_KOLIBRIOS(img_report)) {
 			// KolibriOS doesn't support FAT16
-			MessageBoxExU(hMainDialog, lmprintf(MSG_189), lmprintf(MSG_099), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_099), lmprintf(MSG_189));
 			goto out;
 		}
 		if (IS_FAT(fs_type) && !IS_FAT32_COMPAT(img_report)) {
 			// This ISO image contains a file larger than 4GB file (FAT32)
-			MessageBoxExU(hMainDialog, lmprintf(MSG_100), lmprintf(MSG_099), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_099), lmprintf(MSG_100));
 			goto out;
 		}
 		if ((WindowsVersion.Version >= WINDOWS_8) && IS_WINDOWS_1X(img_report) && (!is_windows_to_go)) {
@@ -1681,11 +1685,11 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 				MAP_BIT(UNATTEND_NO_DATA_COLLECTION);
 				StrArrayAdd(&options, lmprintf(MSG_335), TRUE);
 				MAP_BIT(UNATTEND_DISABLE_BITLOCKER);
+				if (img_report.win_version.build >= 26200) {
+					StrArrayAdd(&options, lmprintf(MSG_350), TRUE);
+					MAP_BIT(UNATTEND_USE_MS2023_BOOTLOADERS);
+				}
 				if (expert_mode) {
-					if (!appstore_version && img_report.win_version.build >= 26100) {
-						StrArrayAdd(&options, lmprintf(MSG_350), TRUE);
-						MAP_BIT(UNATTEND_USE_MS2023_BOOTLOADERS);
-					}
 					StrArrayAdd(&options, lmprintf(MSG_346), TRUE);
 					MAP_BIT(UNATTEND_FORCE_S_MODE);
 				}
@@ -1745,8 +1749,8 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 				}
 				fclose(fd);
 			} else {
-				r = MessageBoxExU(hMainDialog, lmprintf(MSG_116, img_report.grub2_version, GRUB2_PACKAGE_VERSION),
-					lmprintf(MSG_115), MB_YESNOCANCEL | MB_ICONWARNING | MB_IS_RTL, selected_langid);
+				r = Notification(MB_YESNOCANCEL | MB_ICONWARNING, lmprintf(MSG_115),
+					lmprintf(MSG_116, img_report.grub2_version, GRUB2_PACKAGE_VERSION));
 				if (r == IDCANCEL)
 					goto out;
 				else if (r == IDYES) {
@@ -1802,8 +1806,8 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 							use_own_c32[i] = TRUE;
 						} else {
 							PrintInfo(0, MSG_204, old_c32_name[i]);
-							if (MessageBoxExU(hMainDialog, lmprintf(MSG_084, old_c32_name[i], old_c32_name[i]),
-									lmprintf(MSG_083, old_c32_name[i]), MB_YESNO | MB_ICONWARNING | MB_IS_RTL, selected_langid) == IDYES) {
+							if (Notification(MB_YESNO | MB_ICONWARNING, lmprintf(MSG_083, old_c32_name[i]),
+								lmprintf(MSG_084, old_c32_name[i], old_c32_name[i])) == IDYES) {
 								static_sprintf(tmp, "%s-%s", syslinux, embedded_sl_version_str[0]);
 								IGNORE_RETVAL(_mkdir(tmp));
 								static_sprintf(tmp, "%s/%s-%s/%s", FILES_URL, syslinux, embedded_sl_version_str[0], old_c32_name[i]);
@@ -1841,9 +1845,9 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 						ldlinux, ldlinux_ext[0], ldlinux, ldlinux_ext[1], app_data_dir, FILES_DIR, syslinux,
 						img_report.sl_version_str, img_report.sl_version_ext);
 				} else {
-					r = MessageBoxExU(hMainDialog, lmprintf(MSG_114, img_report.sl_version_str, img_report.sl_version_ext,
-						embedded_sl_version_str[1], embedded_sl_version_ext[1]),
-						lmprintf(MSG_115), MB_YESNO | MB_ICONWARNING | MB_IS_RTL, selected_langid);
+					r = Notification(MB_YESNO | MB_ICONWARNING, lmprintf(MSG_115),
+						lmprintf(MSG_114, img_report.sl_version_str, img_report.sl_version_ext,
+							embedded_sl_version_str[1], embedded_sl_version_ext[1]));
 					if (r != IDYES)
 						goto out;
 					for (i = 0; i < 2; i++) {
@@ -1901,8 +1905,8 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 			static_sprintf(tmp, "%s.%s", ldlinux, ldlinux_ext[2]);
 			PrintInfo(0, MSG_206, tmp);
 			// MSG_104: "Syslinux v5.0 or later requires a '%s' file to be installed"
-			r = MessageBoxExU(hMainDialog, lmprintf(MSG_104, "Syslinux v5.0", tmp, "Syslinux v5+", tmp),
-				lmprintf(MSG_103, tmp), MB_YESNOCANCEL | MB_ICONWARNING | MB_IS_RTL, selected_langid);
+			r = Notification(MB_YESNOCANCEL | MB_ICONWARNING, lmprintf(MSG_103, tmp),
+				lmprintf(MSG_104, "Syslinux v5.0", tmp, "Syslinux v5+", tmp));
 			if (r == IDCANCEL)
 				goto out;
 			if (r == IDYES) {
@@ -1918,15 +1922,14 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 	} else if (boot_type == BT_MSDOS) {
 		if ((size_check) && (ComboBox_GetCurItemData(hClusterSize) >= 65536)) {
 			// MS-DOS cannot boot from a drive using a 64 kilobytes Cluster size
-			MessageBoxExU(hMainDialog, lmprintf(MSG_110), lmprintf(MSG_111), MB_OK | MB_ICONERROR | MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_111), lmprintf(MSG_110));
 			goto out;
 		}
 		static_sprintf(tmp, "%s\\%s\\diskcopy.dll", app_data_dir, FILES_DIR);
 		if (_accessU(tmp, 0) != -1) {
 			uprintf("Will reuse '%s' for MS-DOS installation", tmp);
 		} else {
-			if (MessageBoxExU(hMainDialog, lmprintf(MSG_337, "diskcopy.dll"), lmprintf(MSG_115),
-				MB_YESNO | MB_ICONWARNING | MB_IS_RTL, selected_langid) != IDYES)
+			if (Notification(MB_YESNO | MB_ICONWARNING, lmprintf(MSG_115), lmprintf(MSG_337, "diskcopy.dll")) != IDYES)
 				goto out;
 			IGNORE_RETVAL(_chdirU(app_data_dir));
 			IGNORE_RETVAL(_mkdir(FILES_DIR));
@@ -1949,8 +1952,8 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 		} else {
 			static_sprintf(tmp, "grldr");
 			PrintInfo(0, MSG_206, tmp);
-			r = MessageBoxExU(hMainDialog, lmprintf(MSG_104, "Grub4DOS 0.4", tmp, "Grub4DOS", tmp),
-				lmprintf(MSG_103, tmp), MB_YESNOCANCEL | MB_ICONWARNING | MB_IS_RTL, selected_langid);
+			r = Notification(MB_YESNOCANCEL | MB_ICONWARNING, lmprintf(MSG_103, tmp),
+				lmprintf(MSG_104, "Grub4DOS 0.4", tmp, "Grub4DOS", tmp));
 			if (r == IDCANCEL)
 				goto out;
 			if (r == IDYES) {
@@ -1969,7 +1972,7 @@ uefi_target:
 	if (boot_type == BT_UEFI_NTFS) {
 		fs_type = (int)ComboBox_GetCurItemData(hFileSystem);
 		if (fs_type != FS_NTFS && fs_type != FS_EXFAT) {
-			MessageBoxExU(hMainDialog, lmprintf(MSG_097, "UEFI:NTFS"), lmprintf(MSG_092), MB_OK|MB_ICONERROR|MB_IS_RTL, selected_langid);
+			Notification(MB_OK | MB_ICONERROR, lmprintf(MSG_092), lmprintf(MSG_097, "UEFI:NTFS"));
 			goto out;
 		}
 	}
@@ -2110,7 +2113,7 @@ static void InitDialog(HWND hDlg)
 		len = 0;
 		buf = (char*)GetResource(hMainInstance, resource[i], _RT_RCDATA, "ldlinux_sys", &len, TRUE);
 		if (buf == NULL) {
-			uprintf("Warning: could not read embedded Syslinux v%d version", i + 4);
+			uprintf("WARNING: could not read embedded Syslinux v%d version", i + 4);
 		} else {
 			embedded_sl_version[i] = GetSyslinuxVersion(buf, len, &ext);
 			static_sprintf(embedded_sl_version_str[i], "%d.%02d", SL_MAJOR(embedded_sl_version[i]), SL_MINOR(embedded_sl_version[i]));
@@ -2129,7 +2132,6 @@ static void InitDialog(HWND hDlg)
 			"one. Because of this, some messages will only be displayed in English.", selected_locale->txt[1]);
 		uprintf("If you think you can help update this translation, please e-mail the author of this application");
 	}
-	PrintRevokedBootloaderInfo();
 	// Detect and report system limitations
 	if (ReadRegistryKeyBool(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Policies\\Microsoft\\FVE"))
 		uprintf("WARNING: This system has a policy set to prevent write access to FIXED drives not using BitLocker");
@@ -2282,8 +2284,8 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		case IDCANCEL:
 			EnableWindow(GetDlgItem(hDlg, IDCANCEL), FALSE);
 			if (format_thread != NULL) {
-				if ((no_confirmation_on_cancel) || (MessageBoxExU(hMainDialog, lmprintf(MSG_105), lmprintf(MSG_049),
-					MB_YESNO|MB_ICONWARNING|MB_IS_RTL, selected_langid) == IDYES)) {
+				if ((no_confirmation_on_cancel) || (Notification(MB_YESNO | MB_ICONWARNING,
+					lmprintf(MSG_049), lmprintf(MSG_105)) == IDYES)) {
 					// Operation may have completed in the meantime
 					if (format_thread != NULL) {
 						ErrorStatus = RUFUS_ERROR(ERROR_CANCELLED);
@@ -2308,7 +2310,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 				return (INT_PTR)TRUE;
 			}
 
-			// Save or append the current log to %LocalAppData%\Rufus\rufus.log
+			// Save or append the current log to %LocalAppData%\Ruflux\ruflux.log
 			log_size = GetWindowTextLengthU(hLog);
 			if ((!user_deleted_rufus_dir) && (log_size > 0) && ((log_buffer = (char*)malloc(log_size + 2)) != NULL)) {
 				log_size = GetDlgItemTextU(hLogDialog, IDC_LOG_EDIT, log_buffer, log_size);
@@ -2321,7 +2323,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 					IGNORE_RETVAL(_chdirU(app_data_dir));
 					IGNORE_RETVAL(_mkdir(FILES_DIR));
 					IGNORE_RETVAL(_chdir(FILES_DIR));
-					FileIO(persistent_log ? FILE_IO_APPEND : FILE_IO_WRITE, "rufus.log", &log_buffer, &log_size);
+					FileIO(persistent_log ? FILE_IO_APPEND : FILE_IO_WRITE, "ruflux.log", &log_buffer, &log_size);
 				}
 				safe_free(log_buffer);
 			}
@@ -2652,6 +2654,9 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 			rc.left += cbw / 2;
 			ShowLanguageMenu(rc);
 			break;
+		case IDC_SETTINGS:
+			MyDialogBox(hMainInstance, IDD_UPDATE_POLICY, hDlg, UpdateCallback);
+			break;
 		case IDC_HASH:
 			// TODO: Move this as a fn call in hash.c?
 			if ((format_thread == NULL) && (image_path != NULL)) {
@@ -2779,7 +2784,11 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		fScale = GetDeviceCaps(hDC, LOGPIXELSX) / 96.0f;
 		safe_release_dc(hDlg, hDC);
 		apply_localization(IDD_DIALOG, hDlg);
-	    SetFidoCheck();
+		// The AppStore version always enables Whitebar
+		if (appstore_version)
+			SetWhitebarCheck();
+		else
+			SetUpdateCheck();
 		first_log_display = TRUE;
 		log_displayed = FALSE;
 		hLogDialog = MyCreateDialog(hMainInstance, IDD_LOG, hDlg, (DLGPROC)LogCallback);
@@ -2787,6 +2796,9 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		GetDevices(0);
 		EnableControls(TRUE, FALSE);
 		UpdateImage(FALSE);
+		// The AppStore version does not need the internal check for updates
+		if (!appstore_version)
+			CheckForUpdates(FALSE);
 		// Register MEDIA_INSERTED/MEDIA_REMOVED notifications for card readers
 		if (SUCCEEDED(SHGetSpecialFolderLocation(0, CSIDL_DESKTOP, &pidlDesktop))) {
 			NotifyEntry.pidl = pidlDesktop;
@@ -2807,11 +2819,11 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 #if defined(ALPHA)
 		// Add a VERY ANNOYING popup for Alpha releases, so that people don't start redistributing them
 		MessageBoxA(NULL, "This is an Alpha version of " APPLICATION_NAME " - It is meant to be used for "
-			"testing ONLY and should NOT be distributed as a release.", "ALPHA VERSION", MSG_INFO);
+			"testing ONLY and should NOT be distributed as a release.", "ALPHA VERSION", MB_ICONINFORMATION);
 #elif defined(TEST)
 		// Same thing for Test releases
 		MessageBoxA(NULL, "This is a Test version of " APPLICATION_NAME " - It is meant to be used for "
-			"testing ONLY and should NOT be distributed as a release.", "TEST VERSION", MSG_INFO);
+			"testing ONLY and should NOT be distributed as a release.", "TEST VERSION", MB_ICONINFORMATION);
 #endif
 		SetDarkModeForChild(hDlg);
 		SubclassStatusBar(hStatus);
@@ -2883,6 +2895,10 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 			switch (lpttt->hdr.idFrom) {
 			case IDC_ABOUT:
 				utf8_to_wchar_no_alloc(lmprintf(MSG_302), wtooltip, ARRAYSIZE(wtooltip));
+				lpttt->lpszText = wtooltip;
+				break;
+			case IDC_SETTINGS:
+				utf8_to_wchar_no_alloc(lmprintf(MSG_301), wtooltip, ARRAYSIZE(wtooltip));
 				lpttt->lpszText = wtooltip;
 				break;
 			case IDC_LANG:
@@ -3001,6 +3017,12 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		SetTaskbarProgressState(tb_flags);
 		break;
 
+	case UM_NO_UPDATE:
+		Notification(MB_ICONINFORMATION | MB_CLOSE, lmprintf(MSG_243), lmprintf(MSG_247));
+		// Need to manually set focus back to "Check Now" for tabbing to work
+		SendMessage(hUpdatesDlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hUpdatesDlg, IDC_CHECK_NOW), TRUE);
+		break;
+
 	case UM_FORMAT_START:
 		if (wParam != BOOTCHECK_PROCEED)
 			goto aborted_start;
@@ -3009,8 +3031,8 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		save_image = FALSE;
 
 		if ((partition_type == PARTITION_STYLE_MBR) && (SelectedDrive.DiskSize > 2 * TB)) {
-			if (MessageBoxExU(hMainDialog, lmprintf(MSG_134, SizeToHumanReadable(SelectedDrive.DiskSize - 2 * TB, FALSE, FALSE)),
-				lmprintf(MSG_128, "MBR"), MB_YESNO | MB_ICONWARNING | MB_IS_RTL, selected_langid) != IDYES)
+			if (Notification(MB_YESNO | MB_ICONWARNING, lmprintf(MSG_128, "MBR"),
+				lmprintf(MSG_134, SizeToHumanReadable(SelectedDrive.DiskSize - 2 * TB, FALSE, FALSE))) != IDYES)
 				goto aborted_start;
 		}
 
@@ -3020,8 +3042,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 			if (dur_secs > UDF_FORMAT_WARN) {
 				dur_mins = dur_secs / 60;
 				dur_secs -= dur_mins * 60;
-				MessageBoxExU(hMainDialog, lmprintf(MSG_112, dur_mins, dur_secs), lmprintf(MSG_113),
-					MB_OK | MB_ICONASTERISK | MB_IS_RTL, selected_langid);
+				Notification(MB_OK | MB_ICONINFORMATION, lmprintf(MSG_113), lmprintf(MSG_112, dur_mins, dur_secs));
 			} else {
 				dur_secs = 0;
 				dur_mins = 0;
@@ -3035,21 +3056,18 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		if (GetProcessSearch(SEARCH_PROCESS_TIMEOUT, 0x06, TRUE)) {
 			char title[128];
 			ComboBox_GetTextU(hDeviceList, title, sizeof(title));
-			if (!Notification(MSG_WARNING_QUESTION, NULL, NULL, title, lmprintf(MSG_132)))
+			if (Notification(MB_ICONWARNING | MB_YESNO, title, lmprintf(MSG_132)) != IDYES)
 				goto aborted_start;
 		}
 		PrintStatus(0, MSG_142);
 
 		GetWindowTextU(hDeviceList, tmp, ARRAYSIZE(tmp));
-		if (MessageBoxExU(hMainDialog, lmprintf(MSG_003, tmp),
-			APPLICATION_NAME, MB_OKCANCEL | MB_ICONWARNING | MB_IS_RTL, selected_langid) == IDCANCEL)
+		if (Notification(MB_OKCANCEL | MB_ICONWARNING, APPLICATION_NAME, lmprintf(MSG_003, tmp)) != IDOK)
 			goto aborted_start;
-		if ((SelectedDrive.nPartitions > 1) && (MessageBoxExU(hMainDialog, lmprintf(MSG_093),
-			lmprintf(MSG_094), MB_OKCANCEL | MB_ICONWARNING | MB_IS_RTL, selected_langid) == IDCANCEL))
+		if ((SelectedDrive.nPartitions > 1) && (Notification(MB_OKCANCEL | MB_ICONWARNING, lmprintf(MSG_094), lmprintf(MSG_093)) != IDOK))
 			goto aborted_start;
 		if ((!zero_drive) && (boot_type != BT_NON_BOOTABLE) && (SelectedDrive.SectorSize != 512) &&
-			(MessageBoxExU(hMainDialog, lmprintf(MSG_196, SelectedDrive.SectorSize),
-				lmprintf(MSG_197), MB_OKCANCEL | MB_ICONWARNING | MB_IS_RTL, selected_langid) == IDCANCEL))
+			(Notification(MB_OKCANCEL | MB_ICONWARNING, lmprintf(MSG_197), lmprintf(MSG_196, SelectedDrive.SectorSize)) != IDOK))
 			goto aborted_start;
 
 		nDeviceIndex = ComboBox_GetCurSel(hDeviceList);
@@ -3116,7 +3134,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 			SendMessage(hProgress, PBM_SETSTATE, (WPARAM)PBST_PAUSED, 0);
 			SetTaskbarProgressState(TASKBAR_PAUSED);
 			PrintInfo(0, MSG_211);
-			Notification(MSG_INFO, NULL, NULL, lmprintf(MSG_211), lmprintf(MSG_041));
+			Notification(MB_ICONINFORMATION | MB_CLOSE, lmprintf(MSG_211), lmprintf(MSG_041));
 		} else {
 			SendMessage(hProgress, PBM_SETSTATE, (WPARAM)PBST_ERROR, 0);
 			SetTaskbarProgressState(TASKBAR_ERROR);
@@ -3150,7 +3168,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 							}
 							if (i == ARRAYSIZE(ps_cmd)) {
 								uprintf("\r\nWARNING: 'Controlled Folder Access' appears to be enabled on this system");
-								uprintf("You may need to disable this feature, or add an exception, for Rufus to to work...\n");
+								uprintf("You may need to disable this feature, or add an exception, for Ruflux to to work...\n");
 							}
 						}
 						break;
@@ -3164,7 +3182,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 						CyclePort(index);
 					}
 				}
-				Notification(MSG_ERROR, NULL, NULL, lmprintf(MSG_042), lmprintf(MSG_043, StrError(ErrorStatus, FALSE)));
+				Notification(MB_ICONERROR | MB_CLOSE, lmprintf(MSG_042), lmprintf(MSG_043, StrError(ErrorStatus, FALSE)));
 			}
 		}
 		ErrorStatus = 0;
@@ -3307,7 +3325,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// https://web.archive.org/web/20250206201109/https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-security
 	// So, Microsoft currently offers NO WAY to easily disable the main vulnerability most
 	// applications suffer from, which is the loading of bloody DLLs from the current/app
-	// dir, even for executables, like Rufus, that are designed from the get go to NEVER EVER
+	// dir, even for executables, like Ruflux, that are designed from the get go to NEVER EVER
 	// rely on any DLLs there, and would like to DISABLE THIS UTTER BULLSHIT OF AN ENTIRELY
 	// PREVENTABLE SECURITY RISK! The end result of all this is that we have to contend with
 	// delay loading (*when* it actually works) or direct hooking (when it doesn't) and no
@@ -3323,8 +3341,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// For all other DLLs, use SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32),
 	// though this *STILL* does not prevent the Windows default of looking for DLLs in the
 	// current directories.
-	pfSetDefaultDllDirectories =
-	    (SetDefaultDllDirectories_t)GetProcAddress(LoadLibraryW(L"kernel32.dll"), "SetDefaultDllDirectories");
+	// Smu1zel: 7 doesn't have SetDefaultDllDirectories exposed, so do this.
+	pfSetDefaultDllDirectories = (SetDefaultDllDirectories_t)
+		GetProcAddress(LoadLibraryW(L"kernel32.dll"), "SetDefaultDllDirectories");
 	if (pfSetDefaultDllDirectories != NULL)
 		pfSetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
 
@@ -3334,7 +3353,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	is_x86_64 = (strcmp(APPLICATION_ARCH, "x64") == 0);
 
 	// Retrieve various app & system directories.
-	if (GetCurrentDirectoryU(sizeof(app_dir), app_dir) == 0) {
+	if (GetAppDirectoryU(sizeof(app_dir), app_dir) == 0) {
 		uprintf("Could not get application directory: %s", WindowsErrorString());
 		static_strcpy(app_dir, ".\\");
 	} else {
@@ -3345,7 +3364,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		static_strcat(app_dir, "\\");
 	}
 
-	// In the wonderful world of Microsoft Windows, GetCurrentDirectory() returns the
+	// In the wonderful world of Microsoft Windows, GetCurrentDirectory() may return the
 	// directory where the application resides, instead of the real current directory
 	// so we need another method to resolve the *ACTUAL* current directory.
 	static_strcpy(cur_dir, ".\\");
@@ -3382,7 +3401,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			uprintf("Could not get actual temp directory from '%s': %s", temp_dir, WindowsErrorString());
 			static_strcpy(temp_dir, cur_dir);
 		} else {
-			// Need to remove the '\\?\' prefix or else we'll get issues with the Fido icon
+			// Need to remove the '\\?\' prefix or else we'll get issues with the Whitebar icon
 			static_strcpy(temp_dir, &temp_dir[4]);
 			// And me must re-append the '\' that gets removed by GetFinalPathNameByHandle()
 			static_strcat(temp_dir, "\\");
@@ -3564,7 +3583,7 @@ skip_args_processing:
 		uprintf("AppStore version detected");
 
 	// Look for a .ini file in the current app directory
-	static_sprintf(ini_path, "%srufus-7.ini", app_dir);
+	static_sprintf(ini_path, "%sruflux.ini", app_dir);
 	fd = fopenU(ini_path, ini_flags);	// Will create the file if portable mode is requested
 #if !defined(ALPHA)
 	// Using the string directly in safe_strcmp() would call GetSignatureName() twice
@@ -3577,7 +3596,7 @@ skip_args_processing:
 	{ 0xc9, 0x00, 0x1c, 0x67, 0x25, 0x16, 0x83, 0x2b, 0x1a, 0x61, 0xf4, 0x5f, 0x1a, 0x26, 0xd5, 0x76, 0xda, 0xab, 0x06, 0xdf };
 	uint8_t thumbprint[SHA1_HASHSIZE] = { 0 };
 	tmp = GetSignatureName(NULL, NULL, thumbprint, FALSE);
-	vc |= (safe_strcmp(tmp, "Rufus - GitHub Official Build") == 0) && (memcmp(thumbprint, github_thumbprint, SHA1_HASHSIZE) == 0);
+	vc |= (safe_strcmp(tmp, "Ruflux - GitHub Official Build") == 0) && (memcmp(thumbprint, github_thumbprint, SHA1_HASHSIZE) == 0);
 #endif
 	if (fd != NULL) {
 		ini_file = ini_path;
@@ -3645,7 +3664,7 @@ skip_args_processing:
 			// If we don't have a working temp API, forget it
 			uprintf("FATAL: Unable to create temp loc file: %s", WindowsErrorString());
 			MessageBoxA(NULL, "Unable to create temporary localization file. This application will now exit.",
-				"Fatal error", MB_ICONSTOP | MB_SYSTEMMODAL);
+				"Fatal error", MB_ICONERROR | MB_SYSTEMMODAL);
 			goto out;
 		}
 
@@ -3655,7 +3674,7 @@ skip_args_processing:
 			uprintf("FATAL: Unable to extract loc file '%s': %s", loc_file, WindowsErrorString());
 			safe_closehandle(hFile);
 			MessageBoxA(NULL, "Unable to extract localization file. This application will now exit.",
-				"Fatal error", MB_ICONSTOP | MB_SYSTEMMODAL);
+				"Fatal error", MB_ICONERROR | MB_SYSTEMMODAL);
 			goto out;
 		}
 		uprintf("localization: extracted data to '%s'", loc_file);
@@ -3670,13 +3689,16 @@ skip_args_processing:
 	  || ((selected_locale = ((locale_name == NULL)?get_locale_from_lcid(lcid, TRUE):get_locale_from_name(locale_name, TRUE))) == NULL) ) {
 		uprintf("FATAL: Could not access locale!");
 		MessageBoxA(NULL, "The locale data is missing or invalid. This application will now exit.",
-			"Fatal error", MB_ICONSTOP|MB_SYSTEMMODAL);
+			"Fatal error", MB_ICONERROR | MB_SYSTEMMODAL);
 		goto out;
 	}
 	selected_langid = get_language_id(selected_locale);
 
 	// Set the Windows version
 	GetWindowsVersion(&WindowsVersion);
+	// Force a version if specified as a parameter
+	if (forced_windows_version != 0)
+		WindowsVersion.Version = forced_windows_version;
 
 	// This is needed as there appears to be a *FLAW* in Windows allowing the app to run unelevated with some
 	// weirdly configured user accounts, even as we explicitly set 'requireAdministrator' in the manifest...
@@ -3685,7 +3707,7 @@ skip_args_processing:
 		// Load the translation before we print the error
 		get_loc_data_file(loc_file, selected_locale);
 		right_to_left_mode = ((selected_locale->ctrl_id) & LOC_RIGHT_TO_LEFT);
-		MessageBoxExU(NULL, lmprintf(MSG_289), lmprintf(MSG_288), MB_ICONSTOP | MB_IS_RTL | MB_SYSTEMMODAL, selected_langid);
+		MessageBoxExU(NULL, lmprintf(MSG_289), lmprintf(MSG_288), MB_ICONERROR | MB_IS_RTL | MB_SYSTEMMODAL, selected_langid);
 		goto out;
 	}
 
@@ -3704,7 +3726,8 @@ skip_args_processing:
 		get_loc_data_file(loc_file, selected_locale);
 		right_to_left_mode = ((selected_locale->ctrl_id) & LOC_RIGHT_TO_LEFT);
 		// Set MB_SYSTEMMODAL to prevent Far Manager from stealing focus...
-		MessageBoxExU(NULL, lmprintf(MSG_002), lmprintf(MSG_001), MB_ICONSTOP|MB_IS_RTL|MB_SYSTEMMODAL, selected_langid);
+		MessageBoxExU(NULL, lmprintf(MSG_002), lmprintf(MSG_001),
+			MB_ICONERROR | MB_IS_RTL | MB_SYSTEMMODAL, selected_langid);
 		goto out;
 	}
 
@@ -3763,7 +3786,7 @@ relaunch:
 	hDlg = MyCreateDialog(hInstance, IDD_DIALOG, NULL, MainCallback);
 	if (hDlg == NULL) {
 		MessageBoxExU(NULL, "Could not create Window", "DialogBox failure",
-			MB_ICONSTOP|MB_IS_RTL|MB_SYSTEMMODAL, selected_langid);
+			MB_OK | MB_ICONERROR | MB_IS_RTL | MB_SYSTEMMODAL, selected_langid);
 		goto out;
 	}
 	if ((relaunch_rc.left > -65536) && (relaunch_rc.top > -65536))
@@ -3778,7 +3801,7 @@ relaunch:
 	// Set the hook to automatically close Windows' "You need to format the disk in drive..." prompt
 	SetAlertPromptMessages();
 	if (!SetAlertPromptHook())
-		uprintf("Warning: Could not set alert prompt hook");
+		uprintf("WARNING: Could not set alert prompt hook");
 
 	ShowWindow(hDlg, SW_SHOWNORMAL);
 	UpdateWindow(hDlg);
@@ -3877,7 +3900,7 @@ extern int TestHashes(void);
 				PrintStatusTimeout(lmprintf(MSG_282), lock_drive);
 				continue;
 			}
-			// Alt-A => Toggle use of Rufus MBR for Windows boot
+			// Alt-A => Toggle use of Ruflux MBR for Windows boot
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'A')) {
 				use_rufus_mbr = !use_rufus_mbr;
 				WriteSettingBool(SETTING_DISABLE_RUFUS_MBR, !use_rufus_mbr);
@@ -3885,7 +3908,7 @@ extern int TestHashes(void);
 				continue;
 			}
 			// Alt-B => Toggle fake drive detection during bad blocks check
-			// By default, Rufus will check for fake USB flash drives that mistakenly present
+			// By default, Ruflux will check for fake USB flash drives that mistakenly present
 			// more capacity than they already have by looping over the flash. This check which
 			// is enabled by default is performed by writing the block number sequence and reading
 			// it back during the bad block check.
@@ -3902,7 +3925,7 @@ extern int TestHashes(void);
 					CyclePort(index);
 				continue;
 			}
-			// Alt-D => Delete the subdirectory where Rufus keeps its files
+			// Alt-D => Delete the subdirectory where Ruflux keeps its files
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'D')) {
 				static_sprintf(tmp_path, "%s\\%s", app_data_dir, FILES_DIR);
 				PrintStatusDebug(STATUS_MSG_TIMEOUT, MSG_264, tmp_path);
@@ -3920,9 +3943,9 @@ extern int TestHashes(void);
 				continue;
 			}
 			// Alt-F => Toggle detection of USB HDDs
-			// By default Rufus does not list USB HDDs. This is a safety feature aimed at avoiding
+			// By default Ruflux does not list USB HDDs. This is a safety feature aimed at avoiding
 			// unintentional formatting of backup drives instead of USB keys.
-			// When enabled, Rufus will list and allow the formatting of USB HDDs.
+			// When enabled, Ruflux will list and allow the formatting of USB HDDs.
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'F')) {
 				enable_HDDs = !enable_HDDs;
 				PrintStatusTimeout(lmprintf(MSG_253), enable_HDDs);
@@ -3931,7 +3954,7 @@ extern int TestHashes(void);
 				continue;
 			}
 			// Alt-G => Toggle detection of Virtual Disks
-			// By default Rufus list Virtual Disks but some people use them for backup.
+			// By default Ruflux list Virtual Disks but some people use them for backup.
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'G')) {
 				enable_VHDs = !enable_VHDs;
 				WriteSettingBool(SETTING_DISABLE_VHDS, !enable_VHDs);
@@ -3947,7 +3970,7 @@ extern int TestHashes(void);
 				continue;
 			}
 			// Alt-I => Toggle ISO support
-			// This is useful if you have an ISOHybrid image and you want to force Rufus to use
+			// This is useful if you have an ISOHybrid image and you want to force Ruflux to use
 			// DD-mode when writing the data.
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'I')) {
 				enable_iso = !enable_iso;
@@ -3983,7 +4006,7 @@ extern int TestHashes(void);
 				continue;
 			}
 			// Alt-M => Toggle the check for the 0x55 0xAA boot marker at offset 0x1fe.
-			// This means that Rufus treats anything selected as a writeable DD image.
+			// This means that Ruflux treats anything selected as a writeable DD image.
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'M')) {
 				ignore_boot_marker = !ignore_boot_marker;
 				WriteSettingBool(SETTING_IGNORE_BOOT_MARKER, ignore_boot_marker);
@@ -4017,7 +4040,7 @@ extern int TestHashes(void);
 				PrintStatusTimeout(lmprintf(MSG_290), enable_file_indexing);
 				continue;
 			}
-			// Alt-R => Remove all the registry keys that may have been created by Rufus
+			// Alt-R => Remove all the registry keys that may have been created by Ruflux
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'R')) {
 				PrintStatus(STATUS_MSG_TIMEOUT, DeleteRegistryKey(REGKEY_HKCU, COMPANY_NAME "\\" APPLICATION_NAME) ? MSG_248 : MSG_249);
 				// Also try to delete the upper key (company name) if it's empty (don't care about the result)
@@ -4025,7 +4048,7 @@ extern int TestHashes(void);
 				continue;
 			}
 			// Alt-S => Disable size limit for ISOs
-			// By default, Rufus will not copy ISOs that are larger than in size than
+			// By default, Ruflux will not copy ISOs that are larger than in size than
 			// the target USB drive. If this is enabled, the size check is disabled.
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'S')) {
 				size_check = !size_check;
@@ -4073,6 +4096,14 @@ extern int TestHashes(void);
 				existing_key = FALSE;
 				continue;
 			}
+			// Alt Y => Force the update check to be successful
+			// This will set the reported current version of Ruflux to 0.0.0.0 when performing an update
+			// check, so that it always succeeds. This is useful for translators.
+			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'Y')) {
+				force_update = (force_update > 0) ? 0 : 1;
+				PrintStatusTimeout(lmprintf(MSG_259), force_update);
+				continue;
+			}
 			// Alt-Z => Zero the drive
 			if ((msg.message == WM_SYSKEYDOWN) && (msg.wParam == 'Z')) {
 				zero_drive = TRUE;
@@ -4092,6 +4123,15 @@ extern int TestHashes(void);
 			}
 
 			// Other hazardous cheat modes require Ctrl + Alt
+			// Ctrl-Alt-D => Toggle dark mode and restart
+			if ((msg.message == WM_KEYDOWN) && (msg.wParam == 'D') &&
+				(GetKeyState(VK_CONTROL) & 0x8000) && (GetKeyState(VK_MENU) & 0x8000)) {
+				toggle_dark_mode = TRUE;
+				selected_fs = (int)ComboBox_GetCurItemData(hFileSystem);
+				relaunch = TRUE;
+				PostMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
+				continue;
+			}
 			// Ctrl-Alt-E => Expert Mode
 			if ((msg.message == WM_KEYDOWN) && (msg.wParam == 'E') &&
 				(GetKeyState(VK_CONTROL) & 0x8000) && (GetKeyState(VK_MENU) & 0x8000)) {
@@ -4144,8 +4184,8 @@ extern int TestHashes(void);
 			DispatchMessage(&msg);
 		}
 	}
-	if (hFidoDlg != NULL)
-		SendMessage(hFidoDlg, WM_CLOSE, 0, 0);
+	if (hWhitebarDlg != NULL)
+		SendMessage(hWhitebarDlg, WM_CLOSE, 0, 0);
 	if (relaunch) {
 		relaunch = FALSE;
 		reinit_localization();
@@ -4179,7 +4219,7 @@ out:
 	safe_free(update.download_url);
 	safe_free(update.release_notes);
 	safe_free(grub2_buf);
-	safe_free(fido_script);
+	safe_free(whitebar_script);
 	safe_free(pe256ssp);
 	safe_free(sbat_entries);
 	safe_free(sbat_level_txt);

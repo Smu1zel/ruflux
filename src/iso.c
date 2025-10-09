@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * ISO file extraction
  * Copyright © 2011-2024 Pete Batard <pete@akeo.ie>
  * Based on libcdio's iso & udf samples:
@@ -246,7 +246,7 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 	const char* psz_fullpath, EXTRACT_PROPS *props)
 {
 	size_t i, j, k, len;
-	char bootloader_name[32], path[MAX_PATH];
+	char bootloader_name[32];
 
 	// Check for an isolinux/syslinux config file anywhere
 	memset(props, 0, sizeof(EXTRACT_PROPS));
@@ -298,6 +298,7 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 		if (file_length >= 4 * GB && psz_dirname != NULL && IS_FAT(fs_type) && img_report.has_4GB_file == 0x81) {
 			if (safe_stricmp(&psz_dirname[max(0, ((int)safe_strlen(psz_dirname)) -
 				((int)strlen(sources_str)))], sources_str) == 0) {
+				char wim_path[4 * MAX_PATH];
 				for (i = 0; i < ARRAYSIZE(wininst_name) - 1; i++) {
 					if (safe_stricmp(psz_basename, wininst_name[i]) == 0 && file_length >= 4 * GB) {
 						print_split_file((char*)psz_fullpath, file_length);
@@ -305,8 +306,9 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 						dst[strlen(dst) - 3] = 's';
 						dst[strlen(dst) - 2] = 'w';
 						dst[strlen(dst) - 1] = 'm';
-						static_sprintf(path, "%s|%s/%s", image_path, psz_dirname, psz_basename);
-						WimSplitFile(path, dst);
+						assert(safe_strlen(image_path) + safe_strlen(psz_dirname) + safe_strlen(psz_basename) + 2 < ARRAYSIZE(wim_path));
+						static_sprintf(wim_path, "%s|%s/%s", image_path, psz_dirname, psz_basename);
+						WimSplitFile(wim_path, dst);
 						free(dst);
 						return TRUE;
 					}
@@ -492,14 +494,23 @@ static void fix_config(const char* psz_fullpath, const char* psz_path, const cha
 				if ((props->is_grub_cfg) && replace_in_token_data(src, "linux",
 					"maybe-ubiquity", "", TRUE))
 					uprintf("  Removed 'maybe-ubiquity' kernel option");
+			} else if (replace_in_token_data(src, props->is_grub_cfg ? "linux" : "append",
+				"boot=casper", "boot=casper persistent", TRUE) != NULL) {
+				// Linux Mint uses "boot=casper". Oh and we want this replacement to happen BEFORE
+				// the "linux /casper/vmlinuz" one, because Mint (Why is it ALWAYS them?) also use
+				// "linux /casper/vmlinuz" and "kernel /casper/vmlinuz" in their config, and even
+				// do so in a SUPER INCONSISTENT manner in their Syslinux' live.cfg, so we want to
+				// make sure we don't have to do extra work to fix their inconsistency.
+				uprintf("  Added 'persistent' kernel option");
+				modified = TRUE;
 			} else if (replace_in_token_data(src, "linux", "/casper/vmlinuz",
 				"/casper/vmlinuz persistent", TRUE) != NULL) {
 				// Ubuntu 23.04 and 24.04 use GRUB only with the above and don't use "maybe-ubiquity"
 				uprintf("  Added 'persistent' kernel option");
 				modified = TRUE;
-			} else if (replace_in_token_data(src, props->is_grub_cfg ? "linux" : "append",
-				"boot=casper", "boot=casper persistent", TRUE) != NULL) {
-				// Linux Mint uses boot=casper.
+			} else if (replace_in_token_data(src, "kernel", "/casper/vmlinuz",
+				"/casper/vmlinuz persistent", TRUE) != NULL) {
+				// Some people might use "kernel" in their Syslinux config instead of "linux"
 				uprintf("  Added 'persistent' kernel option");
 				modified = TRUE;
 			} else if (replace_in_token_data(src, props->is_grub_cfg ? "linux" : "append",
@@ -1082,7 +1093,7 @@ void GetGrubVersion(char* buf, size_t buf_size, const char* source)
 	// For some obscure reason, openSUSE have decided that their Live images should
 	// use /boot/grub2/ as their prefix directory instead of the standard /boot/grub/
 	// This creates a MAJOR issue because the prefix directory is hardcoded in
-	// 'core.img', and Rufus must install a 'core.img', that is not provided by the
+	// 'core.img', and Ruflux must install a 'core.img', that is not provided by the
 	// ISO, for the USB to boot (since even trying to pick the one from ISOHybrid
 	// does usually not guarantees the presence of the FAT driver which is mandatory
 	// for ISO boot).
@@ -1401,8 +1412,10 @@ out:
 			safe_free(buf);
 		}
 		if (HAS_WININST(img_report)) {
-			static_sprintf(path, "%s|%s", image_path, &img_report.wininst_path[0][2]);
-			img_report.wininst_version = GetWimVersion(path);
+			char wim_path[4 * MAX_PATH];
+			assert(safe_strlen(image_path) + safe_strlen(&img_report.wininst_path[0][2]) + 2 < ARRAYSIZE(wim_path));
+			static_sprintf(wim_path, "%s|%s", image_path, &img_report.wininst_path[0][2]);
+			img_report.wininst_version = GetWimVersion(wim_path);
 		}
 		if (img_report.has_grub2) {
 			char grub_path[128];
@@ -1548,7 +1561,7 @@ out:
 				if (MoveFileA(path, dst_path))
 					uprintf("Moved: %s → %s", path, dst_path);
 				else
-					uprintf("Could not move %s → %s", path, dst_path, WindowsErrorString());
+					uprintf("Could not move %s → %s: %s", path, dst_path, WindowsErrorString());
 			}
 		}
 		if (fd_md5sum != NULL) {
@@ -2031,7 +2044,7 @@ static DWORD WINAPI OpticalDiscSaveImageThread(void* param)
 	// In case someone poked the disc before us
 	li.QuadPart = 0;
 	if (!SetFilePointerEx(hPhysicalDrive, li, NULL, FILE_BEGIN))
-		uprintf("Warning: Unable to rewind device position - wrong data might be copied!");
+		uprintf("WARNING: Unable to rewind device position - wrong data might be copied!");
 	hDestImage = CreateFileU(img_save->ImagePath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hDestImage == INVALID_HANDLE_VALUE) {
@@ -2058,7 +2071,7 @@ static DWORD WINAPI OpticalDiscSaveImageThread(void* param)
 		// Optical drives do not appear to increment the sectors to read automatically
 		li.QuadPart = wb;
 		if (!SetFilePointerEx(hPhysicalDrive, li, NULL, FILE_BEGIN))
-			uprintf("Warning: Unable to set device position - wrong data might be copied!");
+			uprintf("WARNING: Unable to set device position - wrong data might be copied!");
 		s = ReadFile(hPhysicalDrive, buffer,
 			(DWORD)MIN(img_save->BufSize, img_save->DeviceSize - wb), &rSize, NULL);
 		if (!s) {

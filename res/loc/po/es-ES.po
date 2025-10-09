@@ -402,12 +402,12 @@ msgid "Multiple Partitions"
 msgstr "Particiones múltiples"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - Purgando los buffers"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - Purgando los buffers"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Cancelación"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Cancelación"
 
 #. • MSG_050
 msgid "Success."
@@ -1079,7 +1079,7 @@ msgid "Click to select..."
 msgstr "Haga clic para seleccionar..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
+msgid "Ruflux - The Reliable USB Formatting Utility"
 msgstr "Rufus, la herramienta de formateo de USBs en la que puedes confiar"
 
 #. • MSG_175

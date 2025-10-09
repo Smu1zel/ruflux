@@ -161,7 +161,7 @@ mbr_type_t mbr_type[] = {
 	{ 0xe4, "SpeedStor" },
 	{ 0xe6, "SpeedStor" },
 	{ 0xe8, "LUKS" },
-	{ 0xea, "Rufus Extra" },
+	{ 0xea, "Ruflux Extra" },
 	{ 0xeb, "BeOS/Haiku" },
 	{ 0xec, "SkyFS" },
 	{ 0xed, "GPT Hybrid MBR" },

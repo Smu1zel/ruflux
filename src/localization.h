@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Localization functions, a.k.a. "Everybody is doing it wrong but me!"
  * Copyright © 2013-2016 Pete Batard <pete@akeo.ie>
  *

@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * ntdll definitions & process search functionality
  *
  * Modified from System Informer (a.k.a. Process Hacker):

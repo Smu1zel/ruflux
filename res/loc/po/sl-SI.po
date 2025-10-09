@@ -169,7 +169,7 @@ msgstr "Preveri zdaj"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
 msgid "Check For Updates - Rufus"
-msgstr "Rufus - posodobitve"
+msgstr "Ruflux - posodobitve"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -402,12 +402,12 @@ msgid "Multiple Partitions"
 msgstr "Več particij"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - izpiranje medpomnilnika"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - izpiranje medpomnilnika"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - preklic"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - preklic"
 
 #. • MSG_050
 msgid "Success."
@@ -1077,8 +1077,8 @@ msgid "Click to select..."
 msgstr "Kliknite, da izberete..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - zanesljivi pripomoček za USB formatiranje"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - zanesljivi pripomoček za USB formatiranje"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

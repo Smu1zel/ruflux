@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Standard User I/O Routines (logging, status, error, etc.)
  * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  * Copyright © 2020 Mattiwatti <mattiwatti@gmail.com>
@@ -618,7 +618,7 @@ BOOL WriteFileWithRetry(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWr
 	// Need to get the current file pointer in case we need to retry
 	readFilePointer = SetFilePointerEx(hFile, liZero, &liFilePointer, FILE_CURRENT);
 	if (!readFilePointer)
-		uprintf("Warning: Could not read file pointer %s", WindowsErrorString());
+		uprintf("WARNING: Could not read file pointer %s", WindowsErrorString());
 
 	if (nNumRetries == 0)
 		nNumRetries = 1;
@@ -634,7 +634,7 @@ BOOL WriteFileWithRetry(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWr
 				return TRUE;
 			// Some large drives return 0, even though all the data was written - See github #787 */
 			if (large_drive && (*lpNumberOfBytesWritten == 0)) {
-				uprintf("Warning: Possible short write");
+				uprintf("WARNING: Possible short write");
 				return TRUE;
 			}
 			uprintf("Wrote %d bytes but requested %d", *lpNumberOfBytesWritten, nNumberOfBytesToWrite);
@@ -823,7 +823,7 @@ HANDLE CreatePreallocatedFile(const char* lpFileName, DWORD dwDesiredAccess,
 // The following calls are used to resolve the addresses of DLL function calls
 // that are not publicly exposed by Microsoft. This is accomplished by downloading
 // the relevant .pdb and looking up the relevant address there. Once an address is
-// found, it is stored in the Rufus settings so that it can be reused.
+// found, it is stored in the Ruflux settings so that it can be reused.
 
 PF_TYPE_DECL(WINAPI, BOOL, SymInitialize, (HANDLE, PCSTR, BOOL));
 PF_TYPE_DECL(WINAPI, DWORD64, SymLoadModuleEx, (HANDLE, HANDLE, PCSTR, PCSTR, DWORD64, DWORD, PMODLOAD_DATA, DWORD));
@@ -908,8 +908,7 @@ uint32_t ResolveDllAddress(dll_resolver_t* resolver)
 	}
 
 	// Download the PDB from Microsoft's symbol servers
-	if (MessageBoxExU(hMainDialog, lmprintf(MSG_345), lmprintf(MSG_115),
-		MB_YESNO | MB_ICONWARNING | MB_IS_RTL, selected_langid) != IDYES)
+	if (Notification(MB_YESNO | MB_ICONWARNING, lmprintf(MSG_115), lmprintf(MSG_345)) != IDYES)
 		goto out;
 	static_sprintf(path, "%s\\%s", temp_dir, info->PdbName);
 	static_sprintf(url, "http://msdl.microsoft.com/download/symbols/%s/%s%x/%s",
@@ -924,7 +923,7 @@ uint32_t ResolveDllAddress(dll_resolver_t* resolver)
 
 	// NB: SymLoadModuleEx() does not load a PDB unless the file has an explicit '.pdb' extension
 	base_address = pfSymLoadModuleEx(hRufus, NULL, path, NULL, DEFAULT_BASE_ADDRESS, 0, NULL, 0);
-	if_not_assert(base_address == DEFAULT_BASE_ADDRESS)
+	if_assert_fails(base_address == DEFAULT_BASE_ADDRESS)
 		goto out;
 	// On Windows 11 ARM64 the following call will return *TWO* different addresses for the same
 	// call, because most Windows DLL's are ARM64X, which means that they are an unholy union of

@@ -28,7 +28,7 @@ struct error_table {
 };
 struct et_list;
 
-/* For use with Rufus */
+/* For use with Ruflux */
 extern void uprintf(const char *format, ...);
 #define VA_ARGS(...) , ##__VA_ARGS__
 #define com_err(src, err, fmt, ...) uprintf("%s: [%08X] " # fmt, src?src:"ext2fs", err - EXT2_ET_BASE VA_ARGS(__VA_ARGS__))

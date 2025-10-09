@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Standard Windows function calls
  * Copyright © 2013-2025 Pete Batard <pete@akeo.ie>
  *
@@ -82,8 +82,8 @@ BOOL htab_create(uint32_t nel, htab_table* htab)
 	if (htab == NULL) {
 		return FALSE;
 	}
-	if_not_assert(htab->table == NULL) {
-		uprintf("Warning: htab_create() was called with a non empty table");
+	if_assert_fails(htab->table == NULL) {
+		uprintf("WARNING: htab_create() was called with a non empty table");
 		return FALSE;
 	}
 
@@ -198,7 +198,7 @@ uint32_t htab_hash(char* str, htab_table* htab)
 	// Not found => New entry
 
 	// If the table is full return an error
-	if_not_assert(htab->filled < htab->size) {
+	if_assert_fails(htab->filled < htab->size) {
 		uprintf("Hash table is full (%d entries)", htab->size);
 		return 0;
 	}
@@ -482,20 +482,19 @@ void GetWindowsVersion(windows_version_t* windows_version)
 
 	// Add the build number (including UBR if available)
 	windows_version->BuildNumber = vi.dwBuildNumber;
-    if (windows_version->Version >= WINDOWS_8) {
-		int nUbr = ReadRegistryKey32(REGKEY_HKLM, "Software\\Microsoft\\Windows NT\\CurrentVersion\\UBR");
+	if (windows_version->Version >= WINDOWS_8) {
+		int nUbr = ReadRegistryKey32(REGKEY_HKLM, "Software\\Microsoft\\Windows NT\\CurrentVersion\\UBR");	vptr = &windows_version->VersionStr[safe_strlen(windows_version->VersionStr)];
+		vlen = sizeof(windows_version->VersionStr) - safe_strlen(windows_version->VersionStr) - 1;
+		if (nUbr != 0)
+			safe_sprintf(vptr, vlen, " (Build %lu.%lu)", windows_version->BuildNumber, nUbr);
+		else
+			safe_sprintf(vptr, vlen, " (Build %lu)", windows_version->BuildNumber);
 		vptr = &windows_version->VersionStr[safe_strlen(windows_version->VersionStr)];
 		vlen = sizeof(windows_version->VersionStr) - safe_strlen(windows_version->VersionStr) - 1;
-	if (nUbr > 0)
-		safe_sprintf(vptr, vlen, " (Build %lu.%d)", windows_version->BuildNumber, nUbr);
-	else
-		safe_sprintf(vptr, vlen, " (Build %lu)", windows_version->BuildNumber);
+		if (isSMode())
+			safe_sprintf(vptr, vlen, " in S Mode");
 	}
-	vptr = &windows_version->VersionStr[safe_strlen(windows_version->VersionStr)];
-	vlen = sizeof(windows_version->VersionStr) - safe_strlen(windows_version->VersionStr) - 1;
-	if (isSMode())
-		safe_sprintf(vptr, vlen, " in S Mode");
-}
+	}
 
 /*
  * Why oh why does Microsoft make it so convoluted to retrieve a measly executable's version number ?
@@ -892,13 +891,13 @@ DWORD RunCommandWithProgress(const char* cmd, const char* dir, BOOL log, int msg
 			Sleep(100);
 		};
 	} else {
-		// TODO: Detect user cancellation here?
 		switch (WaitForSingleObject(pi.hProcess, 1800000)) {
 		case WAIT_TIMEOUT:
 			uprintf("Command did not terminate within timeout duration");
 			break;
 		case WAIT_OBJECT_0:
-			uprintf("Command was terminated by user");
+			if (IS_ERROR(ErrorStatus) && (SCODE_CODE(ErrorStatus) == ERROR_CANCELLED))
+				uprintf("Command was terminated by user");
 			break;
 		default:
 			uprintf("Error while waiting for command to be terminated: %s", WindowsErrorString());
@@ -1118,10 +1117,10 @@ BOOL SetThreadAffinity(DWORD_PTR* thread_affinity, size_t num_threads)
 			thread_affinity[i] |= affinity & (-1LL * affinity);
 			affinity ^= affinity & (-1LL * affinity);
 		}
-		uuprintf("  thr_%d:\t%s", i, printbitslz(thread_affinity[i]));
+		uuprintf("  thr_%llu:\t%s", i, printbitslz(thread_affinity[i]));
 		thread_affinity[num_threads - 1] ^= thread_affinity[i];
 	}
-	uuprintf("  thr_%d:\t%s", i, printbitslz(thread_affinity[i]));
+	uuprintf("  thr_%llu:\t%s", i, printbitslz(thread_affinity[i]));
 	return TRUE;
 }
 
@@ -1218,7 +1217,7 @@ BOOL MountRegistryHive(const HKEY key, const char* pszHiveName, const char* pszH
 	LSTATUS status;
 	HANDLE token = INVALID_HANDLE_VALUE;
 
-	if_not_assert((key == HKEY_LOCAL_MACHINE) || (key == HKEY_USERS))
+	if_assert_fails((key == HKEY_LOCAL_MACHINE) || (key == HKEY_USERS))
 		return FALSE;
 
 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token)) {
@@ -1250,7 +1249,7 @@ BOOL UnmountRegistryHive(const HKEY key, const char* pszHiveName)
 {
 	LSTATUS status;
 
-	if_not_assert((key == HKEY_LOCAL_MACHINE) || (key == HKEY_USERS))
+	if_assert_fails((key == HKEY_LOCAL_MACHINE) || (key == HKEY_USERS))
 		return FALSE;
 
 	status = RegUnLoadKeyA(key, pszHiveName);

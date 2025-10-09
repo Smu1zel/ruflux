@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Virtual Disk Handling functions
  * Copyright © 2013-2025 Pete Batard <pete@akeo.ie>
  *
@@ -378,6 +378,14 @@ BOOL WimApplyImage(const char* image, int index, const char* dst)
 	return (r == 0);
 }
 
+// VirtDisk API Prototypes - Only available for Windows 8 or later
+PF_TYPE_DECL(WINAPI, DWORD, OpenVirtualDisk, (PVIRTUAL_STORAGE_TYPE, PCWSTR,
+	VIRTUAL_DISK_ACCESS_MASK, OPEN_VIRTUAL_DISK_FLAG, POPEN_VIRTUAL_DISK_PARAMETERS, PHANDLE));
+PF_TYPE_DECL(WINAPI, DWORD, AttachVirtualDisk, (HANDLE, PSECURITY_DESCRIPTOR,
+	ATTACH_VIRTUAL_DISK_FLAG, ULONG, PATTACH_VIRTUAL_DISK_PARAMETERS, LPOVERLAPPED));
+PF_TYPE_DECL(WINAPI, DWORD, DetachVirtualDisk, (HANDLE, DETACH_VIRTUAL_DISK_FLAG, ULONG));
+PF_TYPE_DECL(WINAPI, DWORD, GetVirtualDiskPhysicalPath, (HANDLE, PULONG, PWSTR));
+
 // Mount an ISO or a VHD/VHDX image and provide its size
 // Returns the physical path of the mounted image or NULL on error.
 char* VhdMountImageAndGetSize(const char* path, uint64_t* disk_size)
@@ -389,7 +397,12 @@ char* VhdMountImageAndGetSize(const char* path, uint64_t* disk_size)
 	wchar_t wtmp[128];
 	ULONG size = ARRAYSIZE(wtmp);
 	wconvert(path);
-	char *ret = NULL, *ext = NULL;
+
+	PF_INIT_OR_OUT(OpenVirtualDisk, VirtDisk);
+	PF_INIT_OR_OUT(AttachVirtualDisk, VirtDisk);
+	PF_INIT_OR_OUT(GetVirtualDiskPhysicalPath, VirtDisk);
+
+	char* ret = NULL, * ext = NULL;
 
 	if (wpath == NULL)
 		return NULL;
@@ -476,9 +489,9 @@ static DWORD WINAPI VhdSaveImageThread(void* param)
 	STOPGAP_CREATE_VIRTUAL_DISK_PARAMETERS vparams = { 0 };
 	VIRTUAL_DISK_PROGRESS vprogress = { 0 };
 	OVERLAPPED overlapped = { 0 };
-	DWORD r = ERROR_NOT_FOUND, flags;
+	DWORD r = ERROR_NOT_FOUND, flags, bytes_read = 0;
 
-	if_not_assert(img_save->Type == VIRTUAL_STORAGE_TYPE_DEVICE_VHD ||
+	if_assert_fails(img_save->Type == VIRTUAL_STORAGE_TYPE_DEVICE_VHD ||
 		img_save->Type == VIRTUAL_STORAGE_TYPE_DEVICE_VHDX)
 		return ERROR_INVALID_PARAMETER;
 
@@ -531,6 +544,12 @@ static DWORD WINAPI VhdSaveImageThread(void* param)
 		}
 	}
 
+	if (!GetOverlappedResult(handle, &overlapped, &bytes_read, FALSE)) {
+		r = GetLastError();
+		uprintf("Could not save virtual disk: %s", WindowsErrorString());
+		goto out;
+	}
+
 	r = 0;
 	UpdateProgressWithInfo(OP_FORMAT, MSG_261, SelectedDrive.DiskSize, SelectedDrive.DiskSize);
 	uprintf("Saved '%s'", img_save->ImagePath);
@@ -543,6 +562,8 @@ out:
 	safe_free(img_save->DevicePath);
 	safe_free(img_save->ImagePath);
 	PostMessage(hMainDialog, UM_FORMAT_COMPLETED, (WPARAM)TRUE, 0);
+	if (r != 0 && !IS_ERROR(ErrorStatus))
+		ErrorStatus = RUFUS_ERROR(SCODE_CODE(r));
 	ExitThread(r);
 }
 
@@ -586,9 +607,8 @@ BOOL SaveImage(void)
 	char filename[128], letters[27], path[MAX_PATH];
 	int DriveIndex = ComboBox_GetCurSel(hDeviceList);
 	enum { image_type_vhd = 1, image_type_vhdx = 2, image_type_ffu = 3, image_type_iso = 4 };
-	// Add a non-printable zero-width space to UDF *.iso extension to differentiate it from ISO-9660
 	static EXT_DECL(img_ext, filename, __VA_GROUP__("*.vhd", "*.vhdx", "*.ffu", "*.iso"),
-		__VA_GROUP__(lmprintf(MSG_343), lmprintf(MSG_342), lmprintf(MSG_344), lmprintf(MSG_355)));
+		__VA_GROUP__(lmprintf(MSG_343), lmprintf(MSG_342), lmprintf(MSG_344), lmprintf(MSG_036)));
 	ULARGE_INTEGER free_space;
 
 	memset(&img_save, 0, sizeof(IMG_SAVE));
@@ -619,7 +639,7 @@ BOOL SaveImage(void)
 	// Start from the end of our extension array, since '.vhd' would match for '.vhdx' otherwise
 	for (i = (UINT)img_ext.count; (i > 0) && (strstr(img_save.ImagePath, &img_ext.extension[i - 1][1]) == NULL); i--);
 	if (i == 0) {
-		uprintf("Warning: Can not determine image type from extension - Saving to uncompressed VHD.");
+		uprintf("WARNING: Can not determine image type from extension - Saving to uncompressed VHD.");
 		i = image_type_vhd;
 	} else {
 		save_image_type = (char*)&img_ext.extension[i - 1][2];
@@ -636,8 +656,7 @@ BOOL SaveImage(void)
 		// ISO requires oscdimg.exe. If not already present, attempt to download it.
 		static_sprintf(path, "%s\\%s\\oscdimg.exe", app_data_dir, FILES_DIR);
 		if (!PathFileExistsU(path)) {
-			if (MessageBoxExU(hMainDialog, lmprintf(MSG_337, "oscdimg.exe"), lmprintf(MSG_115),
-				MB_YESNO | MB_ICONWARNING | MB_IS_RTL, selected_langid) != IDYES)
+			if (Notification(MB_YESNO | MB_ICONWARNING, lmprintf(MSG_115), lmprintf(MSG_337, "oscdimg.exe")) != IDYES)
 				goto out;
 			IGNORE_RETVAL(_chdirU(app_data_dir));
 			IGNORE_RETVAL(_mkdir(FILES_DIR));

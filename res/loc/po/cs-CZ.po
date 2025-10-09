@@ -404,12 +404,12 @@ msgid "Multiple Partitions"
 msgstr "Více diskových oddílů"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - Čištění vyrovnávací paměti"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - Čištění vyrovnávací paměti"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Ukončení"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Ukončení"
 
 #. • MSG_050
 msgid "Success."
@@ -1080,8 +1080,8 @@ msgid "Click to select..."
 msgstr "Kliknutím zvolit..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - Spolehlivý program pro formátování USB"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - Spolehlivý program pro formátování USB"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

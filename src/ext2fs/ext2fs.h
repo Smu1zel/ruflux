@@ -1751,7 +1751,7 @@ extern errcode_t ext2fs_write_bb_FILE(ext2_badblocks_list bb_list,
 				      unsigned int flags,
 				      FILE *f);
 
-/* Rufus addtional */
+/* Ruflux addtional */
 extern errcode_t ext2fs_print_progress(int64_t cur, int64_t max);
 
 /* inline functions */

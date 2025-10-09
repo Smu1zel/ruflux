@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * MS-DOS boot file extraction, from the FAT12 floppy image in diskcopy.dll
  * Copyright © 2011-2013 Pete Batard <pete@akeo.ie>
  * 

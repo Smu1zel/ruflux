@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Large FAT32 formatting
  * Copyright © 2007-2009 Tom Thornhill/Ridgecrop
  * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>

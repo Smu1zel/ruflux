@@ -402,12 +402,12 @@ msgid "Multiple Partitions"
 msgstr "Vairākas partīcijas"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - Buferu attīrīšana"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - Buferu attīrīšana"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Darbības atcelšana"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Darbības atcelšana"
 
 #. • MSG_050
 msgid "Success."
@@ -1076,8 +1076,8 @@ msgid "Click to select..."
 msgstr "Piespiediet izvēlei..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - uzticama un vienkārša USB formatēšanas utilīta"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - uzticama un vienkārša USB formatēšanas utilīta"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

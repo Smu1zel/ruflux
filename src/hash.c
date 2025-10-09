@@ -1,11 +1,11 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Message-Digest algorithms (md5sum, sha1sum, sha256sum, sha512sum)
  * Copyright © 1998-2001 Free Software Foundation, Inc.
  * Copyright © 2004-2019 Tom St Denis
  * Copyright © 2004 g10 Code GmbH
  * Copyright © 2002-2015 Wei Dai & Igor Pavlov
- * Copyright © 2015-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2015-2025 Pete Batard <pete@akeo.ie>
  * Copyright © 2022 Jeffrey Walton <noloader@gmail.com>
  * Copyright © 2016 Alexander Graf
  *
@@ -70,6 +70,7 @@
 #include <windowsx.h>
 
 #include "db.h"
+#include "efi.h"
 #include "rufus.h"
 #include "winio.h"
 #include "missing.h"
@@ -432,7 +433,7 @@ static void sha1_transform_x86(uint64_t state64[5], const uint8_t *data, size_t 
 	__m128i MSG0, MSG1, MSG2, MSG3;
 	const __m128i MASK = _mm_set_epi64x(0x0001020304050607ULL, 0x08090a0b0c0d0e0fULL);
 
-	/* Rufus uses uint64_t for the state array. Pack it into uint32_t. */
+	/* Ruflux uses uint64_t for the state array. Pack it into uint32_t. */
 	uint32_t state[5] = {
 		(uint32_t)state64[0],
 		(uint32_t)state64[1],
@@ -734,7 +735,7 @@ static __inline void sha256_transform_x86(uint64_t state64[8], const uint8_t *da
 	__m128i MSG0, MSG1, MSG2, MSG3;
 	const __m128i MASK = _mm_set_epi64x(0x0c0d0e0f08090a0bULL, 0x0405060700010203ULL);
 
-	/* Rufus uses uint64_t for the state array. Pack it into uint32_t. */
+	/* Ruflux uses uint64_t for the state array. Pack it into uint32_t. */
 	uint32_t state[8] = {
 		(uint32_t)state64[0],
 		(uint32_t)state64[1],
@@ -2197,12 +2198,77 @@ static BOOL IsRevokedBySbat(uint8_t* buf, uint32_t len)
 		if (entry.version == 0)
 			continue;
 		for (j = 0; sbat_entries[j].product != NULL; j++) {
-			if (strcmp(entry.product, sbat_entries[j].product) == 0 && entry.version < sbat_entries[j].version)
+			if (strcmp(entry.product, sbat_entries[j].product) == 0 && entry.version < sbat_entries[j].version) {
+				uprintf("  SBAT version for '%s' (%d) is lower than required minimum SBAT version (%d)!",
+					entry.product, entry.version, sbat_entries[j].version);
 				return TRUE;
+			}
 		}
 	}
 
 	return FALSE;
+}
+
+// NB: Can be tested using en_windows_8_1_x64_dvd_2707217.iso
+extern BOOL UseLocalDbx(int arch);
+static BOOL IsRevokedByDbx(uint8_t* hash, uint8_t* buf, uint32_t len)
+{
+	EFI_VARIABLE_AUTHENTICATION_2* efi_var_auth;
+	EFI_SIGNATURE_LIST* efi_sig_list;
+	BYTE* dbx_data = NULL;
+	BOOL ret = FALSE, needs_free = FALSE;
+	DWORD dbx_size = 0;
+	char dbx_name[32], path[MAX_PATH];
+	uint32_t i, fluff_size, nb_entries;
+
+	i = MachineToArch(GetPeArch(buf));
+	if (i == ARCH_UNKNOWN)
+		goto out;
+
+	// Check if a more recent local DBX should be preferred over embedded
+	static_sprintf(dbx_name, "dbx_%s.bin", efi_archname[i]);
+	if (UseLocalDbx(i)) {
+		static_sprintf(path, "%s\\%s\\%s", app_data_dir, FILES_DIR, dbx_name);
+		dbx_size = read_file(path, &dbx_data);
+		needs_free = (dbx_data != NULL);
+		if (needs_free)
+			duprintf("  Using local %s for revocation check", path);
+	}
+	if (dbx_size == 0) {
+		dbx_data = (BYTE*)GetResource(hMainInstance, MAKEINTRESOURCEA(IDR_DBX + i),
+			_RT_RCDATA, dbx_name, &dbx_size, FALSE);
+	}
+	if (dbx_data == NULL || dbx_size <= sizeof(EFI_VARIABLE_AUTHENTICATION_2))
+		goto out;
+
+	efi_var_auth = (EFI_VARIABLE_AUTHENTICATION_2*)dbx_data;
+	fluff_size = efi_var_auth->AuthInfo.Hdr.dwLength + sizeof(EFI_TIME);
+	if (dbx_size <= fluff_size)
+		goto out;
+	efi_sig_list = (EFI_SIGNATURE_LIST*)&dbx_data[fluff_size];
+	fluff_size += sizeof(EFI_SIGNATURE_LIST);
+	if (dbx_size <= fluff_size)
+		goto out;
+	// Expect SHA-256 hashes
+	if (!CompareGUID(&efi_sig_list->SignatureType, &EFI_CERT_SHA256_GUID)) {
+		uprintf("  Warning: %s is not using SHA-256 hashes - Cannot check for UEFI revocation!", dbx_name);
+		goto out;
+	}
+	fluff_size += efi_sig_list->SignatureHeaderSize;
+	assert(efi_sig_list->SignatureSize != 0);
+	nb_entries = (efi_sig_list->SignatureListSize - efi_sig_list->SignatureHeaderSize - sizeof(EFI_SIGNATURE_LIST)) / efi_sig_list->SignatureSize;
+	assert(dbx_size >= fluff_size + nb_entries * efi_sig_list->SignatureSize);
+
+	fluff_size += sizeof(GUID);
+	for (i = 0; i < nb_entries && !ret; i++) {
+		if (memcmp(hash, &dbx_data[fluff_size + i * efi_sig_list->SignatureSize], SHA256_HASHSIZE) == 0)
+			ret = TRUE;
+	}
+
+out:
+	if (needs_free)
+		free(dbx_data);
+	return ret;
 }
 
 static BOOL IsRevokedBySvn(uint8_t* buf, uint32_t len)
@@ -2243,8 +2309,11 @@ static BOOL IsRevokedBySvn(uint8_t* buf, uint32_t len)
 				svn_ver = (uint32_t*)RvaToPhysical(buf, rsrc_rva);
 				if (svn_ver != NULL) {
 					uuprintf("  SVN version: %d.%d", *svn_ver >> 16, *svn_ver & 0xffff);
-					if (*svn_ver < sbat_entries[i].version)
+					if (*svn_ver < sbat_entries[i].version) {
+						uprintf("  SVN version %d.%d is lower than required minimum SVN version %d.%d!",
+							*svn_ver >> 16, *svn_ver & 0xffff, sbat_entries[i].version >> 16, sbat_entries[i].version & 0xffff);
 						return TRUE;
+					}
 				}
 			} else {
 				uprintf("  Warning: Unexpected Secure Version Number size");
@@ -2331,50 +2400,47 @@ int IsBootloaderRevoked(uint8_t* buf, uint32_t len)
 	// Get the signer/issuer info
 	cert = GetPeSignatureData(buf);
 	r = GetIssuerCertificateInfo(cert, &info);
-	if (r == 0)
+	if (r == 0) {
 		uprintf("  (Unsigned Bootloader)");
-	else if (r > 0)
+	} else if (r > 0) {
 		uprintf("  Signed by '%s'", info.name);
+		// Only perform revocation checks on signed bootloaders
+		if (!PE256Buffer(buf, len, hash))
+			return -1;
+		// Check for UEFI DBX revocation
+		if (IsRevokedByDbx(hash, buf, len))
+			revoked = 1;
+		// Check for Microsoft SSP revocation
+		for (i = 0; revoked == 0 && i < pe256ssp_size * SHA256_HASHSIZE; i += SHA256_HASHSIZE)
+			if (memcmp(hash, &pe256ssp[i], SHA256_HASHSIZE) == 0)
+				revoked = 2;
+		// Check for Linux SBAT revocation
+		if (revoked == 0 && IsRevokedBySbat(buf, len))
+			revoked = 3;
+		// Check for Microsoft SVN revocation
+		if (revoked == 0 && IsRevokedBySvn(buf, len))
+			revoked = 4;
+		// Check for UEFI DBX certificate revocation
+		if (revoked == 0 && IsRevokedByCert(&info))
+			revoked = 5;
 
-	if (!PE256Buffer(buf, len, hash))
-		return -1;
-	// Check for Microsoft SSP revocation
-	for (i = 0; revoked == 0 && i < pe256ssp_size * SHA256_HASHSIZE; i += SHA256_HASHSIZE)
-		if (memcmp(hash, &pe256ssp[i], SHA256_HASHSIZE) == 0)
-			revoked = 2;
-	// Check for Linux SBAT revocation
-	if (revoked == 0 && IsRevokedBySbat(buf, len))
-		revoked =  3;
-	// Check for Microsoft SVN revocation
-	if (revoked == 0 && IsRevokedBySvn(buf, len))
-		revoked = 4;
-	// Check for UEFI DBX certificate revocation
-	if (revoked == 0 && IsRevokedByCert(&info))
-		revoked = 5;
-
-	// If signed and not revoked, print the various Secure Boot "gotchas"
-	if (r > 0 && revoked == 0) {
-		if (strcmp(info.name, "Microsoft Windows Production PCA 2011") == 0) {
-			uprintf("  Note: This bootloader may fail Secure Boot validation on systems that");
-			uprintf("  have been updated to use the 'Windows UEFI CA 2023' certificate.");
-		} else if (strcmp(info.name, "Windows UEFI CA 2023") == 0) {
-			uprintf("  Note: This bootloader will fail Secure Boot validation on systems that");
-			uprintf("  have not been updated to use the latest Secure Boot certificates");
-		} else if (strcmp(info.name, "Microsoft Corporation UEFI CA 2011") == 0 ||
-			strcmp(info.name, "Microsoft UEFI CA 2023") == 0) {
-			uprintf("  Note: This bootloader may fail Secure Boot validation on *some* systems,");
-			uprintf("  unless you enable \"Microsoft 3rd-party UEFI CA\" in your 'BIOS'.");
+		// If signed and not revoked, print the various Secure Boot "gotchas"
+		if (revoked == 0) {
+			if (strcmp(info.name, "Microsoft Windows Production PCA 2011") == 0) {
+				uprintf("  Note: This bootloader may fail Secure Boot validation on systems that");
+				uprintf("  have been updated to use the 'Windows UEFI CA 2023' certificate.");
+			} else if (strcmp(info.name, "Windows UEFI CA 2023") == 0) {
+				uprintf("  Note: This bootloader will fail Secure Boot validation on systems that");
+				uprintf("  have not been updated to use the latest Secure Boot certificates");
+			} else if (strcmp(info.name, "Microsoft Corporation UEFI CA 2011") == 0 ||
+				strcmp(info.name, "Microsoft UEFI CA 2023") == 0) {
+				uprintf("  Note: This bootloader may fail Secure Boot validation on *some* systems,");
+				uprintf("  unless you enable \"Microsoft 3rd-party UEFI CA\" in your 'BIOS'.");
+			}
 		}
 	}
 
 	return revoked;
-}
-
-void PrintRevokedBootloaderInfo(void)
-{
-	uprintf("Found %d revoked UEFI bootloaders from embedded list", sizeof(pe256dbx) / SHA256_HASHSIZE);
-	if (ParseSKUSiPolicy() && pe256ssp_size != 0)
-		uprintf("Found %d additional revoked UEFI bootloaders from this system's SKUSiPolicy.p7b", pe256ssp_size);
 }
 
 /*

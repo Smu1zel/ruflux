@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Drive access function calls
  * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
  *
@@ -78,7 +78,7 @@ uint64_t persistence_size = 0;
 
 /*
  * The following methods get or set the AutoMount setting (which is different from AutoRun)
- * Rufus needs AutoMount to be set as the format process may fail for fixed drives otherwise.
+ * Ruflux needs AutoMount to be set as the format process may fail for fixed drives otherwise.
  * See https://github.com/pbatard/rufus/issues/386.
  *
  * Reverse engineering diskpart and mountvol indicates that the former uses the IVdsService
@@ -168,7 +168,7 @@ static HANDLE GetHandle(char* Path, BOOL bLockDrive, BOOL bWriteAccess, BOOL bWr
 			uprintf("Waiting for access on %s...", Path);
 		} else if (!bWriteShare && (i > DRIVE_ACCESS_RETRIES/3)) {
 			// If we can't seem to get a hold of the drive for some time, try to enable FILE_SHARE_WRITE...
-			uprintf("Warning: Could not obtain exclusive rights. Retrying with write sharing enabled...");
+			uprintf("WARNING: Could not obtain exclusive rights. Retrying with write sharing enabled...");
 			bWriteShare = TRUE;
 			// Try to report the process that is locking the drive
 			access_mask = GetProcessSearch(SEARCH_PROCESS_TIMEOUT, 0x07, FALSE);
@@ -281,11 +281,11 @@ char* GetLogicalName(DWORD DriveIndex, uint64_t PartitionOffset, BOOL bKeepTrail
 
 		// Sanity checks
 		len = safe_strlen(volume_name);
-		if_not_assert(len > 4)
+		if_assert_fails(len > 4)
 			continue;
-		if_not_assert(safe_strnicmp(volume_name, volume_start, 4) == 0)
+		if_assert_fails(safe_strnicmp(volume_name, volume_start, 4) == 0)
 			continue;
-		if_not_assert(volume_name[len - 1] == '\\')
+		if_assert_fails(volume_name[len - 1] == '\\')
 			continue;
 
 		drive_type = GetDriveTypeA(volume_name);
@@ -365,7 +365,7 @@ char* GetLogicalName(DWORD DriveIndex, uint64_t PartitionOffset, BOOL bKeepTrail
 		// NB: We need to re-add DRIVE_INDEX_MIN for this call since CheckDriveIndex() subtracted it
 		ret = AltGetLogicalName(DriveIndex + DRIVE_INDEX_MIN, PartitionOffset, bKeepTrailingBackslash, bSilent);
 		if ((ret != NULL) && (strchr(ret, ' ') != NULL))
-			uprintf("Warning: Using physical device to access partition data");
+			uprintf("WARNING: Using physical device to access partition data");
 	}
 
 out:
@@ -448,7 +448,7 @@ static const char* VdsErrorString(HRESULT hr) {
 /*
  * Per https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-cocreateinstance
  * and even though we aren't a UWP app, Windows Store prevents the ability to use of VDS when the
- * Store version of Rufus is running (the call to IVdsServiceLoader_LoadService() will return
+ * Store version of Ruflux is running (the call to IVdsServiceLoader_LoadService() will return
  * E_ACCESSDENIED).
  */
 BOOL IsVdsAvailable(BOOL bSilent)
@@ -671,6 +671,7 @@ static BOOL GetVdsDiskInterface(DWORD DriveIndex, const IID* InterfaceIID, void*
 
 			// List disks
 			while (IEnumVdsObject_Next(pEnumDisk, 1, &pDiskUnk, &ulFetched) == S_OK) {
+				BOOL r;
 				VDS_DISK_PROP prop;
 				IVdsDisk* pDisk;
 
@@ -689,13 +690,13 @@ static BOOL GetVdsDiskInterface(DWORD DriveIndex, const IID* InterfaceIID, void*
 					suprintf("Could not query VDS Disk Properties: %s", VdsErrorString(hr));
 					break;
 				}
+				hr = S_OK;
 
-				// Check if we are on the target disk
-				// uprintf("GetVdsDiskInterface: Seeking %S found %S", wPhysicalName, prop.pwszName);
-				hr = (HRESULT)_wcsicmp(wPhysicalName, prop.pwszName);
-				CoTaskMemFree(prop.pwszName);
-				if (hr != S_OK) {
-					hr = S_OK;
+				// Check if we are on the target disk. Note that prop.pwszName can be NULL on failed disks.
+				r = (prop.pwszName != NULL) && (_wcsicmp(wPhysicalName, prop.pwszName) == 0);
+				CoTaskMemFree(prop.pwszName);	// NB: Per MS docs, CoTaskMemFree() accepts NULL.
+				if (!r) {
+					IVdsDisk_Release(pDisk);
 					continue;
 				}
 
@@ -1152,7 +1153,7 @@ static BOOL _GetDriveLettersAndType(DWORD DriveIndex, char* drive_letters, UINT*
 				NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL, 3000);
 		if (hDrive == INVALID_HANDLE_VALUE) {
 			if (GetLastError() == WAIT_TIMEOUT)
-				uprintf("Warning: Time-out while trying to query drive %c", toupper(drive[0]));
+				uprintf("WARNING: Time-out while trying to query drive %c", toupper(drive[0]));
 			continue;
 		}
 
@@ -1417,7 +1418,7 @@ const struct {int (*fn)(FILE *fp); char* str;} known_mbr[] = {
 	{ is_2000_mbr, "Windows 2000/XP/2003" },
 	{ is_vista_mbr, "Windows Vista" },
 	{ is_win7_mbr, "Windows 7" },
-	{ is_rufus_mbr, "Rufus" },
+	{ is_rufus_mbr, "Ruflux" },
 	{ is_syslinux_mbr, "Syslinux" },
 	{ is_reactos_mbr, "ReactOS" },
 	{ is_kolibrios_mbr, "KolibriOS" },
@@ -1718,7 +1719,7 @@ out:
 }
 
 // This is a crude attempt at detecting file systems through their superblock magic.
-// Note that we only attempt to detect the file systems that Rufus can format as
+// Note that we only attempt to detect the file systems that Ruflux can format as
 // well as a couple other maintsream ones.
 const char* GetFsName(HANDLE hPhysical, LARGE_INTEGER StartingOffset)
 {
@@ -1892,7 +1893,7 @@ BOOL GetDrivePartitionData(DWORD DriveIndex, char* FileSystemName, DWORD FileSys
 	SelectedDrive.SectorSize = DiskGeometry->Geometry.BytesPerSector;
 	SelectedDrive.FirstDataSector = MAXDWORD;
 	if (SelectedDrive.SectorSize < 512) {
-		suprintf("Warning: Drive 0x%02x reports a sector size of %d - Correcting to 512 bytes.",
+		suprintf("WARNING: Drive 0x%02x reports a sector size of %d - Correcting to 512 bytes.",
 			DriveIndex, SelectedDrive.SectorSize);
 		SelectedDrive.SectorSize = 512;
 	}
@@ -1903,7 +1904,7 @@ BOOL GetDrivePartitionData(DWORD DriveIndex, char* FileSystemName, DWORD FileSys
 		(SelectedDrive.MediaType == FixedMedia) ? "FIXED" : "Removable",
 		SizeToHumanReadable(SelectedDrive.DiskSize, FALSE, TRUE), SelectedDrive.SectorSize);
 	suprintf("Cylinders: %" PRIi64 ", Tracks per cylinder: %d, Sectors per track: %d",
-		DiskGeometry->Geometry.Cylinders, DiskGeometry->Geometry.TracksPerCylinder, DiskGeometry->Geometry.SectorsPerTrack);
+		DiskGeometry->Geometry.Cylinders.QuadPart, DiskGeometry->Geometry.TracksPerCylinder, DiskGeometry->Geometry.SectorsPerTrack);
 	assert(SelectedDrive.SectorSize != 0);
 
 	r = DeviceIoControl(hPhysical, IOCTL_DISK_GET_DRIVE_LAYOUT_EX,
@@ -1978,7 +1979,7 @@ BOOL GetDrivePartitionData(DWORD DriveIndex, char* FileSystemName, DWORD FileSys
 				SelectedDrive.FirstDataSector = min(SelectedDrive.FirstDataSector,
 					(DWORD)(DriveLayout->PartitionEntry[i].StartingOffset.QuadPart / SelectedDrive.SectorSize));
 				if ((part_type == RUFUS_EXTRA_PARTITION_TYPE) || (isUefiNtfs))
-					// This is a partition Rufus created => we can safely ignore it
+					// This is a partition Ruflux created => we can safely ignore it
 					--SelectedDrive.nPartitions;
 				if (part_type == 0xee)	// Flag a protective MBR for non GPT platforms (XP)
 					SelectedDrive.has_protective_mbr = TRUE;
@@ -2007,7 +2008,7 @@ BOOL GetDrivePartitionData(DWORD DriveIndex, char* FileSystemName, DWORD FileSys
 			suprintf("  ID: %s\r\n  Size: %s (%" PRIi64 " bytes)\r\n  Start Sector: %" PRIi64 ", Attributes: 0x%016" PRIX64,
 				GuidToString(&DriveLayout->PartitionEntry[i].Gpt.PartitionId, TRUE),
 				SizeToHumanReadable(DriveLayout->PartitionEntry[i].PartitionLength.QuadPart, TRUE, FALSE),
-				DriveLayout->PartitionEntry[i].PartitionLength,
+				DriveLayout->PartitionEntry[i].PartitionLength.QuadPart,
 				DriveLayout->PartitionEntry[i].StartingOffset.QuadPart / SelectedDrive.SectorSize,
 				DriveLayout->PartitionEntry[i].Gpt.Attributes);
 			SelectedDrive.FirstDataSector = min(SelectedDrive.FirstDataSector,
@@ -2138,7 +2139,7 @@ BOOL MountVolume(char* drive_name, char *volume_name)
 			}
 			uprintf("Retrying after dismount...");
 			if (!DeleteVolumeMountPointA(drive_name))
-				uprintf("Warning: Could not delete volume mountpoint '%s': %s", drive_name, WindowsErrorString());
+				uprintf("WARNING: Could not delete volume mountpoint '%s': %s", drive_name, WindowsErrorString());
 			if (SetVolumeMountPointA(drive_name, volume_name))
 				return TRUE;
 			if ((GetLastError() == ERROR_DIR_NOT_EMPTY) &&
@@ -2488,7 +2489,7 @@ BOOL CreatePartition(HANDLE hDrive, int partition_style, int file_system, BOOL m
 	// We need to write the UEFI:NTFS partition before we refresh the disk
 	if (extra_partitions & XP_UEFI_NTFS) {
 		LARGE_INTEGER li;
-		uprintf("Writing UEFI:NTFS data...", SelectedDrive.Partition[partition_index[PI_UEFI_NTFS]].Name);
+		uprintf("Writing UEFI:NTFS data...");
 		li.QuadPart = SelectedDrive.Partition[partition_index[PI_UEFI_NTFS]].Offset;
 		if (!SetFilePointerEx(hDrive, li, NULL, FILE_BEGIN)) {
 			uprintf("  Could not set position");
@@ -2511,7 +2512,7 @@ BOOL CreatePartition(HANDLE hDrive, int partition_style, int file_system, BOOL m
 		CreateDisk.PartitionStyle = PARTITION_STYLE_MBR;
 		// If MBR+UEFI is selected, write an UEFI marker in lieu of the regular MBR signature.
 		// This helps us reselect the partition scheme option that was used when creating the
-		// drive in Rufus. As far as I can tell, Windows doesn't care much if this signature
+		// drive in Ruflux. As far as I can tell, Windows doesn't care much if this signature
 		// isn't unique for USB drives.
 		CreateDisk.Mbr.Signature = mbr_uefi_marker?MBR_UEFI_MARKER:(DWORD)GetTickCount64();
 
@@ -2662,7 +2663,7 @@ out:
  * Detect filtered drives, that have been added by users through the registry
  * entries IgnoreDisk01 - IgnoreDisk08. These entries must contain *decorated*
  * string GUIDs that match the GPT Disk GUID of the drive to filter out, as
- * reported by Rufus, such as "{F333EC2E-25C9-488D-A7FC-9147C2367623}".
+ * reported by Ruflux, such as "{F333EC2E-25C9-488D-A7FC-9147C2367623}".
  */
 BOOL IsFilteredDrive(DWORD DriveIndex)
 {

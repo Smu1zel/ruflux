@@ -54,7 +54,7 @@ typedef struct _NT_PRIVATE_DATA {
     ULONG   buffer_size;
     BOOLEAN read_only;
     BOOLEAN written;
-    // Used by Rufus
+    // Used by Ruflux
     __u64   offset;
     __u64   size;
 } NT_PRIVATE_DATA, *PNT_PRIVATE_DATA;
@@ -275,7 +275,7 @@ static PCSTR _NormalizeDeviceName(IN PCSTR Device, IN PSTR NormalizedDeviceNameB
 	if (Device[0] == '\\') {
 		if ((strlen(Device) < 4) || (Device[3] != '\\'))
 			return Device;
-		// Handle custom paths of the form "<Physical> <Offset> <Size>" used by Rufus to
+		// Handle custom paths of the form "<Physical> <Offset> <Size>" used by Ruflux to
 		// enable multi-partition access on removable devices, for pre 1703 platforms.
 		if (sscanf(Device, "%s %I64u %I64u", NormalizedDeviceNameBuffer, Offset, Size) < 1)
 			return NULL;

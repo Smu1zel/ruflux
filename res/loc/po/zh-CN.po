@@ -402,12 +402,12 @@ msgid "Multiple Partitions"
 msgstr "多分区磁盘"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - 刷新缓冲区"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - 刷新缓冲区"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - 取消"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - 取消"
 
 #. • MSG_050
 msgid "Success."
@@ -1082,8 +1082,8 @@ msgid "Click to select..."
 msgstr "点击选择..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - 可靠的 USB 格式化工具"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - 可靠的 USB 格式化工具"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

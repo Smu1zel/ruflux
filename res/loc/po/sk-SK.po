@@ -404,12 +404,12 @@ msgid "Multiple Partitions"
 msgstr "Zariadenie s viacerým oddielmi"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - Vyprázdňovanie dočasnej pamäte"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - Vyprázdňovanie dočasnej pamäte"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - Ukončovanie operácie"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - Ukončovanie operácie"
 
 #. • MSG_050
 msgid "Success."
@@ -1084,8 +1084,8 @@ msgid "Click to select..."
 msgstr "Stlačením vybrať..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - Spoľahlivý program pre formátovanie USB"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - Spoľahlivý program pre formátovanie USB"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

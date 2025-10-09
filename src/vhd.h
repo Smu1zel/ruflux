@@ -1,5 +1,5 @@
 /*
- * Rufus: The Reliable USB Formatting Utility
+ * Ruflux: Another USB Formatting Utility
  * Virtual Disk Handling definitions and prototypes
  * Copyright © 2022-2025 Pete Batard <pete@akeo.ie>
  *

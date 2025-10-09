@@ -402,12 +402,12 @@ msgid "Multiple Partitions"
 msgstr "พบหลายพาร์ติชัน"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
-msgstr "Rufus - กำลังล้างบัฟเฟอร์"
+msgid "Ruflux - Flushing buffers"
+msgstr "Ruflux - กำลังล้างบัฟเฟอร์"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
-msgstr "Rufus - ยกเลิกการดำเนินการ"
+msgid "Ruflux - Cancellation"
+msgstr "Ruflux - ยกเลิกการดำเนินการ"
 
 #. • MSG_050
 msgid "Success."
@@ -1074,8 +1074,8 @@ msgid "Click to select..."
 msgstr "คลิกเพื่อเลือกไฟล์อิมเมจ..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - ยูทิลิตี้การฟอร์แมต USB ที่ไว้ใจได้"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - ยูทิลิตี้การฟอร์แมต USB ที่ไว้ใจได้"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"
