@@ -3792,18 +3792,38 @@ relaunch:
 	if ((relaunch_rc.left > -65536) && (relaunch_rc.top > -65536))
 		SetWindowPos(hDlg, HWND_TOP, relaunch_rc.left, relaunch_rc.top, 0, 0, SWP_NOSIZE);
 
-	if (WindowsVersion.Version >= WINDOWS_7) {
+	BOOL supportsFilterEx = FALSE;
+	HMODULE hUser32 = GetModuleHandleW(L"user32.dll");
+
+	// Try ChangeWindowMessageFilterEx first
+	FARPROC pChangeWindowMessageFilterEx =
+		GetProcAddress(hUser32, "ChangeWindowMessageFilterEx");
+
+	if (pChangeWindowMessageFilterEx) {
 		// Enable drag-n-drop through the message filter
-		ChangeWindowMessageFilterEx(hDlg, WM_DROPFILES, MSGFLT_ADD, NULL);
-		ChangeWindowMessageFilterEx(hDlg, WM_COPYDATA, MSGFLT_ADD, NULL);
+		supportsFilterEx =
+			((BOOL(WINAPI*)(HWND, UINT, DWORD, PCHANGEFILTERSTRUCT))
+				pChangeWindowMessageFilterEx)(hDlg, WM_DROPFILES, MSGFLT_ADD, NULL);
+		supportsFilterEx &=
+			((BOOL(WINAPI*)(HWND, UINT, DWORD, PCHANGEFILTERSTRUCT))
+				pChangeWindowMessageFilterEx)(hDlg, WM_COPYDATA, MSGFLT_ADD, NULL);
 		// CopyGlobalData is needed since we are running elevated
-		ChangeWindowMessageFilterEx(hDlg, WM_COPYGLOBALDATA, MSGFLT_ADD, NULL);
+		supportsFilterEx &=
+			((BOOL(WINAPI*)(HWND, UINT, DWORD, PCHANGEFILTERSTRUCT))
+				pChangeWindowMessageFilterEx)(hDlg, WM_COPYGLOBALDATA, MSGFLT_ADD, NULL);
 	}
 	else {
 		// Vista can't do all that, so use this deprecated method
-		ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
-		ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
-		ChangeWindowMessageFilter(WM_COPYGLOBALDATA, MSGFLT_ADD);
+		FARPROC pChangeWindowMessageFilter =
+			GetProcAddress(hUser32, "ChangeWindowMessageFilter");
+		if (pChangeWindowMessageFilter) {
+			supportsFilterEx =
+				((BOOL(WINAPI*)(UINT, DWORD))pChangeWindowMessageFilter)(WM_DROPFILES, MSGFLT_ADD);
+			supportsFilterEx &=
+				((BOOL(WINAPI*)(UINT, DWORD))pChangeWindowMessageFilter)(WM_COPYDATA, MSGFLT_ADD);
+			supportsFilterEx &=
+				((BOOL(WINAPI*)(UINT, DWORD))pChangeWindowMessageFilter)(WM_COPYGLOBALDATA, MSGFLT_ADD);
+		}
 	}
 	// Set the hook to automatically close Windows' "You need to format the disk in drive..." prompt
 	SetAlertPromptMessages();
