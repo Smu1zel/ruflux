@@ -426,7 +426,7 @@ BEGIN
         BEGIN
             VALUE "Comments", "https://github.com/Smu1zel/ruflux"
             VALUE "CompanyName", "Smu1zel"
-            VALUE "FileDescription", "Ruflux (formerly known as Ruflux 7)"
+            VALUE "FileDescription", "Ruflux (formerly known as Rufus 7)"
             VALUE "FileVersion", "4.11.2285"
             VALUE "InternalName", "Ruflux"
             VALUE "LegalCopyright", "© 2011-2025 Pete Batard (GPL v3)"
