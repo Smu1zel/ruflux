@@ -1305,6 +1305,42 @@ char* replace_char(const char* src, const char c, const char* rep)
 }
 
 /*
+ * Replace all characters from string 'str' that are present in the array of chars 'rem'
+ * to the 'rep' character.
+ */
+void filter_chars(char* str, const char* rem, const char rep)
+{
+	char *p, *q;
+
+	if (str == NULL || rem == NULL)
+		return;
+	for (p = str; *p != '\0'; p++) {
+		for (q = (char*)rem; *q != '\0'; q++)
+			if (*p == *q)
+				*p = rep;
+	}
+}
+
+/*
+ * Trim all leadings and trailing whitespaces
+ */
+void trim(char* str)
+{
+	size_t l;
+	char* p;
+
+	if (str == NULL)
+		return;
+	l = strlen(str);
+	if (l < 1)
+		return;
+	while (isspace(str[l - 1]))
+		str[--l] = '\0';
+	for (p = str; *p != '\0' && isspace(*p); p++, l--);
+	memmove(str, p, l + 1);
+}
+
+/*
  * Remove all instances of substring 'sub' form string 'src.
  * The returned string is allocated and must be freed by the caller.
  */
@@ -1542,7 +1578,7 @@ int sanitize_label(char* label)
 	// Remove all leading '-'
 	for (i = 0; i < len && label[i] == '-'; i++);
 	if (i != 0)
-		memmove(label, &label[i], len - i);
+		memmove(label, &label[i], len - i + 1);
 	len = strlen(label);
 	if (len <= 1)
 		return -1;
@@ -1567,7 +1603,7 @@ int sanitize_label(char* label)
 	for (i = 0; i < ARRAYSIZE(remove); i++) {
 		s = strstr(label, remove[i]);
 		if (s != NULL)
-			strcpy(s, &s[strlen(remove[i])]);
+			memmove(s, &s[strlen(remove[i])], strlen(&s[strlen(remove[i])]) + 1);
 	}
 
 	return 0;

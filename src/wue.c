@@ -1,7 +1,7 @@
 /*
  * Ruflux: Another USB Formatting Utility
  * Windows User Experience
- * Copyright © 2022-2025 Pete Batard <pete@akeo.ie>
+ * Copyright © 2022-2026 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,13 +46,57 @@ const char* bypass_name[] = { "BypassTPMCheck", "BypassSecureBootCheck", "Bypass
 
 int unattend_xml_flags = 0, wintogo_index = -1, wininst_index = 0;
 int unattend_xml_mask = UNATTEND_DEFAULT_SELECTION_MASK;
+int unattend_edition_index = 1;
 char *unattend_xml_path = NULL, unattend_username[MAX_USERNAME_LENGTH];
-BOOL is_bootloader_revoked = FALSE;
+uint32_t removable_section[2] = { 0, 0 };
 
-extern BOOL validate_md5sum;
+extern BOOL validate_md5sum, bcdboot_supports_ex;
 extern uint64_t md5sum_totalbytes;
 extern StrArray modified_files;
 extern const char* efi_archname[ARCH_MAX];
+
+// Get the UI language provided by the ISO's boot.wim
+char* GetUILanguage(void)
+{
+	static char ui_language[8];
+	int r;
+	char wim_path[4 * MAX_PATH] = "";
+	wchar_t* xml = NULL;
+	ezxml_t pxml = NULL;
+	size_t xml_len;
+	WIMStruct* wim = NULL;
+
+	assert(safe_strlen(image_path) + 32 < ARRAYSIZE(wim_path));
+	static_strcpy(ui_language, "en-US");
+	static_strcpy(wim_path, image_path);
+	static_strcat(wim_path, "|sources/boot.wim");
+
+	r = wimlib_open_wimU(wim_path, 0, &wim);
+	if (r != 0) {
+		uprintf("Could not open WIM: Error %d", r);
+		goto out;
+	}
+
+	r = wimlib_get_xml_data(wim, (void**)&xml, &xml_len);
+	if (r != 0) {
+		uprintf("Could not read WIM XML index: Error %d", r);
+		goto out;
+	}
+
+	pxml = ezxml_parse_str((char*)xml, xml_len);
+	if (pxml == NULL)
+		goto out;
+
+	char* lang = ezxml_get_val(pxml, "IMAGE", 1, "WINDOWS", 0, "LANGUAGES", 0, "LANGUAGE", -1);
+	if (lang != NULL)
+		static_strcpy(ui_language, lang);
+
+out:
+	ezxml_free(pxml);
+	free(xml);
+	wimlib_free(wim);
+	return ui_language;
+}
 
 /// <summary>
 /// Create an installation answer file containing the sections specified by the flags.
@@ -64,13 +108,18 @@ extern const char* efi_archname[ARCH_MAX];
 char* CreateUnattendXml(int arch, int flags)
 {
 	const static char* xml_arch_names[5] = { "x86", "amd64", "arm", "arm64" };
-	const static char* unallowed_account_names[] = { "Administrator", "Guest", "KRBTGT", "Local" };
-	static char path[MAX_PATH];
+	const static char* unallowed_account_names[] = {
+		// From https://learn.microsoft.com/en-us/archive/technet-wiki/13813.localized-names-for-administrator-account-in-windows
+		"Administrator", "Järjestelmänvalvoja", "Administrateur", "Rendszergazda", "Administrador", "Администратор", "Administratör",
+		"Guest", "DefaultAccount", "WDAGUtilityAccount", "HelpAssistant", "KRBTGT", "Local", "NONE", "SYSTEM"
+	};
+	static char path[MAX_PATH], tmp[MAX_PATH];
 	char* tzstr;
 	FILE* fd;
 	TIME_ZONE_INFORMATION tz_info;
 	int i, order;
 	unattend_xml_flags = flags;
+	StrArray commands = { 0 };
 	if (arch < ARCH_X86_32 || arch > ARCH_ARM_64 || flags == 0) {
 		uprintf("Note: No Windows User Experience options selected");
 		return NULL;
@@ -87,24 +136,111 @@ char* CreateUnattendXml(int arch, int flags)
 	fprintf(fd, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 	fprintf(fd, "<unattend xmlns=\"urn:schemas-microsoft-com:unattend\">\n");
 
-	// This part produces the unbecoming display of a command prompt window during initial setup as well
-	// as alters the layout and options of the initial Windows installer screens, which may scare users.
-	// So, in format.c, we'll try to insert the registry keys directly and drop this section. However,
-	// because Microsoft prevents Store apps from editing an offline registry, we do need this fallback.
+	StrArrayCreate(&commands, 16);
 	if (flags & UNATTEND_WINPE_SETUP_MASK) {
-		order = 1;
 		fprintf(fd, "  <settings pass=\"windowsPE\">\n");
 		fprintf(fd, "    <component name=\"Microsoft-Windows-Setup\" processorArchitecture=\"%s\" language=\"neutral\" "
 			"xmlns:wcm=\"http://schemas.microsoft.com/WMIConfig/2002/State\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
 			"publicKeyToken=\"31bf3856ad364e35\" versionScope=\"nonSxS\">\n", xml_arch_names[arch]);
 		// WinPE will complain if we don't provide a product key. *Any* product key. This is soooo idiotic...
 		fprintf(fd, "      <UserData>\n");
+		fprintf(fd, "        <AcceptEula>true</AcceptEula>\n");
 		fprintf(fd, "        <ProductKey>\n");
 		fprintf(fd, "          <Key />\n");
 		fprintf(fd, "        </ProductKey>\n");
 		fprintf(fd, "      </UserData>\n");
+		if (flags & UNATTEND_SILENT_INSTALL) {
+			uprintf("• Silent Install");
+			// Automatically partition the disk and set the installation target
+			fprintf(fd, "      <DiskConfiguration>\n");
+			fprintf(fd, "        <WillShowUI>OnError</WillShowUI>\n");
+			if (flags & UNATTEND_DISABLE_BITLOCKER)
+				fprintf(fd, "        <DisableEncryptedDiskProvisioning>true</DisableEncryptedDiskProvisioning>\n");
+			// The following ensures that we display the disk selection screen if only the boot media is
+			// available (i.e. if the system does not see any target for installation) or (in most cases)
+			// if the user happens to have more than one disk connected besides the instal USB. In that
+			// case the label assignment below fails and the UI is displayed allowing the user to provide
+			// drivers or pick their target disk explicitly.
+			// This also prevents the install media from being scratched.
+			// With a special mention to Claude AI, that explicitly said this could not be accomplished...
+			// Note that this may result in the disk partition screen being produced on systems that have
+			// card readers, but we'd rather inconvenience a few people, to prevent potential data loss,
+			// than the opposite. Also note that you do *NOT* want to try to use drive letter mapping for
+			// the detection here, as if your drive isn't of type FIXED, the file copy steps bails out at
+			// 75%. See https://github.com/pbatard/rufus/issues/2960 for more details.
+			fprintf(fd, "        <Disk wcm:action=\"modify\">\n");
+			fprintf(fd, "          <DiskID>1</DiskID> \n");
+			fprintf(fd, "          <ModifyPartitions>\n");
+			fprintf(fd, "            <ModifyPartition wcm:action=\"modify\">\n");
+			fprintf(fd, "              <Order>1</Order>\n");
+			fprintf(fd, "              <PartitionID>2</PartitionID>\n");
+			fprintf(fd, "              <Label>RUFUS_BOOT</Label>\n");
+			fprintf(fd, "            </ModifyPartition>\n");
+			fprintf(fd, "          </ModifyPartitions>\n");
+			fprintf(fd, "        </Disk>\n");
+			fprintf(fd, "        <Disk wcm:action=\"add\">\n");
+			fprintf(fd, "          <DiskID>0</DiskID> \n");
+			fprintf(fd, "          <WillWipeDisk>true</WillWipeDisk> \n");
+			fprintf(fd, "          <CreatePartitions>\n");
+			// NB: Don't bother creating a recovery partition. Windows setup will do it for us.
+			fprintf(fd, "            <CreatePartition wcm:action=\"add\">\n");
+			fprintf(fd, "              <Order>1</Order>\n");
+			fprintf(fd, "              <Type>EFI</Type>\n");
+			fprintf(fd, "              <Size>260</Size>\n");
+			fprintf(fd, "            </CreatePartition>\n");
+			fprintf(fd, "            <CreatePartition wcm:action=\"add\">\n");
+			fprintf(fd, "              <Order>2</Order>\n");
+			fprintf(fd, "              <Type>MSR</Type>\n");
+			fprintf(fd, "              <Size>16</Size>\n");
+			fprintf(fd, "            </CreatePartition>\n");
+			fprintf(fd, "            <CreatePartition wcm:action=\"add\">\n");
+			fprintf(fd, "              <Order>3</Order>\n");
+			fprintf(fd, "              <Type>Primary</Type>\n");
+			fprintf(fd, "              <Extend>true</Extend>\n");
+			fprintf(fd, "            </CreatePartition>\n");
+			fprintf(fd, "          </CreatePartitions>\n");
+			fprintf(fd, "          <ModifyPartitions>\n");
+			fprintf(fd, "            <ModifyPartition wcm:action=\"add\">\n");
+			fprintf(fd, "              <Order>1</Order>\n");
+			fprintf(fd, "              <PartitionID>1</PartitionID>\n");
+			fprintf(fd, "              <Label>EFI</Label>\n");
+			fprintf(fd, "              <Format>FAT32</Format>\n");
+			fprintf(fd, "            </ModifyPartition>\n");
+			fprintf(fd, "            <ModifyPartition wcm:action=\"add\">\n");
+			fprintf(fd, "              <Order>2</Order>\n");
+			fprintf(fd, "              <PartitionID>3</PartitionID>\n");
+			fprintf(fd, "              <Label>Windows</Label>\n");
+			fprintf(fd, "              <Letter>C</Letter>\n");
+			fprintf(fd, "              <Format>NTFS</Format>\n");
+			fprintf(fd, "            </ModifyPartition>\n");
+			fprintf(fd, "          </ModifyPartitions>\n");
+			fprintf(fd, "        </Disk>\n");
+			fprintf(fd, "      </DiskConfiguration>\n");
+			fprintf(fd, "      <ImageInstall>\n");
+			fprintf(fd, "        <OSImage>\n");
+			fprintf(fd, "          <WillShowUI>OnError</WillShowUI>\n");
+			fprintf(fd, "          <InstallFrom>\n");
+			fprintf(fd, "            <MetaData wcm:action=\"add\">\n");
+			fprintf(fd, "              <Key>/IMAGE/INDEX</Key>\n");
+			fprintf(fd, "              <Value>%d</Value>\n", unattend_edition_index);
+			fprintf(fd, "            </MetaData>\n");
+			fprintf(fd, "          </InstallFrom>\n");
+			fprintf(fd, "          <InstallTo>\n");
+			fprintf(fd, "            <DiskID>0</DiskID>\n");
+			fprintf(fd, "            <PartitionID>3</PartitionID>\n");
+			fprintf(fd, "          </InstallTo>\n");
+			fprintf(fd, "        </OSImage>\n");
+			fprintf(fd, "      </ImageInstall>\n");
+		}
 		if (flags & UNATTEND_SECUREBOOT_TPM_MINRAM) {
+			// This part produces the unbecoming display of a command prompt window during initial setup as well
+			// as alters the layout and options of the initial Windows installer screens, which may scare users.
+			// So, in format.c, we'll try to insert the registry keys directly and drop this section. However,
+			// because Microsoft prevents Store apps from editing an offline registry, we do need this fallback.
+			// NB: We could probably avoid this by running powershell with -WindowStyle "Hidden" but hey...
 			uprintf("• Bypass SB/TPM/RAM");
+			order = 1;
+			removable_section[0] = (uint32_t)ftell(fd);
 			fprintf(fd, "      <RunSynchronous>\n");
 			for (i = 0; i < ARRAYSIZE(bypass_name); i++) {
 				fprintf(fd, "        <RunSynchronousCommand wcm:action=\"add\">\n");
@@ -113,46 +249,87 @@ char* CreateUnattendXml(int arch, int flags)
 				fprintf(fd, "        </RunSynchronousCommand>\n");
 			}
 			fprintf(fd, "      </RunSynchronous>\n");
+			removable_section[1] = (uint32_t)ftell(fd);
 		}
 		fprintf(fd, "    </component>\n");
+		if (flags & UNATTEND_SILENT_INSTALL) {
+			fprintf(fd, "    <component name=\"Microsoft-Windows-International-Core-WinPE\" processorArchitecture=\"%s\" language=\"neutral\" "
+				"xmlns:wcm=\"http://schemas.microsoft.com/WMIConfig/2002/State\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+				"publicKeyToken=\"31bf3856ad364e35\" versionScope=\"nonSxS\">\n", xml_arch_names[arch]);
+			// Set the language from the <LANGUAGE> tag of the boot.wim index
+			fprintf(fd, "      <UILanguage>%s</UILanguage>\n", GetUILanguage());
+			fprintf(fd, "    </component>\n");
+		}
 		fprintf(fd, "  </settings>\n");
 	}
 
 	if (flags & UNATTEND_SPECIALIZE_DEPLOYMENT_MASK) {
-		order = 1;
 		fprintf(fd, "  <settings pass=\"specialize\">\n");
 		fprintf(fd, "    <component name=\"Microsoft-Windows-Deployment\" processorArchitecture=\"%s\" language=\"neutral\" "
 			"xmlns:wcm=\"http://schemas.microsoft.com/WMIConfig/2002/State\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
 			"publicKeyToken=\"31bf3856ad364e35\" versionScope=\"nonSxS\">\n", xml_arch_names[arch]);
-		fprintf(fd, "      <RunSynchronous>\n");
 		// This part was picked from https://github.com/AveYo/MediaCreationTool.bat/blob/main/bypass11/AutoUnattend.xml
 		// NB: This is INCOMPATIBLE with S-Mode below
 		if (flags & UNATTEND_NO_ONLINE_ACCOUNT) {
+			StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\OOBE\" /v BypassNRO /t REG_DWORD /d 1 /f", TRUE);
 			uprintf("• Bypass online account requirement");
-			fprintf(fd, "        <RunSynchronousCommand wcm:action=\"add\">\n");
-			fprintf(fd, "          <Order>%d</Order>\n", order++);
-			fprintf(fd, "          <Path>reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\OOBE /v BypassNRO /t REG_DWORD /d 1 /f</Path>\n");
-			fprintf(fd, "        </RunSynchronousCommand>\n");
 		}
-		fprintf(fd, "      </RunSynchronous>\n");
+		if (flags & UNATTEND_QOL_ENHANCEMENTS) {
+			uprintf("• QoL: Disable OneDrive and Outlook by default");
+			// Remove OneDrive
+			StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\OneDrive\" /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f", TRUE);
+			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+				"\"Remove-Item -Path $env:SystemRoot\\System32\\OneDriveSetup.exe -Force -Confirm:$false; "
+				"Remove-Item -Path $env:SystemRoot\\SysWOW64\\OneDriveSetup.exe -Force -Confirm:$false;\"", TRUE);
+			// Remove Outlook. How the frig is forcing Outlook on users legal when MS got pinned for bundling IE with Windows?
+			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+				"\"Get-AppxProvisionedPackage -Online | Where-Object {$_.PackageName -like '*Outlook*'} |"
+				" Remove-AppxProvisionedPackage -Online\"", TRUE);
+			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+				"\"Get-AppxPackage -AllUsers *Outlook* | Remove-AppxPackage -AllUsers\"", TRUE);
+			// Same for Teams. Also: "HEY, MICROSOFT, SCREW YOU!!!!"
+			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+				"\"Get-AppxProvisionedPackage -Online | Where-Object {$_.PackageName -like '*Teams*'} |"
+				" Remove-AppxProvisionedPackage -Online\"", TRUE);
+			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+				"\"Get-AppxPackage -AllUsers *Teams* | Remove-AppxPackage -AllUsers\"", TRUE);
+		}
+		// Now that we have all the commands to run, create the RunSynchronous section.
+		for (order = 1; order <= (int)commands.Index; order++) {
+			if (order == 1)
+				fprintf(fd, "      <RunSynchronous>\n");
+			fprintf(fd, "        <RunSynchronousCommand wcm:action=\"add\">\n");
+			fprintf(fd, "          <Order>%d</Order>\n", order);
+			fprintf(fd, "          <Path>%s</Path>\n", commands.String[order - 1]);
+			fprintf(fd, "        </RunSynchronousCommand>\n");
+			if (order == commands.Index)
+				fprintf(fd, "      </RunSynchronous>\n");
+		}
 		fprintf(fd, "    </component>\n");
 		fprintf(fd, "  </settings>\n");
+		StrArrayClear(&commands);
 	}
 
 	if (flags & UNATTEND_OOBE_MASK) {
-		order = 1;
 		fprintf(fd, "  <settings pass=\"oobeSystem\">\n");
 		if (flags & UNATTEND_OOBE_SHELL_SETUP_MASK) {
 			fprintf(fd, "    <component name=\"Microsoft-Windows-Shell-Setup\" processorArchitecture=\"%s\" language=\"neutral\" "
 				"xmlns:wcm=\"http://schemas.microsoft.com/WMIConfig/2002/State\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
 				"publicKeyToken=\"31bf3856ad364e35\" versionScope=\"nonSxS\">\n", xml_arch_names[arch]);
-			// https://docs.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-oobe-protectyourpc
-			// It is really super insidous of Microsoft to call this option "ProtectYourPC", when it's really only about
-			// data collection. But of course, if it was called "AllowDataCollection", everyone would turn it off...
-			if (flags & UNATTEND_NO_DATA_COLLECTION) {
+			// We should always have UNATTEND_NO_DATA_COLLECTION if UNATTEND_SILENT_INSTALL is set but whatever...
+			if (flags & (UNATTEND_NO_DATA_COLLECTION | UNATTEND_SILENT_INSTALL)) {
 				uprintf("• Disable data collection");
 				fprintf(fd, "      <OOBE>\n");
+				fprintf(fd, "        <HideEULAPage>true</HideEULAPage>\n");
+				// https://docs.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-oobe-protectyourpc
+				// It is really super disingenuous of Microsoft to call this option "ProtectYourPC", when it's really only about
+				// data collection. But of course, if it was called "AllowDataCollection", everyone would turn it off...
 				fprintf(fd, "        <ProtectYourPC>3</ProtectYourPC>\n");
+				// Without these, the "Let's connect you to a network" can appear in silent installs when Ethernet is disconnected.
+				if (flags & UNATTEND_SILENT_INSTALL) {
+					fprintf(fd, "        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>\n");
+					fprintf(fd, "        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>\n");
+				}
 				fprintf(fd, "      </OOBE>\n");
 			}
 			if (flags & UNATTEND_DUPLICATE_LOCALE) {
@@ -169,7 +346,12 @@ char* CreateUnattendXml(int arch, int flags)
 				if (i < ARRAYSIZE(unallowed_account_names)) {
 					uprintf("WARNING: '%s' is not allowed as local account name - Option ignored", unattend_username);
 				} else if (unattend_username[0] != 0) {
+					char* org_username = safe_strdup(unattend_username);
+					filter_chars(unattend_username, USERNAME_INVALID_CHARS, '_');
 					uprintf("• Use '%s' for local account name", unattend_username);
+					if (strcmp(org_username, unattend_username) != 0)
+						uprintf("WARNING: Local account name contained unallowed characters and has been sanitized");
+					free(org_username);
 					// If we create a local account in unattend.xml, then we can get Windows 11
 					// 22H2 to skip MSA even if the network is connected during installation.
 					fprintf(fd, "      <UserAccounts>\n");
@@ -193,21 +375,89 @@ char* CreateUnattendXml(int arch, int flags)
 					// Since we set a blank password, we'll ask the user to change it at next logon.
 					// NB: In case you wanna try, please be aware that Microsoft doesn't let you have multiple
 					// <FirstLogonCommands> sections in unattend.xml. Don't ask me how I know... :(
-					fprintf(fd, "      <FirstLogonCommands>\n");
-					fprintf(fd, "        <SynchronousCommand wcm:action=\"add\">\n");
-					fprintf(fd, "          <Order>%d</Order>\n", order++);
-					fprintf(fd, "          <CommandLine>net user &quot;%s&quot; /logonpasswordchg:yes</CommandLine>\n", unattend_username);
-					fprintf(fd, "        </SynchronousCommand>\n");
-					// Some people report that using the `net user` command above might reset the password expiration to 90 days...
+					static_sprintf(tmp, "net user \"%s\" /logonpasswordchg:yes", unattend_username);
+					StrArrayAdd(&commands, tmp, TRUE);
+					// The `net user` command above might reset the password expiration to 90 days...
 					// To alleviate that, blanket set passwords on the target machine to never expire.
-					fprintf(fd, "        <SynchronousCommand wcm:action=\"add\">\n");
-					fprintf(fd, "          <Order>%d</Order>\n", order++);
-					fprintf(fd, "          <CommandLine>net accounts /maxpwage:unlimited</CommandLine>\n");
-					fprintf(fd, "        </SynchronousCommand>\n");
-					fprintf(fd, "      </FirstLogonCommands>\n");
+					StrArrayAdd(&commands, "net accounts /maxpwage:unlimited", TRUE);
 				}
 			}
+			// Apply SkuSiPolicy.p7b, if the user requested it and we're not creating a Windows To Go drive.
+			// See https://support.microsoft.com/kb/5042562. We do it post install, on first logon, because
+			// we'd have to patch tons of files otherwise. And we *ALWAYS* use the installed system's
+			// SkuSiPolicy.p7b instead of the host system's, even if the latter might be more recent, on
+			// account that the bootloaders from the installed system might be trailing behind, and wills
+			// produce the 0xc0000428 signature validation error on (re)boot if the system hasn't gone
+			// through a full Windows Update cycle.
+			if (flags & UNATTEND_APPLY_SKUSIPOLICY) {
+				uprintf("• Apply SkuSiPolicy.p7b");
+				StrArrayAdd(&commands, "cmd /c mountvol S: /S &amp;&amp; "
+					"copy %WINDIR%\\system32\\SecureBootUpdates\\SkuSiPolicy.p7b S:\\EFI\\Microsoft\\Boot &amp;&amp; "
+					"mountvol S: /D", TRUE);
+			}
+			if (flags & UNATTEND_QOL_ENHANCEMENTS) {
+				uprintf("• QoL: Disable Fast Startup, Copilot, Recommendations, News and Teams by default");
+				// Disable Fast Startup 
+				StrArrayAdd(&commands, "reg add \"HKLM\\System\\CurrentControlSet\\Control\\Session Manager\\Power\" "
+					"/v HiberbootEnabled /t REG_DWORD /d 0 /f", TRUE);
+				// Disable Copilot and set search as an icon rather than the default real-estate gobbler
+				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" "
+					"/v ShowCopilotButton /t REG_DWORD /d 0 /f", TRUE);
+				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot\" "
+					"/v TurnOffWindowsCopilot /t REG_DWORD /d 1 /f", TRUE);
+				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Search\" "
+					"/v SearchboxTaskbarMode /t REG_DWORD /d 1 /f", TRUE);
+				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Search\" "
+					"/v SearchboxTaskbarModeCache /t REG_DWORD /d 1 /f", TRUE);
+				// Disable Windows Phone and similarly pushed unwanted crap
+				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\CloudContent\" "
+					"/v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f", TRUE);
+				// Disable ads in menu
+				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager\" "
+					"/v SystemPaneSuggestionsEnabled /t REG_DWORD /d 0 /f", TRUE);
+				StrArrayAdd(&commands, "reg add \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search\" "
+					"/v BingSearchEnabled /t REG_DWORD /d 0 /f", TRUE);
+				// Disable News
+				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Dsh\" "
+					"/v AllowNewsAndInterests /t REG_DWORD /d 0 /f", TRUE);
+				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\Windows Feeds\" "
+					"/v EnableFeeds /t REG_DWORD /d 0 /f", TRUE);
+				// Disable Teams
+				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Communications\" "
+					"/v ConfigureChatAutoInstall /t REG_DWORD /d 0 /f", TRUE);
+				// Prevent frigging Outlook from being forced into the user's taskbar
+				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\CloudContent\" "
+					"/v DisableCloudOptimizedContent /t REG_DWORD /d 1 /f", TRUE);
+				// Skip Edge's first run dialog
+				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Edge\" "
+					"/v HideFirstRunExperience /t REG_DWORD /d 1 /f", TRUE);
+				uprintf("• QoL: More pins for the Start Menu and enable useful shortcuts");
+				// More pins by default on the Start Menu
+				// https://learn.microsoft.com/en-us/windows/apps/develop/settings/settings-windows-11
+				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" "
+					"/v Start_Layout /t REG_DWORD /d 1 /f", TRUE);
+				// Add Documents, Downloads, Network, Personal Folder, File Explorer and Settings as start menu shortcuts
+				// I wish there was a more transparent way of doing it, but Microsoft made it obscure. Oh, and for some
+				// reason, feeding the full hex string through 'reg add' doesn't create the key when ran through unattend
+				// (but doesn't produce an error and works post logon). PowerShell it is then...
+				StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+					"\"Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Start' "
+					"-Name 'VisiblePlaces' -Value $([convert]::FromBase64String('ztU0LVr6Q0WC8iLm6vd3PC+zZ+PeiVVDv85h83sYqTe8JIo"
+					"UDNaJQqCAbtm7okiCRIF1/g0IrkKL2jTtl7ZjlEqwvXRK+WhPi9ZDmAcdqLyGCHNSqlFDQp97J3ZYRlnU')) -Type 'Binary'\"", TRUE);
+			}
+			// Now that we have all the commands to run, create the FirstLogonCommands section.
+			for (order = 1; order <= (int)commands.Index; order++) {
+				if (order == 1)
+					fprintf(fd, "      <FirstLogonCommands>\n");
+				fprintf(fd, "        <SynchronousCommand wcm:action=\"add\">\n");
+				fprintf(fd, "          <Order>%d</Order>\n", order);
+				fprintf(fd, "          <CommandLine>%s</CommandLine>\n", commands.String[order - 1]);
+				fprintf(fd, "        </SynchronousCommand>\n");
+				if (order == commands.Index)
+					fprintf(fd, "      </FirstLogonCommands>\n");
+			}
 			fprintf(fd, "    </component>\n");
+			StrArrayClear(&commands);
 		}
 		if (flags & UNATTEND_OOBE_INTERNATIONAL_MASK) {
 			uprintf("• Use the same regional options as this user's");
@@ -228,7 +478,7 @@ char* CreateUnattendXml(int arch, int flags)
 			fprintf(fd, "    </component>\n");
 		}
 		if (flags & UNATTEND_DISABLE_BITLOCKER) {
-			uprintf("• Disable bitlocker");
+			uprintf("• Disable BitLocker");
 			fprintf(fd, "    <component name=\"Microsoft-Windows-SecureStartup-FilterDriver\" processorArchitecture=\"%s\" language=\"neutral\" "
 				"xmlns:wcm=\"http://schemas.microsoft.com/WMIConfig/2002/State\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
 				"publicKeyToken=\"31bf3856ad364e35\" versionScope=\"nonSxS\">\n", xml_arch_names[arch]);
@@ -267,6 +517,7 @@ char* CreateUnattendXml(int arch, int flags)
 	if (flags & UNATTEND_USE_MS2023_BOOTLOADERS)
 		uprintf("• Use 'Windows CA 2023' signed bootloaders");
 
+	StrArrayDestroy(&commands);
 	fprintf(fd, "</unattend>\n");
 	fclose(fd);
 	return path;
@@ -503,59 +754,25 @@ out:
 	return ((img_report.win_version.major != 0) && (img_report.win_version.build != 0));
 }
 
-// Copy this system's SkuSiPolicy.p7b to the target drive so that UEFI bootloaders
-// revoked by Windows through WDAC policy do get flagged as revoked.
-BOOL CopySKUSiPolicy(const char* drive_name)
+int GetEditions(StrArray* version_name, StrArray* version_index)
 {
-	BOOL r = FALSE;
-	char src[MAX_PATH], dst[MAX_PATH];
-	struct __stat64 stat64 = { 0 };
-
-	// Only copy SkuPolicy if we warned about the bootloader being revoked.
-	if ((target_type != TT_UEFI) || !IS_WINDOWS_1X(img_report) ||
-		(pe256ssp_size == 0) || !is_bootloader_revoked)
-		return r;
-
-	static_sprintf(src, "%s\\SecureBootUpdates\\SKUSiPolicy.p7b", system_dir);
-	static_sprintf(dst, "%s\\EFI\\Microsoft\\Boot\\SKUSiPolicy.p7b", drive_name);
-	if ((_stat64U(dst, &stat64) != 0) && (_stat64U(src, &stat64) == 0)) {
-		uprintf("Copying: %s (%s) (from %s)", dst, SizeToHumanReadable(stat64.st_size, FALSE, FALSE), src);
-		r = CopyFileU(src, dst, TRUE);
-		if (!r)
-			uprintf("  Error writing file: %s", WindowsErrorString());
-	}
-
-	return r;
-}
-
-/// <summary>
-/// Checks which versions of Windows are available in an install image
-/// to set our extraction index. Asks the user to select one if needed.
-/// </summary>
-/// <param name="">(none)</param>
-/// <returns>-2 on user cancel, -1 on other error, >=0 on success.</returns>
-int SetWinToGoIndex(void)
-{
-	int i, r;
+	int i, r, n = -1;
 	WIMStruct* wim = NULL;
-	char* install_names[MAX_WININST];
-	wchar_t wim_path[4 * MAX_PATH] = L"", *xml = NULL;
+	selection_dialog_options_t selection = { 0 };
+	const char* edition_suffix;
+	char *edition_name;
+	wchar_t wim_path[4 * MAX_PATH] = L"", * xml = NULL;
 	size_t xml_len;
-	StrArray version_name = { 0 }, version_index = { 0 };
 	BOOL bNonStandard = FALSE;
 	ezxml_t index = NULL, image = NULL;
 
-	// Sanity checks
-	wintogo_index = -1;
-	wininst_index = 0;
-	if (ComboBox_GetCurItemData(hFileSystem) != FS_NTFS)
-		return -1;
-
 	// If we have multiple windows install images, ask the user the one to use
 	if (img_report.wininst_index > 1) {
+		StrArrayCreate(&selection.choices, 16);
 		for (i = 0; i < img_report.wininst_index; i++)
-			install_names[i] = &img_report.wininst_path[i][2];
-		wininst_index = _log2(SelectionDialog(lmprintf(MSG_130), lmprintf(MSG_131), install_names, img_report.wininst_index));
+			StrArrayAdd(&selection.choices, &img_report.wininst_path[i][2], TRUE);
+		wininst_index = _log2(SelectionDialog(lmprintf(MSG_130), lmprintf(MSG_131), &selection));
+		StrArrayDestroy(&selection.choices);
 		if (wininst_index < 0)
 			return -2;
 		if (wininst_index >= MAX_WININST)
@@ -582,23 +799,30 @@ int SetWinToGoIndex(void)
 		goto out;
 	}
 
-	StrArrayCreate(&version_name, 16);
-	StrArrayCreate(&version_index, 16);
 	index = ezxml_parse_str((char*)xml, xml_len);
 	if (index == NULL) {
 		uprintf("Could not parse WIM XML");
 		goto out;
 	}
 
-	for (i = 0, image = ezxml_child(index, "IMAGE");
-		StrArrayAdd(&version_index, ezxml_attr(image, "INDEX"), TRUE) >= 0;
-		image = image->next, i++) {
+	edition_suffix = GetEditionName(WindowsVersion.Edition);
+	unattend_edition_index = 1;
+	for (n = 0, image = ezxml_child(index, "IMAGE");
+		StrArrayAdd(version_index, ezxml_attr(image, "INDEX"), TRUE) >= 0;
+		image = image->next, n++) {
+		// Try to match this host's edition with an index from the image
+		edition_name = ezxml_child_val(image, "NAME");
+		if (edition_name != NULL) {
+			if (strlen(edition_name) > safe_strlen(edition_suffix) &&
+				stricmp(&edition_name[strlen(edition_name) - safe_strlen(edition_suffix)], edition_suffix) == 0)
+				unattend_edition_index = atoi(ezxml_attr(image, "INDEX")) - 1;
+		}
 		// Some people are apparently creating *unofficial* Windows ISOs that don't have DISPLAYNAME elements.
 		// If we are parsing such an ISO, try to fall back to using DESCRIPTION.
-		if (StrArrayAdd(&version_name, ezxml_child_val(image, "DISPLAYNAME"), TRUE) < 0) {
-			if (StrArrayAdd(&version_name, ezxml_child_val(image, "DESCRIPTION"), TRUE) < 0) {
-				uprintf("WARNING: Could not find a description for image index %d", i + 1);
-				StrArrayAdd(&version_name, "Unknown Windows Version", TRUE);
+		if (StrArrayAdd(version_name, ezxml_child_val(image, "DISPLAYNAME"), TRUE) < 0) {
+			if (StrArrayAdd(version_name, ezxml_child_val(image, "DESCRIPTION"), TRUE) < 0) {
+				uprintf("WARNING: Could not find a description for image index %d", n + 1);
+				StrArrayAdd(version_name, "Unknown Windows Version", TRUE);
 			}
 			bNonStandard = TRUE;
 		}
@@ -606,15 +830,114 @@ int SetWinToGoIndex(void)
 	if (bNonStandard)
 		uprintf("WARNING: Nonstandard Windows image (missing <DISPLAYNAME> entries)");
 
+out:
+	free(xml);
+	ezxml_free(index);
+	wimlib_free(wim);
+	return n;
+}
+
+/// <summary>
+/// Checks which versions of Windows are available in an install image
+/// to set our extraction index. Asks the user to select one if needed.
+/// </summary>
+/// <param name="">(none)</param>
+/// <returns>-2 on user cancel, -1 on other error, >=0 on success.</returns>
+int SetWinToGoIndex(void)
+{
+	int i, r;
+	const char* edition_suffix;
+	char* edition_name;
+	WIMStruct* wim = NULL;
+	wchar_t wim_path[4 * MAX_PATH] = L"", *xml = NULL;
+	size_t xml_len;
+	StrArray edition_index = { 0 };
+	BOOL bNonStandard = FALSE;
+	ezxml_t index = NULL, image = NULL;
+	selection_dialog_options_t selection = { 0 };
+
+	// Sanity checks
+	wintogo_index = -1;
+	wininst_index = 0;
+	if (ComboBox_GetCurItemData(hFileSystem) != FS_NTFS)
+		return -1;
+
+	// If we have multiple windows install images, ask the user the one to use
+	if (img_report.wininst_index > 1) {
+		StrArrayCreate(&selection.choices, 16);
+		for (i = 0; i < img_report.wininst_index; i++)
+			StrArrayAdd(&selection.choices, &img_report.wininst_path[i][2], TRUE);
+		wininst_index = _log2(SelectionDialog(lmprintf(MSG_130), lmprintf(MSG_131), &selection));
+		StrArrayDestroy(&selection.choices);
+		if (wininst_index < 0)
+			return -2;
+		if (wininst_index >= MAX_WININST)
+			wininst_index = 0;
+	}
+
+	assert(utf8_to_wchar_get_size(image_path) <= ARRAYSIZE(wim_path));
+	utf8_to_wchar_no_alloc(image_path, wim_path, ARRAYSIZE(wim_path));
+	if (!img_report.is_windows_img) {
+		wcscat(wim_path, L"|");
+		assert(utf8_to_wchar_get_size(image_path) + utf8_to_wchar_get_size(&img_report.wininst_path[wininst_index][2]) <= ARRAYSIZE(wim_path));
+		utf8_to_wchar_no_alloc(&img_report.wininst_path[wininst_index][2],
+			&wim_path[wcslen(wim_path)], (int)ARRAYSIZE(wim_path) - wcslen(wim_path));
+	}
+
+	r = wimlib_open_wim(wim_path, 0, &wim);
+	if (r != 0) {
+		uprintf("Could not open WIM: %d", r);
+		goto out;
+	}
+	r = wimlib_get_xml_data(wim, (void**)&xml, &xml_len);
+	if (r != 0) {
+		uprintf("Could not read WIM XML index: %d", r);
+		goto out;
+	}
+
+	StrArrayCreate(&selection.choices, 16);
+	StrArrayCreate(&edition_index, 16);
+	index = ezxml_parse_str((char*)xml, xml_len);
+	if (index == NULL) {
+		uprintf("Could not parse WIM XML");
+		goto out;
+	}
+
+	edition_suffix = GetEditionName(WindowsVersion.Edition);
+	unattend_edition_index = 1;
+	for (i = 0, image = ezxml_child(index, "IMAGE");
+		StrArrayAdd(&edition_index, ezxml_attr(image, "INDEX"), TRUE) >= 0;
+		image = image->next, i++) {
+		// Try to match this host's edition with an index from the image
+		edition_name = ezxml_child_val(image, "NAME");
+		if (edition_name != NULL) {
+			if (strlen(edition_name) > safe_strlen(edition_suffix) &&
+				stricmp(&edition_name[strlen(edition_name) - safe_strlen(edition_suffix)], edition_suffix) == 0)
+				unattend_edition_index = atoi(ezxml_attr(image, "INDEX")) - 1;
+		}
+		// Some people are apparently creating *unofficial* Windows ISOs that don't have DISPLAYNAME elements.
+		// If we are parsing such an ISO, try to fall back to using DESCRIPTION.
+		if (StrArrayAdd(&selection.choices, ezxml_child_val(image, "DISPLAYNAME"), TRUE) < 0) {
+			if (StrArrayAdd(&selection.choices, ezxml_child_val(image, "DESCRIPTION"), TRUE) < 0) {
+				uprintf("WARNING: Could not find a description for image index %d", i + 1);
+				StrArrayAdd(&selection.choices, "Unknown Windows Version", TRUE);
+			}
+			bNonStandard = TRUE;
+		}
+	}
+	if (bNonStandard)
+		uprintf("WARNING: Nonstandard Windows image (missing <DISPLAYNAME> entries)");
+
+	selection.mask = 1 << unattend_edition_index;
 	if (i > 1)
 		// NB: _log2 returns -2 if SelectionDialog() returns negative (user cancelled)
-		i = _log2(SelectionDialog(lmprintf(MSG_291), lmprintf(MSG_292), version_name.String, i)) + 1;
+		i = _log2(SelectionDialog(lmprintf(MSG_291), lmprintf(MSG_292), &selection)) + 1;
 	if (i < 0)
 		wintogo_index = -2;	// Cancelled by the user
 	else if (i == 0)
 		wintogo_index = 1;
 	else
-		wintogo_index = atoi(version_index.String[i - 1]);
+		wintogo_index = atoi(edition_index.String[i - 1]);
 	if (i > 0) {
 		// re-populate the version data from the selected XML index
 		PopulateWindowsVersionFromXml(xml, xml_len, i - 1);
@@ -622,7 +945,7 @@ int SetWinToGoIndex(void)
 		if (img_report.win_version.major == 0 || img_report.win_version.build == 0)
 			uprintf("WARNING: Could not obtain version information from XML index (Nonstandard Windows image?)");
 		uprintf("Will use '%s' (Build: %d, Index %s) for Windows To Go",
-			version_name.String[i - 1], img_report.win_version.build, version_index.String[i - 1]);
+			selection.choices.String[i - 1], img_report.win_version.build, edition_index.String[i - 1]);
 		// Need Windows 10 Creator Update or later for boot on REMOVABLE to work
 		if ((img_report.win_version.build < 15000) && (SelectedDrive.MediaType != FixedMedia)) {
 			if (Notification(MB_YESNO | MB_ICONWARNING, lmprintf(MSG_190), lmprintf(MSG_098)) != IDYES)
@@ -638,8 +961,8 @@ int SetWinToGoIndex(void)
 	}
 
 out:
-	StrArrayDestroy(&version_name);
-	StrArrayDestroy(&version_index);
+	StrArrayDestroy(&selection.choices);
+	StrArrayDestroy(&edition_index);
 	free(xml);
 	ezxml_free(index);
 	wimlib_free(wim);
@@ -658,7 +981,8 @@ out:
 /// <returns>TRUE on success, FALSE on error.</returns>
 BOOL SetupWinToGo(DWORD DriveIndex, const char* drive_name, BOOL use_esp)
 {
-	char *ms_efi = NULL, wim_path[4 * MAX_PATH], cmd[MAX_PATH];
+	char *ms_efi = NULL, wim_path[4 * MAX_PATH], cmd[MAX_PATH], path[MAX_PATH];
+	BOOL use_bootex = FALSE;
 	ULONG cluster_size;
 
 	uprintf("Windows To Go mode selected");
@@ -719,8 +1043,21 @@ BOOL SetupWinToGo(DWORD DriveIndex, const char* drive_name, BOOL use_esp)
 	// Also, since Ruflux should (usually) be running as a 32 bit app, on 64 bit systems, we need to use
 	// 'C:\Windows\Sysnative' and not 'C:\Windows\System32' to invoke bcdboot, as 'C:\Windows\System32'
 	// will get converted to 'C:\Windows\SysWOW64' behind the scenes, and there is no bcdboot.exe there.
+	// Finally, due to the whole _EX mess, we have to detect if the system bcdboot supports the /offline
+	// option, and if it does, whether the target has `Windows\Boot\EFI_EX\` so that we don't let bcdboot
+	// attempt to use the _EX files and fail. See https://github.com/pbatard/rufus/issues/2940.
 	uprintf("Enabling boot using command:");
-	static_sprintf(cmd, "%s\\bcdboot.exe %s\\Windows /v /f %s /s %s", sysnative_dir, drive_name,
+	// Create the EFI\Microsoft\Boot\ directory on the ESP, since bcdboot is apparently unable to do that!
+	static_sprintf(path, "%s\\EFI\\Microsoft\\Boot", (use_esp) ? ms_efi : drive_name);
+	_mkdirExU(path);
+	// The default of recent bcdboot is to try to use the EX files (even if they don't exist) unless
+	// /offline is specified *without* /bootex, which of course results in an error if, say, we try
+	// to create a Windows 10 Windows To Go drive on an up to date Windows platform.
+	// So we need to specify /offline and /bootex very carefully.
+	static_sprintf(path, "%s\\Windows\\Boot\\EFI_EX", drive_name);
+	use_bootex = (bcdboot_supports_ex && (unattend_xml_flags & UNATTEND_USE_MS2023_BOOTLOADERS) && PathFileExistsU(path));
+	static_sprintf(cmd, "%s\\bcdboot.exe %s\\Windows /v %s%s/f %s /s %s", sysnative_dir, drive_name,
+		bcdboot_supports_ex ? "/offline " : "", use_bootex ? "/bootex " : "",
 		HAS_BOOTMGR_BIOS(img_report) ? (HAS_BOOTMGR_EFI(img_report) ? "ALL" : "BIOS") : "UEFI",
 		(use_esp) ? ms_efi : drive_name);
 	// I don't believe we can ever have a stray '%' in cmd, but just in case...
@@ -731,8 +1068,6 @@ BOOL SetupWinToGo(DWORD DriveIndex, const char* drive_name, BOOL use_esp)
 		uprintf("Failed to enable boot");
 		ErrorStatus = RUFUS_ERROR(APPERR(ERROR_ISO_EXTRACT));
 	}
-
-	CopySKUSiPolicy((use_esp) ? ms_efi : drive_name);
 
 	UpdateProgressWithInfo(OP_FILE_COPY, MSG_267, 99, 100);
 
@@ -773,7 +1108,7 @@ BOOL SetupWinToGo(DWORD DriveIndex, const char* drive_name, BOOL use_esp)
 /// <param name="flags">A bitmap of unattend flags to apply.</param>
 /// <returns>TRUE on success, FALSE on error.</returns>
 BOOL ApplyWindowsCustomization(char drive_letter, int flags)
-// NB: Work with a copy of unattend_xml_flags as a paremeter since we will modify it.
+// NB: Work with a copy of unattend_xml_flags as a parameter since we will modify it.
 {
 	BOOL r = FALSE, is_hive_mounted = FALSE, update_boot_wim = FALSE;
 	int i, wim_index = 2, wuc_index = 0, num_replaced = 0;
@@ -791,13 +1126,12 @@ BOOL ApplyWindowsCustomization(char drive_letter, int flags)
 	char path[MAX_PATH], *rep, *tmp_dir_end;
 	uint8_t* buf = NULL;
 	uint16_t setup_arch;
-	size_t len;
+	uint32_t len;
 	HKEY hKey = NULL, hSubKey = NULL;
 	LSTATUS status;
 	DWORD dwDisp, dwVal = 1, dwSize;
 	FILE* fd_md5sum;
-	WIMStruct* wim;
-	StrArray files;
+	WIMStruct* wim = NULL;
 	struct wimlib_update_command wuc[2] = { 0 };
 
 	assert(unattend_xml_path != NULL);
@@ -845,7 +1179,7 @@ BOOL ApplyWindowsCustomization(char drive_letter, int flags)
 				dwSize = read_file(setup_exe, &buf);
 				if (dwSize != 0) {
 					setup_arch = GetPeArch(buf);
-					free(buf);
+					safe_free(buf);
 					if (setup_arch != IMAGE_FILE_MACHINE_AMD64 && setup_arch != IMAGE_FILE_MACHINE_ARM64) {
 						uprintf("WARNING: Unsupported arch 0x%x -- in-place upgrade wrapper will not be added", setup_arch);
 					} else if (!MoveFileExU(setup_exe, setup_dll, 0)) {
@@ -870,6 +1204,7 @@ BOOL ApplyWindowsCustomization(char drive_letter, int flags)
 						} else {
 							uprintf("Could not create '%s' bypass wrapper", setup_exe);
 						}
+						buf = NULL;
 					}
 				}
 			}
@@ -948,19 +1283,27 @@ BOOL ApplyWindowsCustomization(char drive_letter, int flags)
 			wuc[wuc_index].add.wim_target_path = L"Windows\\System32\\config\\SYSTEM";
 			wuc_index++;
 
-			// We were successfull in creating the keys so disable the windowsPE section from unattend.xml
-			// We do this by replacing '<settings pass="windowsPE">' with '<settings pass="disabled">'
-			// (provided that the registry key creation was the only item for this pass)
+			// We were successfull in creating the keys so remove this part from unattend.xml
 			if ((flags & UNATTEND_WINPE_SETUP_MASK) == UNATTEND_SECUREBOOT_TPM_MINRAM) {
+				// If this is all we used the WindowsPE pass for, then we just replace
+				// '<settings pass="WindowsPE">' with '<settings pass="disabled">'
 				if (replace_in_token_data(unattend_xml_path, "<settings", "windowsPE", "disabled", FALSE) == NULL)
-					uprintf("WARNING: Could not disable 'windowsPE' pass from unattend.xml");
-				// Remove the flags, since we accomplished the registry creation outside of unattend.
-				flags &= ~UNATTEND_SECUREBOOT_TPM_MINRAM;
+					uprintf("WARNING: Could not disable 'WindowsPE' pass from unattend.xml");
 			} else {
-				// TODO: If we add other tasks besides LabConfig reg keys, we'll need to figure out how
-				// to comment out the <RunSynchronous> entries from windowsPE (and only windowsPE).
-				assert(FALSE);
+				// Otherwise, remove the relevant section from our temporary unattend.xml
+				len = read_file(unattend_xml_path, &buf);
+				if (len != 0 && removable_section[0] != 0 && removable_section[0] < len && removable_section[1] < len) {
+					memmove(&buf[removable_section[0]], &buf[removable_section[1]], len - removable_section[1]);
+					len -= removable_section[1] - removable_section[0];
+					if (write_file(unattend_xml_path, buf, len) != len)
+						uprintf("Failed to remove 'WindowsPE' section from unattend.xml");
+				} else {
+					uprintf("Failed to remove 'WindowsPE' section from unattend.xml");
+				}
+				safe_free(buf);
 			}
+			// Remove the flags, since we accomplished the registry creation outside of unattend.
+			flags &= ~UNATTEND_SECUREBOOT_TPM_MINRAM;
 			UpdateProgressWithInfoForce(OP_PATCH, MSG_325, 102, PATCH_PROGRESS_TOTAL);
 		}
 
@@ -999,7 +1342,7 @@ BOOL ApplyWindowsCustomization(char drive_letter, int flags)
 		UpdateProgressWithInfoForce(OP_PATCH, MSG_325, 103, PATCH_PROGRESS_TOTAL);
 	}
 
-	if (flags & UNATTEND_USE_MS2023_BOOTLOADERS) {
+	if ((flags & UNATTEND_USE_MS2023_BOOTLOADERS) && !(flags & UNATTEND_WINDOWS_TO_GO)) {
 		if_assert_fails(update_boot_wim)
 			goto out;
 		if (GetTempDirNameU(temp_dir, APPLICATION_NAME, 0, tmp_path[1]) == 0) {
@@ -1016,7 +1359,8 @@ BOOL ApplyWindowsCustomization(char drive_letter, int flags)
 				WIMLIB_EXTRACT_FLAG_NO_ACLS | WIMLIB_EXTRACT_FLAG_NO_PRESERVE_DIR_STRUCTURE) != 0) {
 			uprintf("Could not extract 2023 signed UEFI bootloaders - Ignoring option");
 		} else {
-			len = strlen(tmp_path[1]);
+			StrArray files;
+			len = (uint32_t)strlen(tmp_path[1]);
 			tmp_dir_end = &tmp_path[1][len];
 
 			// Copy/override the Font files

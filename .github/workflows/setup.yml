@@ -10,7 +10,7 @@ env:
   BUILD_CONFIGURATION: Release
 
 jobs:
-  VS2022-Build:
+  VS2026-Build:
     runs-on: windows-latest
 
     strategy:
@@ -19,10 +19,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
       with:
         msbuild-architecture: x64
 
@@ -36,17 +36,17 @@ jobs:
       run: sha256sum ./setup_${{ matrix.TARGET_PLATFORM }}.exe
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.TARGET_PLATFORM }}
         path: ./*.exe
 
   Extra-Step-To-Merge-Artifacts-Thanks-To-Upload-Artifact-v4-Breaking-Backwards-Compatibility:
     runs-on: windows-latest
-    needs: VS2022-Build
+    needs: VS2026-Build
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
+        uses: actions/upload-artifact/merge@v7
         with:
           name: setup
           delete-merged: true

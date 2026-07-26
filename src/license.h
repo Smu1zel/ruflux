@@ -1,7 +1,7 @@
 /*
  * Ruflux: Another USB Formatting Utility
  * Licensing Data
- * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
+ * Copyright © 2011-2026 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,9 +110,11 @@ const char* additional_copyrights =
 "https://sourceforge.net/projects/smartmontools\\line\n"
 "GNU General Public License (GPL) v2 or later\\line\n"
 "\\line\n"
-"FS Type description from GNU fdisk:\\line\n"
+"Partition and FS Type identification from GNU fdisk and GPT fdisk:\\line\n"
 "https://www.gnu.org/software/fdisk\\line\n"
-"GNU General Public License (GPL) v3 or later\\line\n"
+"https://www.rodsbooks.com/gdisk\\line\n"
+"https://salsa.debian.org/debian/gdisk\\line\n"
+"GNU General Public License (GPL) v2 or later\\line\n"
 "\\line\n"
 "Speed/ETA computation from GNU wget:\\line\n"
 "https://www.gnu.org/software/wget\\line\n"
@@ -141,11 +143,6 @@ const char* additional_copyrights =
 "PE256 digest functions from U-Boot:\\line\n"
 "https://github.com/u-boot/u-boot\\line\n"
 "GNU General Public License (GPL) v2 or later\\line\n"
-"\\line\n"
-"SkuSiPolicy.p7b parsing derived from:\\line\n"
-"https://gist.github.com/mattifestation/92e545bf1ee5b68eeb71d254cec2f78e\\line\n"
-"by Matthew Graeber, with contributions by James Forshaw\\line\n"
-"BSD 3-Clause\\line\n"
 "\\line\n"
 "About and License dialogs inspired by WinSCP by Martin Prikryl\\line\n"
 "https://winscp.net/\\line\n"

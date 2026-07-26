@@ -1,3 +1,50 @@
+o Version 4.15 (2026.06.30)
+    Add RISC-V 64 support to UEFI:NTFS
+    Improve the guards for using the "silent" Windows installation option
+    Improve the ability to cancel during write retries
+    Improve progress reporting for compressed image extraction
+    Fix unrestricted XML entity expansion and integer overflow in ezxml parser (courtesy of Eric Sadowski)
+    Fix "silent" Windows installation failing at 75% in most cases
+    Fix a crash during boot when using UEFI:NTFS on Snapdragon X based ARM64 platforms
+    Fix first WUE option always being checked by default
+    Fix an infinite loop when using Windows ISOs that contain multiple WIMs
+    Fix "Enable runtime UEFI media validation" checkbox not always being properly enabled
+    Other WUE improvements/fixes for OneDrive removal and username validation (with thanks to @christian8641)
+
+o Version 4.14 (2026.04.30)
+    Windows User Experience improvements:
+      - Add a "Quality of Life" option, to disable Teams, Outlook, Copilot and other Microsoft forced nuisances
+      - Add a Silent installation option, that automatically, and WITHOUT PROMPT, installs Windows on the first detected disk
+      - Add an option to copy 'SkuSiPolicy.p7b' to the ESP on installation (please refer to KB5042562 for more info)
+      - Add tooltips for all the dialog options
+    Add limited support for El-Torito UEFI image extraction (Mostly for Dell BIOS update ISOs)
+    Improve error report when the user tries to use an image that resides on the target drive
+    Improve the UEFI:NTFS partition label to make the install media more explicit during Windows Setup disk partitioning
+    Improve support for Bazzite and other Fedora derivatives that don't follow EFI conventions
+    Improve detection and exclusion of the new Bitdefender hidden VHDs
+    Improve reporting of GRUB and Isolinux MBRs
+    Fix potential errors during creation of Windows To Go media, due to the use of new versions of bcdboot
+    Fix errors with local accounts that start or end with whitespaces
+
+o Version 4.13 (2026.02.17) [BUGFIX RELEASE]
+    Fix UEFI:NTFS not selecting the proper driver for ARM/ARM64
+    Update embedded GRUB to v2.14
+
+o Version 4.12 (2026.01.30)
+    Filter out the new Bitdefender VHDs
+    Filter disallowed characters in local account names
+    Improve Microsoft Dev Drive detection (courtesy of Martin Kuschnik)
+    Improve the pre-formatting partition cleanup code
+    Improve error reporting on ISO extraction issues
+    Improve detection of drives with long hardware IDs (typically SSDs)
+    Improve conflicting process reporting
+    Improve support for Nutanix and umbrelOS ISOs
+    Fix a TOCTOU vulnerability in Fido script execution (CVE-2026-2398, reported by @independent-arg)
+    Fix replacement vulnerabilities for diskcopy.dll and oscdimg.exe
+    Fix FFU image creation being erroneously invocated, when trying to save an ISO image
+    Fix saving of ISO images to paths that contain spaces
+    Update UEFI:NTFS and UEFI DBXs to latest
+
 o Version 4.11 (2025.10.02)
     Add a cheat mode to toggle between Light and Dark mode
     Improve WUE option text relating to the CA 2023 option
@@ -35,7 +82,7 @@ o Version 4.8 (2025.06.11)
 
 o Version 4.7 (2025.04.09)
     Add a mechanism to detect and download updated DBXs from the official UEFI repository
-    Add ztsd compression support for disk images
+    Add zstd compression support for disk images
     Add a new exclusion feature in the settings, to ignore disks with a specific GPT GUID
     Improve detection for compressed VHD images that are too large to fit the target drive
     Fix commandline hogger not being deleted when running Rufus from a different directory

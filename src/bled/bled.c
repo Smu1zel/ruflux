@@ -1,7 +1,7 @@
 /*
  * Bled (Base Library for Easy Decompression)
  *
- * Copyright © 2014-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2014-2026 Pete Batard <pete@akeo.ie>
  *
  * Licensed under GPLv2 or later, see file LICENSE in this source tree.
  */
@@ -15,27 +15,26 @@
 #include "bb_archive.h"
 #include "bled.h"
 
-typedef long long int(*unpacker_t)(transformer_state_t *xstate);
-
 /* Globals */
 smallint bb_got_signal;
-uint64_t bb_total_rb;
+uint64_t bb_total_rb, bb_total_wb;
 printf_t bled_printf = NULL;
 read_t bled_read = NULL;
 write_t bled_write = NULL;
 progress_t bled_progress = NULL;
 switch_t bled_switch = NULL;
 unsigned long* bled_cancel_request;
-static bool bled_initialized = 0;
+bool bled_initialized = 0;
 jmp_buf bb_error_jmp;
 char* bb_virtual_buf = NULL;
 size_t bb_virtual_len = 0, bb_virtual_pos = 0;
 int bb_virtual_fd = -1;
+bool bb_progress_on_write = 0;
 // ZSTD has a minimal buffer size of (1 << ZSTD_BLOCKSIZELOG_MAX) + ZSTD_blockHeaderSize = 128 KB + 3
 // So we set our bufsize to 256 KB
 uint32_t BB_BUFSIZE = 0x40000;
 
-static long long int unpack_none(transformer_state_t *xstate)
+static int64_t unpack_none(transformer_state_t *xstate)
 {
 	bb_error_msg("This compression type is not supported");
 	return -1;
@@ -66,6 +65,7 @@ int64_t bled_uncompress(const char* src, const char* dst, int type)
 	}
 
 	bb_total_rb = 0;
+	bb_total_wb = 0;
 	init_transformer_state(&xstate);
 	xstate.src_fd = -1;
 	xstate.dst_fd = -1;
@@ -85,6 +85,14 @@ int64_t bled_uncompress(const char* src, const char* dst, int type)
 	if ((type < 0) || (type >= BLED_COMPRESSION_MAX)) {
 		bb_error_msg("Unsupported compression format");
 		goto err;
+	}
+
+	if (bled_progress != NULL) {
+		xstate.src_size = lseek(xstate.src_fd, 0, SEEK_END);
+		xstate.dst_size = get_uncompressed_size(xstate.src_fd, type);
+
+		bb_progress_on_write = (xstate.dst_size > 0);
+		bled_progress(bb_progress_on_write ? -xstate.dst_size : -xstate.src_size);
 	}
 
 	if (setjmp(bb_error_jmp))
@@ -112,6 +120,7 @@ int64_t bled_uncompress_with_handles(HANDLE hSrc, HANDLE hDst, int type)
 	}
 
 	bb_total_rb = 0;
+	bb_total_wb = 0;
 	init_transformer_state(&xstate);
 	xstate.src_fd = -1;
 	xstate.dst_fd = -1;
@@ -131,6 +140,13 @@ int64_t bled_uncompress_with_handles(HANDLE hSrc, HANDLE hDst, int type)
 	if ((type < 0) || (type >= BLED_COMPRESSION_MAX)) {
 		bb_error_msg("Unsupported compression format");
 		return -1;
+	}
+
+	if (bled_progress != NULL) {
+		xstate.src_size = lseek(xstate.src_fd, 0, SEEK_END);
+		xstate.dst_size = get_uncompressed_size(xstate.src_fd, type);
+		bb_progress_on_write = (xstate.dst_size > 0);
+		bled_progress(bb_progress_on_write ? -xstate.dst_size : -xstate.src_size);
 	}
 
 	if (setjmp(bb_error_jmp))
@@ -156,6 +172,7 @@ int64_t bled_uncompress_to_buffer(const char* src, char* buf, size_t size, int t
 	}
 
 	bb_total_rb = 0;
+	bb_total_wb = 0;
 	init_transformer_state(&xstate);
 	xstate.src_fd = -1;
 	xstate.dst_fd = -1;
@@ -177,6 +194,13 @@ int64_t bled_uncompress_to_buffer(const char* src, char* buf, size_t size, int t
 	if ((type < 0) || (type >= BLED_COMPRESSION_MAX)) {
 		bb_error_msg("Unsupported compression format");
 		goto err;
+	}
+
+	if (bled_progress != NULL) {
+		xstate.src_size = lseek(xstate.src_fd, 0, SEEK_END);
+		xstate.dst_size = get_uncompressed_size(xstate.src_fd, type);
+		bb_progress_on_write = (xstate.dst_size > 0);
+		bled_progress(bb_progress_on_write ? -xstate.dst_size : -xstate.src_size);
 	}
 
 	if (setjmp(bb_error_jmp))
@@ -203,6 +227,7 @@ int64_t bled_uncompress_to_dir(const char* src, const char* dir, int type)
 	}
 
 	bb_total_rb = 0;
+	bb_total_wb = 0;
 	init_transformer_state(&xstate);
 	xstate.src_fd = -1;
 	xstate.dst_fd = -1;
@@ -219,6 +244,13 @@ int64_t bled_uncompress_to_dir(const char* src, const char* dir, int type)
 	if (type != BLED_COMPRESSION_ZIP) {
 		bb_error_msg("This compression format is not supported for directory extraction");
 		goto err;
+	}
+
+	if (bled_progress != NULL) {
+		xstate.src_size = lseek(xstate.src_fd, 0, SEEK_END);
+		xstate.dst_size = 0;
+		bb_progress_on_write = 0;
+		bled_progress(-xstate.src_size);
 	}
 
 	if (setjmp(bb_error_jmp))
@@ -265,6 +297,34 @@ int64_t bled_uncompress_from_buffer_to_buffer(const char* src, const size_t src_
 	bb_virtual_len = 0;
 	bb_virtual_fd = -1;
 
+	return ret;
+}
+
+/* Get the decompressed size of file 'src', compressed using 'type' */
+int64_t bled_get_uncompressed_size(const char* src, int type)
+{
+	int fd = -1;
+	int64_t ret = -1;
+
+	if (!bled_initialized) {
+		bb_error_msg("The library has not been initialized");
+		return -1;
+	}
+
+	if ((type < 0) || (type >= BLED_COMPRESSION_MAX)) {
+		bb_error_msg("Unsupported compression format");
+		goto err;
+	}
+
+	fd = _openU(src, _O_RDONLY | _O_BINARY, 0);
+	if (fd < 0)
+		return -1;
+
+	ret = get_uncompressed_size(fd, type);
+
+err:
+	if (fd > 0)
+		_close(fd);
 	return ret;
 }
 

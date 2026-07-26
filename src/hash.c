@@ -1532,7 +1532,6 @@ BOOL HashFile(const unsigned type, const char* path, uint8_t* hash)
 	HASH_CONTEXT hash_ctx = { {0} };
 	HANDLE h = INVALID_HANDLE_VALUE;
 	DWORD rs = 0;
-	uint64_t rb;
 	uint8_t buf[4096];
 
 	if ((type >= HASH_MAX) || (path == NULL) || (hash == NULL))
@@ -1546,7 +1545,7 @@ BOOL HashFile(const unsigned type, const char* path, uint8_t* hash)
 	}
 
 	hash_init[type](&hash_ctx);
-	for (rb = 0; ; rb += rs) {
+	while(1) {
 		CHECK_FOR_USER_CANCEL;
 		if (!ReadFile(h, buf, sizeof(buf), &rs, NULL)) {
 			ErrorStatus = RUFUS_ERROR(ERROR_READ_FAULT);
@@ -2159,6 +2158,22 @@ BOOL IsFileInDB(const char* path)
 	return FALSE;
 }
 
+BOOL FileMatchesHash(const char* path, const char* str)
+{
+	uint8_t hash[SHA256_HASHSIZE];
+	if (!HashFile(HASH_SHA256, path, hash))
+		return FALSE;
+	return (memcmp(hash, StringToHash(str), SHA256_HASHSIZE) == 0);
+}
+
+BOOL BufferMatchesHash(const uint8_t* buf, const size_t len, const char* str)
+{
+	uint8_t hash[SHA256_HASHSIZE];
+	if (!HashBuffer(HASH_SHA256, buf, len, hash))
+		return FALSE;
+	return (memcmp(hash, StringToHash(str), SHA256_HASHSIZE) == 0);
+}
+
 static BOOL IsRevokedBySbat(uint8_t* buf, uint32_t len)
 {
 	char* sbat = NULL, *version_str;
@@ -2199,7 +2214,7 @@ static BOOL IsRevokedBySbat(uint8_t* buf, uint32_t len)
 			continue;
 		for (j = 0; sbat_entries[j].product != NULL; j++) {
 			if (strcmp(entry.product, sbat_entries[j].product) == 0 && entry.version < sbat_entries[j].version) {
-				uprintf("  SBAT version for '%s' (%d) is lower than required minimum SBAT version (%d)!",
+				uprintf("  SBAT version for '%s' (%d) is lower than the current minimum SBAT version (%d)!",
 					entry.product, entry.version, sbat_entries[j].version);
 				return TRUE;
 			}
@@ -2575,22 +2590,25 @@ void UpdateMD5Sum(const char* dest_dir, const char* md5sum_name)
 	free(md5_data);
 }
 
-#if defined(_DEBUG) || defined(TEST) || defined(ALPHA)
-/* Convert a lowercase hex string to binary. Returned value must be freed */
-uint8_t* to_bin(const char* str)
+/* Convert an (unprefixed) hex string to hash binary. Non concurrent. */
+uint8_t* StringToHash(const char* str)
 {
+	static uint8_t ret[MAX_HASHSIZE];
 	size_t i, len = safe_strlen(str);
-	uint8_t val = 0, *ret = NULL;
+	uint8_t val = 0;
+	char c;
 
-	if ((len < 2) || (len % 2))
+	if_assert_fails(len / 2 == MD5_HASHSIZE || len / 2 == SHA1_HASHSIZE ||
+		len / 2 == SHA256_HASHSIZE || len / 2 == SHA512_HASHSIZE)
 		return NULL;
-	ret = malloc(len / 2);
-	if (ret == NULL)
-		return NULL;
+	memset(ret, 0, sizeof(ret));
 
 	for (i = 0; i < len; i++) {
 		val <<= 4;
-		val |= ((str[i] - '0') < 0xa) ? (str[i] - '0') : (str[i] - 'a' + 0xa);
+		c = tolower(str[i]);
+		if_assert_fails((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))
+			return NULL;
+		val |= ((c - '0') < 0xa) ? (c - '0') : (c - 'a' + 0xa);
 		if (i % 2)
 			ret[i / 2] = val;
 	}
@@ -2598,6 +2616,7 @@ uint8_t* to_bin(const char* str)
 	return ret;
 }
 
+#if defined(_DEBUG) || defined(TEST) || defined(ALPHA)
 const char test_msg[] = "Did you ever hear the tragedy of Darth Plagueis The Wise? "
 	"I thought not. It's not a story the Jedi would tell you. It's a Sith legend. "
 	"Darth Plagueis was a Dark Lord of the Sith, so powerful and so wise he could "
@@ -2645,7 +2664,7 @@ int TestHashes(void)
 	const uint32_t blocksize[HASH_MAX] = { MD5_BLOCKSIZE, SHA1_BLOCKSIZE, SHA256_BLOCKSIZE, SHA512_BLOCKSIZE };
 	const char* hash_name[4] = { "MD5   ", "SHA1  ", "SHA256", "SHA512" };
 	int i, j, errors = 0;
-	uint8_t hash[MAX_HASHSIZE], *hash_expected;
+	uint8_t hash[MAX_HASHSIZE];
 	size_t full_msg_len = strlen(test_msg);
 	char* msg = malloc(full_msg_len + 1);
 	if (msg == NULL)
@@ -2668,14 +2687,12 @@ int TestHashes(void)
 			if (i != 0)
 				memcpy(msg, test_msg, copy_msg_len[i]);
 			HashBuffer(j, msg, copy_msg_len[i], hash);
-			hash_expected = to_bin(test_hash[j][i]);
-			if (memcmp(hash, hash_expected, hash_count[j]) != 0) {
+			if (memcmp(hash, StringToHash(test_hash[j][i]), hash_count[j]) != 0) {
 				uprintf("Test %s %d: FAIL", hash_name[j], i);
 				errors++;
 			} else {
 				uprintf("Test %s %d: PASS", hash_name[j], i);
 			}
-			free(hash_expected);
 		}
 	}
 

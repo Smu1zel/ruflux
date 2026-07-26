@@ -1,7 +1,7 @@
 /*
  * Ruflux: Another USB Formatting Utility
  * ISO file extraction
- * Copyright © 2011-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2011-2026 Pete Batard <pete@akeo.ie>
  * Based on libcdio's iso & udf samples:
  * Copyright © 2003-2014 Rocky Bernstein <rocky@gnu.org>
  *
@@ -66,6 +66,9 @@ _Static_assert(256 * KB >= ISO_BLOCKSIZE, "Can't set PROGRESS_THRESHOLD");
 #define ISO_EXTENSION_MASK        (ISO_EXTENSION_ALL & (enable_joliet ? ISO_EXTENSION_ALL : ~ISO_EXTENSION_JOLIET) & \
                                   (enable_rockridge ? ISO_EXTENSION_ALL : ~ISO_EXTENSION_ROCK_RIDGE))
 
+// Is an MBR partition type for a FAT12/FAT16/FAT32 partition?
+#define IS_FAT_TYPE(x)            ((x) == 0x01 || (x) == 0x04 || (x) == 0x06 || (x) == 0x0b || (x) == 0x0c || (x) == 0x0e)
+
 // Needed for UDF ISO access
 CdIo_t* cdio_open (const char* psz_source, driver_id_t driver_id) {return NULL;}
 void cdio_destroy (CdIo_t* p_cdio) {}
@@ -104,6 +107,7 @@ const char* efi_bootname[3] = { "boot", "grub", "mm" };
 const char* efi_archname[ARCH_MAX] = { "", "ia32", "x64", "arm", "aa64", "ia64", "riscv64", "loongarch64", "ebc" };
 static const char* sources_str = "/sources";
 static const char* wininst_name[] = { "install.wim", "install.esd", "install.swm" };
+_STATIC_ASSERT(ARRAYSIZE(wininst_name) < 4);	// Must fit as 4 bit position flag
 // We only support GRUB/BIOS (x86) that uses a standard config dir (/boot/grub/i386-pc/)
 // If the disc was mastered properly, GRUB/EFI will take care of itself
 static const char* grub_dirname[] = { "/boot/grub/i386-pc", "/boot/grub2/i386-pc" };
@@ -295,7 +299,7 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 		}
 
 		// Split a >4GB install.wim if the target filesystem is FAT
-		if (file_length >= 4 * GB && psz_dirname != NULL && IS_FAT(fs_type) && img_report.has_4GB_file == 0x81) {
+		if (file_length >= 4 * GB && psz_dirname != NULL && IS_FAT(fs_type) && img_report.has_4GB_file == 0x11) {
 			if (safe_stricmp(&psz_dirname[max(0, ((int)safe_strlen(psz_dirname)) -
 				((int)strlen(sources_str)))], sources_str) == 0) {
 				char wim_path[4 * MAX_PATH];
@@ -386,8 +390,15 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 			(safe_stricmp(&psz_basename[strlen(psz_basename) - 4], ".img") == 0))
 			static_strcpy(img_report.efi_img_path, psz_fullpath);
 
-		// Check for the EFI boot entries
-		if (safe_stricmp(psz_dirname, efi_dirname) == 0) {
+		// Special case for Lenovo UEFI firmware update ISOs, that use emulated El-Torito HDD images
+		if (!HAS_EFI_IMG(img_report) && stricmp(psz_fullpath, "/[BOOT]/0-Boot-HardDisk.img") == 0)
+			static_strcpy(img_report.efi_img_path, psz_fullpath);
+
+		// Check for the EFI boot entries. Note that because of Bazzite maintainers' disregard for end users
+		// (evidenced in https://github.com/ublue-os/bazzite/issues/4374) and Fedora's disregards for standards
+		// (evidenced in pushing for '/efi/fedora/' to store bootloaders, instead of sticking to '/efi/boot/')
+		// we check for anything starting with '/efi/' instead of just '/efi/boot/').
+		if (safe_strnicmp(psz_dirname, "/efi/", 5) == 0) {
 			for (k = 0; k < ARRAYSIZE(efi_bootname); k++) {
 				for (i = 0; i < ARRAYSIZE(efi_archname); i++) {
 					static_sprintf(bootloader_name, "%s%s.efi", efi_bootname[k], efi_archname[i]);
@@ -427,7 +438,7 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 								"?:%s", psz_fullpath);
 							img_report.wininst_index++;
 							if (file_length >= 4 * GB)
-								img_report.has_4GB_file |= 0x80;
+								img_report.has_4GB_file |= (0x10 << i);
 						}
 					}
 				}
@@ -457,7 +468,7 @@ static BOOL check_iso_props(const char* psz_dirname, int64_t file_length, const 
 			if (props->is_old_c32[i])
 				img_report.has_old_c32[i] = TRUE;
 		}
-		if (file_length >= 4 * GB)
+		if (file_length >= 4 * GB && (img_report.has_4GB_file & 0x0f) != 0x0f)
 			img_report.has_4GB_file++;
 		// Compute projected size needed (NB: ISO_BLOCKSIZE = UDF_BLOCKSIZE)
 		if (file_length != 0)
@@ -738,7 +749,9 @@ static int udf_extract_files(udf_t *p_udf, udf_dirent_t *p_udf_dirent, const cha
 						hash_write[HASH_MD5](&ctx, buf, buf_size);
 					ISO_BLOCKING(r = WriteFileWithRetry(file_handle, buf, buf_size, &wr_size, WRITE_RETRIES));
 					if (!r || (wr_size != buf_size)) {
-						uprintf("  Error writing file: %s", r ? "Short write detected" : WindowsErrorString());
+						if (r)
+							SetLastError(ERROR_WRITE_FAULT);
+						uprintf("  Error writing file: %s", WindowsErrorString());
 						goto out;
 					}
 					file_length -= wr_size;
@@ -775,6 +788,8 @@ static int udf_extract_files(udf_t *p_udf, udf_dirent_t *p_udf_dirent, const cha
 	return 0;
 
 out:
+	if (GetLastError() != ERROR_SUCCESS)
+		ErrorStatus = RUFUS_ERROR(GetLastError());
 	udf_dirent_free(p_udf_dirent);
 	ISO_BLOCKING(safe_closehandle(file_handle));
 	safe_free(psz_sanpath);
@@ -793,7 +808,7 @@ static int iso_extract_files(iso9660_t* p_iso, const char *psz_path)
 	BOOL is_symlink, is_identical, create_file, free_p_statbuf = FALSE;
 	int length, r = 1;
 	char psz_fullpath[MAX_PATH], *psz_basename = NULL, *psz_sanpath = NULL;
-	char tmp[128], target_path[256];
+	char tmp[128], target_path[256], *last_slash;
 	const char *psz_iso_name = &psz_fullpath[strlen(psz_extract_dir)];
 	_Static_assert(ISO_BUFFER_SIZE % ISO_BLOCKSIZE == 0,
 		"ISO_BUFFER_SIZE is not a multiple of ISO_BLOCKSIZE");
@@ -969,6 +984,21 @@ static int iso_extract_files(iso9660_t* p_iso, const char *psz_path)
 			if (create_file) {
 				file_handle = CreatePreallocatedFile(psz_sanpath, GENERIC_READ | GENERIC_WRITE,
 					FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, file_length);
+				if (file_handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PATH_NOT_FOUND) {
+					// Some folks (umbrelos) managed to master their ISOs in a manner where some
+					// directories don't exist (or don't have _STAT_DIR) but still have files,
+					// in which case our approach, that expects a sane layout with directories
+					// properly declared before the files they contain, breaks. Therefore:
+					last_slash = strrchr(psz_sanpath, '/');
+					if (last_slash != NULL) {
+						*last_slash = '\0';
+						uprintf("WARNING: Directory '%s/' was improperly mastered on the source image!", &psz_sanpath[2]);
+						_mkdirExU(psz_sanpath);
+						*last_slash = '/';
+						file_handle = CreatePreallocatedFile(psz_sanpath, GENERIC_READ | GENERIC_WRITE,
+							FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, file_length);
+					}
+				}
 				if (file_handle == INVALID_HANDLE_VALUE) {
 					err = GetLastError();
 					uprintf("  Unable to create file: %s", WindowsErrorString());
@@ -1003,7 +1033,9 @@ static int iso_extract_files(iso9660_t* p_iso, const char *psz_path)
 							hash_write[HASH_MD5](&ctx, buf, buf_size);
 						ISO_BLOCKING(r = WriteFileWithRetry(file_handle, buf, buf_size, &wr_size, WRITE_RETRIES));
 						if (!r || wr_size != buf_size) {
-							uprintf("  Error writing file: %s", r ? "Short write detected" : WindowsErrorString());
+							if (r)
+								SetLastError(ERROR_WRITE_FAULT);
+							uprintf("  Error writing file: %s", WindowsErrorString());
 							goto out;
 						}
 						file_length -= wr_size;
@@ -1038,6 +1070,8 @@ static int iso_extract_files(iso9660_t* p_iso, const char *psz_path)
 	r = 0;
 
 out:
+	if (r != 0 && GetLastError() != ERROR_SUCCESS)
+		ErrorStatus = RUFUS_ERROR(GetLastError());
 	ISO_BLOCKING(safe_closehandle(file_handle));
 	if (p_entlist != NULL)
 		iso9660_filelist_free(p_entlist);
@@ -1207,7 +1241,7 @@ BOOL ExtractISO(const char* src_iso, const char* dest_dir, BOOL scan)
 	scan_only = scan;
 	if (!scan_only)
 		spacing = "";
-	cdio_log_set_handler(log_handler);
+	cdio_log_set_handler((scan_only && !usb_debug) ? NULL : log_handler);
 	psz_extract_dir = dest_dir;
 	// Change progress style to marquee for scanning
 	if (scan_only) {
@@ -1317,7 +1351,9 @@ out:
 		for (k = (int)safe_strlen(img_report.label) - 1; ((k > 0) && (isspaceU(img_report.label[k]))); k--)
 			img_report.label[k] = 0;
 		// We use the fact that UDF_BLOCKSIZE and ISO_BLOCKSIZE are the same here
-		img_report.projected_size = total_blocks * ISO_BLOCKSIZE;
+		// Also, we add 1% extra requirement, on account that we most likely use a 4k or higher cluster size
+		// whereas ISO_BLOCKSIZE is 2k, which means we'll need extra spaces if there are many small files.
+		img_report.projected_size = (uint64_t)((double)total_blocks * ISO_BLOCKSIZE * 1.01f);
 		// We will link the existing isolinux.cfg from a syslinux.cfg we create
 		// If multiple config files exist, choose the one with the shortest path
 		// (so that a '/syslinux.cfg' is preferred over a '/isolinux/isolinux.cfg')
@@ -1391,7 +1427,7 @@ out:
 					img_report.sl_version_str);
 			}
 		}
-		if (!IS_EFI_BOOTABLE(img_report) && HAS_EFI_IMG(img_report) && HasEfiImgBootLoaders()) {
+		if (!IS_EFI_BOOTABLE(img_report) && HAS_EFI_IMG(img_report) && HasEfiImgBootLoaders(p_iso)) {
 			img_report.has_efi = 0x8000;
 		}
 		if (HAS_WINPE(img_report)) {
@@ -1481,7 +1517,7 @@ out:
 				static_sprintf(path, "%s\\EFI\\boot\\bootx64.efi", dest_dir);
 				DeleteFileU(path);
 			}
-			DumpFatDir(dest_dir, 0);
+			DumpFatDir(p_iso, dest_dir, 0);
 		}
 		if (HAS_SYSLINUX(img_report)) {
 			static_sprintf(path, "%s\\syslinux.cfg", dest_dir);
@@ -1811,10 +1847,10 @@ int iso9660_readfat(intptr_t pp, void *buf, size_t secsize, libfat_sector_t sec)
 /*
  * Returns TRUE if an EFI bootloader exists in the img.
  */
-BOOL HasEfiImgBootLoaders(void)
+BOOL HasEfiImgBootLoaders(void* iso)
 {
 	BOOL ret = FALSE;
-	iso9660_t* p_iso = NULL;
+	iso9660_t* p_iso = (iso9660_t*)iso;
 	iso9660_stat_t* p_statbuf = NULL;
 	iso9660_readfat_private* p_private = NULL;
 	int32_t dc, c;
@@ -1823,14 +1859,9 @@ BOOL HasEfiImgBootLoaders(void)
 	char bootloader_name[16];
 	int i;
 
-	if ((image_path == NULL) || !HAS_EFI_IMG(img_report))
+	if ((p_iso == NULL) || !HAS_EFI_IMG(img_report))
 		return FALSE;
 
-	p_iso = iso9660_open_ext(image_path, ISO_EXTENSION_MASK);
-	if (p_iso == NULL) {
-		uprintf("Could not open image '%s' as an ISO-9660 file system", image_path);
-		goto out;
-	}
 	p_statbuf = iso9660_ifs_stat_translate(p_iso, img_report.efi_img_path);
 	if (p_statbuf == NULL) {
 		uprintf("Could not get ISO-9660 file information for file %s", img_report.efi_img_path);
@@ -1846,6 +1877,20 @@ BOOL HasEfiImgBootLoaders(void)
 	if (iso9660_iso_seek_read(p_private->p_iso, p_private->buf, p_private->lsn, ISO_NB_BLOCKS) != ISO_NB_BLOCKS * ISO_BLOCKSIZE) {
 		uprintf("Error reading ISO-9660 file %s at LSN %lu", img_report.efi_img_path, (long unsigned int)p_private->lsn);
 		goto out;
+	}
+	// Try to skip to first FAT partition, if working with an MBR partitioned image
+	if (p_private->buf[0x1fe] == 0x55 && p_private->buf[0x1ff] == 0xaa &&
+		p_private->buf[0x1be] == 0x80 && IS_FAT_TYPE(p_private->buf[0x1c2])) {
+		uint32_t lba = *((uint32_t*)&p_private->buf[0x1c6]);
+		if (lba % 4 != 0) {
+			uprintf("Error: First MBR partition doesn't map to ISO-9660 sector");
+			goto out;
+		}
+		p_private->lsn += lba / 4;
+		if (iso9660_iso_seek_read(p_private->p_iso, p_private->buf, p_private->lsn, ISO_NB_BLOCKS) != ISO_NB_BLOCKS * ISO_BLOCKSIZE) {
+			uprintf("Error reading ISO-9660 file %s at LSN %lu", img_report.efi_img_path, (long unsigned int)p_private->lsn);
+			goto out;
+		}
 	}
 	lf_fs = libfat_open(iso9660_readfat, (intptr_t)p_private);
 	if (lf_fs == NULL) {
@@ -1882,12 +1927,11 @@ out:
 	if (lf_fs != NULL)
 		libfat_close(lf_fs);
 	iso9660_stat_free(p_statbuf);
-	iso9660_close(p_iso);
 	safe_free(p_private);
 	return ret;
 }
 
-BOOL DumpFatDir(const char* path, int32_t cluster)
+BOOL DumpFatDir(void* iso, const char* path, int32_t cluster)
 {
 	// We don't have concurrent calls to this function, so a static lf_fs is fine
 	static struct libfat_filesystem *lf_fs = NULL;
@@ -1899,7 +1943,7 @@ BOOL DumpFatDir(const char* path, int32_t cluster)
 	libfat_diritem_t diritem = { 0 };
 	libfat_dirpos_t dirpos = { cluster, -1, 0 };
 	libfat_sector_t s;
-	iso9660_t* p_iso = NULL;
+	iso9660_t* p_iso = (iso9660_t*)iso;
 	iso9660_stat_t* p_statbuf = NULL;
 	iso9660_readfat_private* p_private = NULL;
 
@@ -1908,13 +1952,8 @@ BOOL DumpFatDir(const char* path, int32_t cluster)
 
 	if (cluster == 0) {
 		// Root dir => Perform init stuff
-		if (image_path == NULL)
+		if (iso == NULL || image_path == NULL)
 			return FALSE;
-		p_iso = iso9660_open_ext(image_path, ISO_EXTENSION_MASK);
-		if (p_iso == NULL) {
-			uprintf("Could not open image '%s' as an ISO-9660 file system", image_path);
-			goto out;
-		}
 		p_statbuf = iso9660_ifs_stat_translate(p_iso, img_report.efi_img_path);
 		if (p_statbuf == NULL) {
 			uprintf("Could not get ISO-9660 file information for file %s", img_report.efi_img_path);
@@ -1930,6 +1969,15 @@ BOOL DumpFatDir(const char* path, int32_t cluster)
 		if (iso9660_iso_seek_read(p_private->p_iso, p_private->buf, p_private->lsn, ISO_NB_BLOCKS) != ISO_NB_BLOCKS * ISO_BLOCKSIZE) {
 			uprintf("Error reading ISO-9660 file %s at LSN %lu", img_report.efi_img_path, (long unsigned int)p_private->lsn);
 			goto out;
+		}
+		// Try to skip to first FAT partition, if working with an MBR partitioned image
+		if (p_private->buf[0x1fe] == 0x55 && p_private->buf[0x1ff] == 0xaa &&
+			p_private->buf[0x1be] == 0x80 && IS_FAT_TYPE(p_private->buf[0x1c2])) {
+			p_private->lsn += *((uint32_t*)&p_private->buf[0x1c6]) / 4;
+			if (iso9660_iso_seek_read(p_private->p_iso, p_private->buf, p_private->lsn, ISO_NB_BLOCKS) != ISO_NB_BLOCKS * ISO_BLOCKSIZE) {
+				uprintf("Error reading ISO-9660 file %s at LSN %lu", img_report.efi_img_path, (long unsigned int)p_private->lsn);
+				goto out;
+			}
 		}
 		lf_fs = libfat_open(iso9660_readfat, (intptr_t)p_private);
 		if (lf_fs == NULL) {
@@ -1956,7 +2004,7 @@ BOOL DumpFatDir(const char* path, int32_t cluster)
 					uprintf("Could not create directory '%s': %s", target, WindowsErrorString());
 					continue;
 				}
-				if (!DumpFatDir(target, dirpos.cluster))
+				if (!DumpFatDir(p_iso, target, dirpos.cluster))
 					goto out;
 			} else if (!PathFileExistsU(target)) {
 				// Need to figure out if it's a .conf file (Damn you Solus!!)
@@ -2008,8 +2056,7 @@ out:
 			libfat_close(lf_fs);
 			lf_fs = NULL;
 		}
-		iso9660_stat_free(p_statbuf);;
-		iso9660_close(p_iso);
+		iso9660_stat_free(p_statbuf);
 		safe_free(p_private);
 	}
 	safe_closehandle(handle);
@@ -2018,7 +2065,6 @@ out:
 	return ret;
 }
 
-// TODO: If we can't get save to ISO from virtdisk, we might as well drop this
 static DWORD WINAPI OpticalDiscSaveImageThread(void* param)
 {
 	BOOL s;
@@ -2172,20 +2218,44 @@ void OpticalDiscSaveImage(void)
 // Create an ISO image from the currently selected drive, using oscdimg.exe
 DWORD WINAPI IsoSaveImageThread(void* param)
 {
-	DWORD r;
+	DWORD r = ERROR_NOT_FOUND;
+	HANDLE exe = INVALID_HANDLE_VALUE;
 	IMG_SAVE* img_save = (IMG_SAVE*)param;
-	char cmd[2 * MAX_PATH], letters[27], * label;
+	char cmd[2 * KB], letters[27], *label;
 
 	if (!GetDriveLabel(SelectedDrive.DeviceNumber, letters, &label, TRUE) || letters[0] == '\0')
-		ExitThread(ERROR_NOT_FOUND);
+		goto out;
+
+	// Get a lock and validate that the oscdimg.exe has not been tampered with
+	static_sprintf(cmd, "%s\\%s\\oscdimg_%s.exe", app_data_dir, FILES_DIR, APPLICATION_ARCH);
+	exe = CreateFileU(cmd, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (exe == INVALID_HANDLE_VALUE) {
+		uprintf("ERROR: Could not lock 'oscdimg.exe'");
+		r = GetLastError();
+		goto out;
+	}
+	if (!FileMatchesHash(cmd, OSCDIMG_HASH)) {
+		uprintf("ERROR: Existing 'oscdimg.exe' hash does not match expected value!");
+		r = ERROR_INVALID_IMAGE_HASH;
+		goto out;
+	}
+
+	// UDF labels cannot be more than 32 characters (and if we have more than 32 chars we are
+	// using the static modifiable char buffer from GetDriveLabel(), so we can alter it).
+	if (strlen(label) > 32)
+		label[32] = '\0';
+
 	// Save to UDF only, as Microsoft's implementation of ISO-9660 doesn't support multiextent
 	// and produces BROKEN images if you try to add files larger than 4 GB.
 	// Plus ISO-9660/Joliet limits labels to 16 characters and has issues with long paths.
-	static_sprintf(cmd, "%s\\%s\\oscdimg.exe -g -h -k -l\"%s\" -m -u2 -udfver102 %c:\\ %s",
-		app_data_dir, FILES_DIR, label, letters[0], img_save->ImagePath);
+	static_sprintf(cmd, "\"%s\\%s\\oscdimg_%s.exe\" -g -h -k -l\"%s\" -m -u2 -udfver102 %c:\\ \"%s\"",
+		app_data_dir, FILES_DIR, APPLICATION_ARCH, label, letters[0], img_save->ImagePath);
 	uprintf("Running command: '%s'", cmd);
 	// For detecting typical oscdimg commandline progress report of type: "\r15.5% complete"
 	r = RunCommandWithProgress(cmd, sysnative_dir, FALSE, MSG_261, ".*\r([0-9\\.]+)% complete.*");
+
+out:
+	safe_closehandle(exe);
 	if (r != 0 && !IS_ERROR(ErrorStatus)) {
 		SetLastError(r);
 		uprintf("Failed to write ISO image: %s", WindowsErrorString());

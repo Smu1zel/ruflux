@@ -74,7 +74,7 @@ extern const int nb_steps[FS_MAX];
 extern const char* md5sum_name[2];
 extern uint32_t dur_mins, dur_secs;
 extern BOOL force_large_fat32, enable_ntfs_compression, lock_drive, zero_drive, fast_zeroing, enable_file_indexing;
-extern BOOL write_as_image, use_vds, write_as_esp, is_vds_available, has_ffu_support, use_rufus_mbr;
+extern BOOL write_as_image, use_vds, write_as_esp, is_vds_available, has_ffu_support, use_rufus_mbr, append_silent;
 extern char* archive_path;
 uint8_t *grub2_buf = NULL, *sec_buf = NULL;
 long grub2_len;
@@ -715,47 +715,38 @@ out:
 	return r;
 }
 
-static BOOL ClearMBRGPT(HANDLE hPhysicalDrive, LONGLONG DiskSize, DWORD SectorSize, BOOL add1MB)
+static BOOL ClearMBRGPT(HANDLE hPhysicalDrive, LONGLONG DiskSize, DWORD SectorSize)
 {
 	BOOL r = FALSE;
 	LARGE_INTEGER liFilePointer;
-	uint64_t num_sectors_to_clear;
-	unsigned char* pZeroBuf = NULL;
+	uint8_t* pZeroBuf = calloc(SectorSize, MAX_SECTORS_TO_CLEAR);
 
-	PrintInfoDebug(0, MSG_224);
-	// http://en.wikipedia.org/wiki/GUID_Partition_Table tells us we should clear 34 sectors at the
-	// beginning and 33 at the end. We bump these values to MAX_SECTORS_TO_CLEAR each end to help
-	// with reluctant access to large drive.
-
-	// We try to clear at least 1MB + the VBR when Large FAT32 is selected (add1MB), but
-	// don't do it otherwise, as it seems unnecessary and may take time for slow drives.
-	// Also, for various reasons (one of which being that Windows seems to have issues
-	// with GPT drives that contain a lot of small partitions) we try not not to clear
-	// sectors further than the lowest partition already residing on the disk.
-	num_sectors_to_clear = min(SelectedDrive.FirstDataSector, (DWORD)((add1MB ? 2048 : 0) + MAX_SECTORS_TO_CLEAR));
-	// Special case for big floppy disks (FirstDataSector = 0)
-	if (num_sectors_to_clear < 4)
-		num_sectors_to_clear = (DWORD)((add1MB ? 2048 : 0) + MAX_SECTORS_TO_CLEAR);
-
-	uprintf("Erasing %llu sectors", num_sectors_to_clear);
-	pZeroBuf = calloc(SectorSize, (size_t)num_sectors_to_clear);
 	if (pZeroBuf == NULL) {
 		ErrorStatus = RUFUS_ERROR(ERROR_NOT_ENOUGH_MEMORY);
 		goto out;
 	}
+
+	// We now unconditionally zero MAX_SECTORS_TO_CLEAR and (MAX_SECTORS_TO_CLEAR / 8)
+	// at the beginning and end of the drive respectively. This should encompass the
+	// MBR, GPT, backup GPT and VBR for most devices and (hopefully) get Windows and
+	// other apps off our back with trying to access zombie partitions...
+	PrintInfoDebug(0, MSG_224);
 	liFilePointer.QuadPart = 0ULL;
 	if (!SetFilePointerEx(hPhysicalDrive, liFilePointer, &liFilePointer, FILE_BEGIN) || (liFilePointer.QuadPart != 0ULL))
-		uprintf("WARNING: Could not reset disk position");
-	if (!WriteFileWithRetry(hPhysicalDrive, pZeroBuf, (DWORD)(SectorSize * num_sectors_to_clear), NULL, WRITE_RETRIES))
+		uprintf("WARNING: Could not reset disk position: %s", WindowsErrorString());
+	if (!WriteFileWithRetry(hPhysicalDrive, pZeroBuf, (DWORD)(SectorSize * MAX_SECTORS_TO_CLEAR), NULL, WRITE_RETRIES))
 		goto out;
+	uprintf("Zeroed %s at the top of the drive", SizeToHumanReadable(MAX_SECTORS_TO_CLEAR * SectorSize, FALSE, FALSE));
 	CHECK_FOR_USER_CANCEL;
-	liFilePointer.QuadPart = DiskSize - (LONGLONG)SectorSize * MAX_SECTORS_TO_CLEAR;
+	liFilePointer.QuadPart = DiskSize - (LONGLONG)SectorSize * (MAX_SECTORS_TO_CLEAR / 8);
 	// Windows seems to be an ass about keeping a lock on a backup GPT,
 	// so we try to be lenient about not being able to clear it.
-	if (SetFilePointerEx(hPhysicalDrive, liFilePointer, &liFilePointer, FILE_BEGIN)) {
-		IGNORE_RETVAL(WriteFileWithRetry(hPhysicalDrive, pZeroBuf,
-			SectorSize * MAX_SECTORS_TO_CLEAR, NULL, WRITE_RETRIES));
-	}
+	if (SetFilePointerEx(hPhysicalDrive, liFilePointer, &liFilePointer, FILE_BEGIN) &&
+		WriteFileWithRetry(hPhysicalDrive, pZeroBuf, SectorSize * (MAX_SECTORS_TO_CLEAR / 8), NULL, WRITE_RETRIES))
+		uprintf("Zeroed %s at the end of the drive", SizeToHumanReadable((MAX_SECTORS_TO_CLEAR / 8) * SectorSize, FALSE, FALSE));
+	else
+		uprintf("WARNING: Could not to clear the backup GPT area: %s", WindowsErrorString());
+	
 	r = TRUE;
 
 out:
@@ -1082,10 +1073,18 @@ BOOL WritePBR(HANDLE hLogicalVolume)
 	return FALSE;
 }
 
-static void update_progress(const uint64_t processed_bytes)
+static void update_progress(const int64_t processed_bytes)
 {
-	UpdateProgressWithInfo(OP_FORMAT, MSG_261, processed_bytes, img_report.image_size);
-	uprint_progress(processed_bytes, img_report.image_size);
+	static uint64_t total_bytes;
+
+	if (processed_bytes < 0) {
+		total_bytes = -processed_bytes;
+		UpdateProgressWithInfo(OP_FORMAT, MSG_261, 0, total_bytes);
+		uprint_progress(0, total_bytes);
+	} else {
+		UpdateProgressWithInfo(OP_FORMAT, MSG_261, processed_bytes, total_bytes);
+		uprint_progress(processed_bytes, total_bytes);
+	}
 }
 
 // Some compressed images use streams that aren't multiple of the sector
@@ -1298,7 +1297,6 @@ static BOOL WriteDrive(HANDLE hPhysicalDrive, BOOL bZeroDrive)
 		if_assert_fails((uintptr_t)sec_buf% SelectedDrive.SectorSize == 0)
 			goto out;
 		sec_buf_pos = 0;
-		update_progress(0);
 		bled_init(256 * KB, uprintf, NULL, sector_write, update_progress, NULL, &ErrorStatus);
 		bled_ret = bled_uncompress_with_handles(hSourceImage, hPhysicalDrive, img_report.compression_type);
 		bled_exit();
@@ -1448,10 +1446,11 @@ out:
 DWORD WINAPI FormatThread(void* param)
 {
 	int r;
-	BOOL ret, use_large_fat32, windows_to_go, actual_lock_drive = lock_drive, write_as_ext = FALSE;
+	BOOL ret, windows_to_go, actual_lock_drive = lock_drive, write_as_ext = FALSE;
 	// Windows 11 and VDS (which I suspect is what fmifs.dll's FormatEx() is now calling behind the scenes)
 	// require us to unlock the physical drive to format the drive, else access denied is returned.
 	BOOL need_logical = FALSE, must_unlock_physical = (use_vds || WindowsVersion.Version >= WINDOWS_11);
+	BOOL retry_clear = TRUE;
 	DWORD cr, DriveIndex = (DWORD)(uintptr_t)param, ClusterSize, Flags;
 	HANDLE hPhysicalDrive = INVALID_HANDLE_VALUE;
 	HANDLE hLogicalVolume = INVALID_HANDLE_VALUE;
@@ -1465,7 +1464,6 @@ DWORD WINAPI FormatThread(void* param)
 	char kolibri_dst[] = "?:\\MTLD_F32";
 	char grub4dos_dst[] = "?:\\grldr";
 
-	use_large_fat32 = (fs_type == FS_FAT32) && ((SelectedDrive.DiskSize > LARGE_FAT32_SIZE) || (force_large_fat32));
 	windows_to_go = (image_options & IMOP_WINTOGO) && (boot_type == BT_IMAGE) && HAS_WINTOGO(img_report) &&
 		(ComboBox_GetCurItemData(hImageOption) == IMOP_WIN_TO_GO);
 	large_drive = (SelectedDrive.DiskSize > (1*TB));
@@ -1583,13 +1581,33 @@ DWORD WINAPI FormatThread(void* param)
 		goto out;
 	}
 
-	// Zap partition records. This helps prevent access errors.
+try_clear:
+	// Zap partition records. This may help prevent access errors.
 	// Note, Microsoft's way of cleaning partitions (IOCTL_DISK_CREATE_DISK, which is what we apply
 	// in InitializeDisk) is *NOT ENOUGH* to reset a disk and can render it inoperable for partitioning
 	// or formatting under Windows. See https://github.com/pbatard/rufus/issues/759 for details.
 	if ((boot_type != BT_IMAGE) || (img_report.is_iso && !write_as_image)) {
-		if ((!ClearMBRGPT(hPhysicalDrive, SelectedDrive.DiskSize, SelectedDrive.SectorSize, use_large_fat32)) ||
+		if ((!ClearMBRGPT(hPhysicalDrive, SelectedDrive.DiskSize, SelectedDrive.SectorSize)) ||
 			(!InitializeDisk(hPhysicalDrive))) {
+			// If VDS is available, try cycling the device to see it it helps
+			if (retry_clear && is_vds_available) {
+				uprintf("Cycling the device to see if it helps...");
+				// Note: This may leave the device disabled on re-plug or reboot
+				// so only do this for the experimental VDS path for now...
+				cr = CycleDevice(ComboBox_GetCurSel(hDeviceList));
+				if (cr == ERROR_DEVICE_REINITIALIZATION_NEEDED) {
+					uprintf("Zombie device detected, trying again...");
+					Sleep(1000);
+					cr = CycleDevice(ComboBox_GetCurSel(hDeviceList));
+				}
+				if (cr == 0)
+					uprintf("Successfully cycled device");
+				else
+					uprintf("Cycling device failed!");
+				Sleep(1000);
+				retry_clear = FALSE;
+				goto try_clear;
+			}
 			uprintf("Could not reset partitions");
 			ErrorStatus = (LastWriteError != 0) ? LastWriteError : RUFUS_ERROR(ERROR_PARTITION_FAILURE);
 			goto out;
@@ -1623,7 +1641,7 @@ DWORD WINAPI FormatThread(void* param)
 				uprintf("Bad blocks: Check failed.");
 				if (!IS_ERROR(ErrorStatus))
 					ErrorStatus = RUFUS_ERROR(APPERR(ERROR_BADBLOCKS_FAILURE));
-				ClearMBRGPT(hPhysicalDrive, SelectedDrive.DiskSize, SelectedDrive.SectorSize, FALSE);
+				ClearMBRGPT(hPhysicalDrive, SelectedDrive.DiskSize, SelectedDrive.SectorSize);
 				fclose(log_fd);
 				DeleteFileU(logfile);
 				goto out;
@@ -1654,8 +1672,8 @@ DWORD WINAPI FormatThread(void* param)
 
 		// Especially after destructive badblocks test, you must zero the MBR/GPT completely
 		// before repartitioning. Else, all kind of bad things happen.
-		if (!ClearMBRGPT(hPhysicalDrive, SelectedDrive.DiskSize, SelectedDrive.SectorSize, use_large_fat32)) {
-			uprintf("unable to zero MBR/GPT");
+		if (!ClearMBRGPT(hPhysicalDrive, SelectedDrive.DiskSize, SelectedDrive.SectorSize)) {
+			uprintf("Could not zero MBR/GPT");
 			if (!IS_ERROR(ErrorStatus))
 				ErrorStatus = RUFUS_ERROR(ERROR_WRITE_FAULT);
 			goto out;
@@ -1672,7 +1690,7 @@ DWORD WINAPI FormatThread(void* param)
 				goto out;
 			safe_unlockclose(hPhysicalDrive);
 			physical = GetPhysicalName(SelectedDrive.DeviceNumber);
-			static_sprintf(cmd, "dism /Apply-Ffu /ApplyDrive:%s /ImageFile:\"%s\"", physical, image_path);
+			static_sprintf(cmd, "%s\\dism.exe /Apply-Ffu /ApplyDrive:%s /ImageFile:\"%s\"", sysnative_dir, physical, image_path);
 			safe_free(physical);
 			uprintf("Running command: '%s'", cmd);
 			cr = RunCommandWithProgress(cmd, sysnative_dir, TRUE, MSG_261, ".*\r\\[[= ]+([0-9\\.]+)%[= ]+\\].*");
@@ -1713,9 +1731,9 @@ DWORD WINAPI FormatThread(void* param)
 		safe_unlockclose(hPhysicalDrive);
 
 	if (use_vds) {
-		uprintf("Refreshing drive layout...");
 		// Note: This may leave the device disabled on re-plug or reboot
 		// so only do this for the experimental VDS path for now...
+		uprintf("Cycling device...");
 		cr = CycleDevice(ComboBox_GetCurSel(hDeviceList));
 		if (cr == ERROR_DEVICE_REINITIALIZATION_NEEDED) {
 			uprintf("Zombie device detected, trying again...");
@@ -1726,6 +1744,10 @@ DWORD WINAPI FormatThread(void* param)
 			uprintf("Successfully cycled device");
 		else
 			uprintf("Cycling device failed!");
+	}
+	if (is_vds_available) {
+		// This one should be safe to issue unconditionally
+		uprintf("Refreshing drive layout...");
 		RefreshLayout(DriveIndex);
 	}
 
@@ -1767,6 +1789,9 @@ DWORD WINAPI FormatThread(void* param)
 	}
 
 	GetWindowTextU(hLabel, label, sizeof(label));
+	// Append a " (SILENT)" suffix to the label for fully unattended silent installation media.
+	if (append_silent && strstr(label, " (SILENT)") == NULL)
+		static_strcat(label, " (SILENT)");
 	if (fs_type < FS_EXT2)
 		ToValidLabel(label, (fs_type == FS_FAT16) || (fs_type == FS_FAT32) || (fs_type == FS_EXFAT));
 	ClusterSize = (DWORD)ComboBox_GetCurItemData(hClusterSize);
@@ -1965,7 +1990,6 @@ DWORD WINAPI FormatThread(void* param)
 						}
 					}
 				}
-				CopySKUSiPolicy(drive_name);
 				if ( (target_type == TT_BIOS) && HAS_WINPE(img_report) ) {
 					// Apply WinPE fixup
 					if (!SetupWinPE(drive_name[0]))

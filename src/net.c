@@ -1,7 +1,7 @@
 /*
  * Ruflux: Another USB Formatting Utility
  * Networking functionality (web file download, check for update, etc.)
- * Copyright © 2012-2025 Pete Batard <pete@akeo.ie>
+ * Copyright © 2012-2026 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -786,7 +786,7 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 	uint64_t uncompressed_size;
 	int64_t size = -1;
 	BYTE *compressed = NULL, *sig = NULL;
-	HANDLE hFile, hPipe;
+	HANDLE hFile = INVALID_HANDLE_VALUE, hPipe = INVALID_HANDLE_VALUE;
 	DWORD dwExitCode = 99, dwCompressedSize, dwSize, dwAvail, dwPipeSize = 4096;
 	GUID guid;
 
@@ -838,46 +838,9 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 		SetTaskbarProgressValue(0, MAX_PROGRESS);
 		SendMessage(hProgress, PBM_SETPOS, 0, 0);
 	}
-	PrintInfo(0, MSG_148);
-
-	assert((whitebar_script != NULL) && (whitebar_len != 0));
-
-	static_sprintf(script_path, "%s%s.ps1", temp_dir, GuidToString(&guid, TRUE));
-	hFile = CreateFileU(script_path, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_READONLY, NULL);
-	if (hFile == INVALID_HANDLE_VALUE) {
-		uprintf("Unable to create download script '%s': %s", script_path, WindowsErrorString());
-		goto out;
-	}
-	if ((!WriteFile(hFile, whitebar_script, whitebar_len, &dwSize, NULL)) || (dwSize != whitebar_len)) {
-		uprintf("Unable to write download script '%s': %s", script_path, WindowsErrorString());
-		goto out;
-	}
-	// Why oh why does PowerShell refuse to open read-only files that haven't been closed?
-	// Because of this limitation, we can't use LockFileEx() on the file we create...
-	safe_closehandle(hFile);
-#endif
-	static_sprintf(powershell_path, "%s\\WindowsPowerShell\\v1.0\\powershell.exe", system_dir);
-	static_sprintf(locale_str, "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-		selected_locale->txt[0], lmprintf(MSG_135), lmprintf(MSG_136), lmprintf(MSG_137),
-		lmprintf(MSG_138), lmprintf(MSG_139), lmprintf(MSG_040), lmprintf(MSG_140), lmprintf(MSG_141),
-		lmprintf(MSG_006), lmprintf(MSG_007), lmprintf(MSG_042), lmprintf(MSG_142), lmprintf(MSG_143),
-		lmprintf(MSG_144), lmprintf(MSG_145), lmprintf(MSG_146), lmprintf(MSG_199));
-
-	hPipe = CreateNamedPipeA(pipe, PIPE_ACCESS_INBOUND,
-		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES,
-		dwPipeSize, dwPipeSize, 0, NULL);
-	if (hPipe == INVALID_HANDLE_VALUE) {
-		uprintf("Could not create pipe '%s': %s", pipe, WindowsErrorString());
-		goto out;
-	}
-
-	static_sprintf(cmdline, "\"%s\" -NonInteractive -Sta -NoProfile –ExecutionPolicy Bypass "
-		"-File \"%s\" -PipeName %s -LocData \"%s\" -Icon \"%s\" -AppTitle \"%s\" -PlatformArch \"%s\"",
-		powershell_path, script_path, &pipe[9], locale_str, icon_path, lmprintf(MSG_149), GetArchName(NativeMachine));
-
-	ErrorStatus = 0;
-	dwExitCode = RunCommand(cmdline, app_data_dir, TRUE);
-	uprintf("Exited download script with code: %d", dwExitCode);
+	uprintf("PowerShell ISO download script is stubbed out for NativeWhitebar C++ integration.");
+	ErrorStatus = RUFUS_ERROR(APPERR(ERROR_CANCELLED));
+	goto out;
 	if ((dwExitCode == 0) && PeekNamedPipe(hPipe, NULL, dwPipeSize, NULL, &dwAvail, NULL) && (dwAvail != 0)) {
 		url = malloc(dwAvail + 1);
 		dwSize = 0;
@@ -918,10 +881,12 @@ static DWORD WINAPI DownloadISOThread(LPVOID param)
 	}
 
 out:
-	if (icon_path[0] != 0)
+	safe_closehandle(hPipe);
+	safe_closehandle(hFile);
+	if (icon_path[0] != '\0')
 		DeleteFileU(icon_path);
 #if !defined(RUFUS_TEST)
-	if (script_path[0] != 0) {
+	if (script_path[0] != '\0') {
 		SetFileAttributesU(script_path, FILE_ATTRIBUTE_NORMAL);
 		DeleteFileU(script_path);
 	}

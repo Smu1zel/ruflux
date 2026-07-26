@@ -1,7 +1,7 @@
 /*
  * Ruflux: Another USB Formatting Utility
  * Standard User I/O Routines (logging, status, error, etc.)
- * Copyright © 2011-2025 Pete Batard <pete@akeo.ie>
+ * Copyright © 2011-2026 Pete Batard <pete@akeo.ie>
  * Copyright © 2020 Mattiwatti <mattiwatti@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,6 +36,7 @@
 
 #include "rufus.h"
 #include "ntdll.h"
+#include "winio.h"
 #include "missing.h"
 #include "settings.h"
 #include "resource.h"
@@ -365,18 +366,25 @@ char* GuidToString(const GUID* guid, BOOL bDecorated)
 	return guid_string;
 }
 
-GUID* StringToGuid(const char* str)
+GUID StringToGuid(const char* str)
 {
-	static GUID guid;
-
-	if (str == NULL) return NULL;
-	if (sscanf(str, "{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
-		(uint32_t*)&guid.Data1, (uint32_t*)&guid.Data2, (uint32_t*)&guid.Data3,
-		(uint32_t*)&guid.Data4[0], (uint32_t*)&guid.Data4[1], (uint32_t*)&guid.Data4[2],
-		(uint32_t*)&guid.Data4[3], (uint32_t*)&guid.Data4[4], (uint32_t*)&guid.Data4[5],
-		(uint32_t*)&guid.Data4[6], (uint32_t*)&guid.Data4[7]) != 11)
-		return NULL;
-	return &guid;
+	GUID guid = { 0 };
+	uint32_t d1, d2, d3, b0, b1, b2, b3, b4, b5, b6, b7;
+	if (str != NULL && sscanf(str[0] == '{' ? &str[1] : str, "%8x-%4x-%4x-%2x%2x-%2x%2x%2x%2x%2x%2x",
+		&d1, &d2, &d3, &b0, &b1, &b2, &b3, &b4, &b5, &b6, &b7) == 11) {
+		guid.Data1 = d1;
+		guid.Data2 = (uint16_t)d2;
+		guid.Data3 = (uint16_t)d3;
+		guid.Data4[0] = (uint8_t)b0;
+		guid.Data4[1] = (uint8_t)b1;
+		guid.Data4[2] = (uint8_t)b2;
+		guid.Data4[3] = (uint8_t)b3;
+		guid.Data4[4] = (uint8_t)b4;
+		guid.Data4[5] = (uint8_t)b5;
+		guid.Data4[6] = (uint8_t)b6;
+		guid.Data4[7] = (uint8_t)b7;
+	}
+	return guid;
 }
 
 // Find upper power of 2
@@ -582,13 +590,13 @@ HANDLE CreateFileWithTimeout(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwS
 			CancelSynchronousIo(hThread);
 			switch (WaitForSingleObject(hThread, 30000)) {
 			case WAIT_TIMEOUT:
-				uprintf("File was not created within timeout duration");
+				uprintf("Could not open file or device within timeout duration");
 				break;
 			case WAIT_OBJECT_0:
-				uprintf("File creation aborted by user");
+				uprintf("Operation aborted by user");
 				break;
 			default:
-				uprintf("Error while waiting for file to ne created: %s", WindowsErrorString());
+				uprintf("Error while waiting for file or device to be opened: %s", WindowsErrorString());
 				break;
 			}
 			params.dwError = WAIT_TIMEOUT;
@@ -607,28 +615,23 @@ HANDLE CreateFileWithTimeout(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwS
 BOOL WriteFileWithRetry(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite,
 	LPDWORD lpNumberOfBytesWritten, DWORD nNumRetries)
 {
-	DWORD nTry;
-	BOOL readFilePointer;
-	LARGE_INTEGER liFilePointer, liZero = { { 0,0 } };
-	DWORD NumberOfBytesWritten;
+	static const LARGE_INTEGER liZero = { { 0,0 } };
+	DWORD nTry, NumberOfBytesWritten;
+	NOW_THATS_WHAT_I_CALL_AN_OVERLAPPED overlapped = { 0 };
 
 	if (lpNumberOfBytesWritten == NULL)
 		lpNumberOfBytesWritten = &NumberOfBytesWritten;
 
-	// Need to get the current file pointer in case we need to retry
-	readFilePointer = SetFilePointerEx(hFile, liZero, &liFilePointer, FILE_CURRENT);
-	if (!readFilePointer)
-		uprintf("WARNING: Could not read file pointer %s", WindowsErrorString());
+	// Need to get the current file pointer for retry
+	if (!SetFilePointerEx(hFile, liZero, (PLARGE_INTEGER)&overlapped.Offset, FILE_CURRENT)) {
+		uprintf("ERROR: Could not set file offset %s", WindowsErrorString());
+		return FALSE;
+	}
 
 	if (nNumRetries == 0)
 		nNumRetries = 1;
-	for (nTry = 1; nTry <= nNumRetries; nTry++) {
-		// Need to rewind our file position on retry - if we can't even do that, just give up
-		if ((nTry > 1) && (!SetFilePointerEx(hFile, liFilePointer, NULL, FILE_BEGIN))) {
-			uprintf("Could not set file pointer - Aborting");
-			break;
-		}
-		if (WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, NULL)) {
+	for (nTry = 1; nTry <= nNumRetries && (HRESULT_CODE(ErrorStatus) != ERROR_CANCELLED); nTry++) {
+		if (WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, (LPOVERLAPPED)&overlapped)) {
 			LastWriteError = 0;
 			if (nNumberOfBytesToWrite == *lpNumberOfBytesWritten)
 				return TRUE;
@@ -641,17 +644,15 @@ BOOL WriteFileWithRetry(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWr
 		} else {
 			uprintf("Write error %s", WindowsErrorString());
 			LastWriteError = RUFUS_ERROR(GetLastError());
+			if (LastWriteError == RUFUS_ERROR(ERROR_DISK_FULL) || HRESULT_CODE(ErrorStatus) == ERROR_CANCELLED)
+				break;
 		}
-		// If we can't reposition for the next run, just abort
-		if (!readFilePointer)
-			break;
 		if (nTry < nNumRetries) {
 			uprintf("Retrying in %d seconds...", WRITE_TIMEOUT / 1000);
-			// TODO: Call GetProcessSearch() here?
 			Sleep(WRITE_TIMEOUT);
 		}
 	}
-	if (SCODE_CODE(GetLastError()) == ERROR_SUCCESS)
+	if (SCODE_CODE(GetLastError()) == ERROR_SUCCESS && HRESULT_CODE(ErrorStatus) != ERROR_CANCELLED)
 		SetLastError(RUFUS_ERROR(ERROR_WRITE_FAULT));
 	return FALSE;
 }
@@ -966,9 +967,15 @@ static void print_extracted_file(const char* file_path, uint64_t file_length)
 	PrintStatus(0, MSG_000, str);	// MSG_000 is "%s"
 }
 
-static void update_progress(const uint64_t processed_bytes)
+static void update_progress(const int64_t processed_bytes)
 {
-	UpdateProgressWithInfo(OP_EXTRACT_ZIP, MSG_348, processed_bytes, archive_size);
+	static uint64_t total_bytes = 0;
+
+	if (processed_bytes < 0) {
+		total_bytes = -processed_bytes;
+		UpdateProgressWithInfo(OP_EXTRACT_ZIP, MSG_348, 0, total_bytes);
+	} else
+		UpdateProgressWithInfo(OP_EXTRACT_ZIP, MSG_348, processed_bytes, total_bytes);
 }
 
 // Extract content from a zip archive onto the designated directory or drive

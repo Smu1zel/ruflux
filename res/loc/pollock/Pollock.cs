@@ -1,7 +1,7 @@
 ﻿/*
  * Rufus: The Reliable USB Formatting Utility
  * Poedit <-> rufus.loc conversion utility
- * Copyright © 2018-2024 Pete Batard <pete@akeo.ie>
+ * Copyright © 2018-2026 Pete Batard <pete@akeo.ie>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ using System.Windows.Forms;
 [assembly: AssemblyProduct("Pollock")]
 [assembly: AssemblyCopyright("Copyright © 2018-2024 Pete Batard <pete@akeo.ie>")]
 [assembly: AssemblyTrademark("GNU GPLv3")]
-[assembly: AssemblyVersion("1.6.*")]
+[assembly: AssemblyVersion("1.8.*")]
 
 namespace pollock
 {
@@ -124,7 +124,6 @@ namespace pollock
         private static int download_status;
         private static int console_x_pos;
         private static bool in_progress = false;
-        private static bool in_on_change = false;
         private static double speed = 0.0f;
 
         /// <summary>
@@ -883,53 +882,9 @@ namespace pollock
             return (response == ConsoleKey.Y);
         }
 
-        // Event handler for FileSystemWatcher. As usual, this is a completely BACKWARDS
-        // implementation by Microsoft that has to be worked around with timers and stuff...
-        private static void OnChanged(object source, FileSystemEventArgs e)
-        {
-            if (in_on_change)
-                return;
-            in_on_change = true;
-            FileInfo file = new FileInfo(e.FullPath);
-            FileStream stream = null;
-            if (file.LastWriteTime >= last_changed.AddMilliseconds(250))
-            {
-                // File may still be locked by Poedit => detect that
-                bool file_locked = true;
-                do
-                {
-                    try
-                    {
-                        stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
-                        file_locked = false;
-                    }
-                    catch (IOException)
-                    {
-                        if (cancel_requested)
-                            break;
-                        Thread.Sleep(100);
-                    }
-                    finally
-                    {
-                        if (!file_locked)
-                        {
-                            if (stream != null)
-                                stream.Close();
-                            last_changed = file.LastWriteTime;
-                            Console.Write(file.LastWriteTime.ToLongTimeString() + " - ");
-                            UpdateLocFile(ParsePoFile(e.FullPath));
-                        }
-                    }
-                }
-                while (file_locked);
-            }
-            in_on_change = false;
-        }
-
         //
         // Main entrypoint.
         //
-        [STAThread]
         static void Main(string[] args)
         {
             // Fix needed for Windows 7 to download from github SSL
@@ -1146,7 +1101,7 @@ Retry:
             else
             {
                 var old_loc_file = $"rufus-{list[index][2]}.loc";
-                Console.WriteLine($"Note: This language is at v{list[index][2]} but the English base it at v{list[0][2]}.");
+                Console.WriteLine($"Note: This language is at v{list[index][2]} but the English base is at v{list[0][2]}.");
                 Console.Write($"Checking for the presence of '{old_loc_file}' to compute the differences... ");
                 if (File.Exists(old_loc_file))
                 {
@@ -1188,23 +1143,15 @@ Retry:
             if (maintainer_mode)
                 goto Exit;
 
-            // Watch for file modifications
-            FileSystemWatcher watcher = new FileSystemWatcher();
-            watcher.Path = app_dir;
-            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite;
-            watcher.Filter = po_file;
-            watcher.Changed += new FileSystemEventHandler(OnChanged);
-            watcher.EnableRaisingEvents = true;
-
             // Open the file in PoEdit if we can
-            var poedit = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Poedit\Poedit.exe";
+            var poedit = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + @"\Poedit\Poedit.exe";
             if (File.Exists(poedit))
             {
                 Console.WriteLine();
                 //                Console.WriteLine("Please press any key to launch Poedit and edit the PO file.");
                 Console.WriteLine("*************************************************************************************");
                 Console.WriteLine($"* The {list[index][0]} translation file ({list[index][1]}) is now ready to be edited in Poedit.");
-                Console.WriteLine("* Please look for entries highlited in orange - they are the ones requiring an update.");
+                Console.WriteLine("* Please look for entries highlighted in orange: they are the ones requiring an update.");
                 Console.WriteLine("*");
                 Console.WriteLine("* Whenever you save your changes in Poedit, a new 'rufus.loc' will be generated so");
                 Console.WriteLine($"* that you can test it with '{rufus_file}' in the same directory.");
@@ -1227,7 +1174,52 @@ Retry:
                 Console.SetCursorPosition(0, Console.CursorTop - 1);
                 Console.WriteLine("Running Poedit...                                 ");
                 DateTime launch_date = DateTime.Now;
-                process.WaitForExit();
+
+                // Somehow, Palp... I mean, Microsoft broke FileSystemWatcher, so perform our own file system monitoring
+                var info = new FileInfo(po_file);
+                var length = info.Length;
+                var write_time = info.LastWriteTime;
+                var create_time = info.CreationTime;
+                while (!process.WaitForExit(500))
+                {
+                    info = new FileInfo(po_file);
+                    if (info.Length != length || info.LastWriteTime != write_time || info.CreationTime != create_time)
+                    {
+                        FileStream stream = null;
+                        if (info.LastWriteTime >= last_changed.AddMilliseconds(250))
+                        {
+                            // File may still be locked by Poedit => detect that
+                            bool file_locked = true;
+                            do
+                            {
+                                try
+                                {
+                                    stream = info.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                                    file_locked = false;
+                                }
+                                catch (IOException)
+                                {
+                                    if (cancel_requested)
+                                        break;
+                                    Thread.Sleep(100);
+                                }
+                                finally
+                                {
+                                    if (!file_locked)
+                                    {
+                                        if (stream != null)
+                                            stream.Close();
+                                        last_changed = info.LastWriteTime;
+                                        Console.Write(info.LastWriteTime.ToLongTimeString() + " - ");
+                                        UpdateLocFile(ParsePoFile(info.FullName));
+                                    }
+                                }
+                            }
+                            while (file_locked);
+                        }
+                    }
+                }
+ 
                 Console.WriteLine($"Poedit {((DateTime.Now - launch_date).Milliseconds < 100? "is already running (?)..." : "was closed.")}");
                 // Delete the .mo files which we don't need
                 var dir = new DirectoryInfo(app_dir);
