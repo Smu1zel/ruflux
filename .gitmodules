@@ -1,0 +1,3 @@
+[submodule "src/nativewhitebar"]
+	path = src/nativewhitebar
+	url = https://github.com/Smu1zel/NativeWhitebar

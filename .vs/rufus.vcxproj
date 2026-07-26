@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM64">
@@ -322,6 +322,9 @@
     <ClCompile Include="..\src\vhd.c" />
     <ClCompile Include="..\src\wue.c" />
     <ClCompile Include="..\src\xml.c" />
+    <ClCompile Include="..\src\nativewhitebar\Whitebar.cpp">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\res\dbx\dbx_info.h" />
@@ -361,6 +364,7 @@
     <ClInclude Include="..\src\winio.h" />
     <ClInclude Include="..\src\wue.h" />
     <ClInclude Include="..\src\xml.h" />
+    <ClInclude Include="..\src\nativewhitebar\whitebar_api.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="..\src\rufus.manifest" />

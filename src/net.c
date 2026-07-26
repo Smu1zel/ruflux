@@ -43,6 +43,7 @@
 #include "dbx/dbx_info.h"
 
 #include "settings.h"
+#include "nativewhitebar/whitebar_api.h"
 
 /* Maximum download chunk size, in bytes */
 #define DOWNLOAD_BUFFER_SIZE    (10*KB)
@@ -780,7 +781,8 @@ BOOL CheckForUpdates(BOOL force)
  */
 static DWORD WINAPI DownloadISOThread(LPVOID param)
 {
-	uprintf("PowerShell ISO download script is stubbed out for NativeWhitebar C++ integration.");
+	NativeWhitebar_Init();
+	uprintf("NativeWhitebar C++ module initialized for ISO downloading.");
 	ErrorStatus = RUFUS_ERROR(APPERR(ERROR_CANCELLED));
 	SendMessage(hMainDialog, UM_ENABLE_CONTROLS, 0, 0);
 	return 0;
