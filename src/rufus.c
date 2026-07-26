@@ -4288,8 +4288,8 @@ extern int TestHashes(void);
 			DispatchMessage(&msg);
 		}
 	}
-	if (hWhitebarDlg != NULL)
-		SendMessage(hWhitebarDlg, WM_CLOSE, 0, 0);
+	if (hFidoDlg != NULL)
+		SendMessage(hFidoDlg, WM_CLOSE, 0, 0);
 	if (relaunch) {
 		relaunch = FALSE;
 		reinit_localization();
