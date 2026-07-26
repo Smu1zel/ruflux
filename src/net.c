@@ -781,9 +781,8 @@ BOOL CheckForUpdates(BOOL force)
  */
 static DWORD WINAPI DownloadISOThread(LPVOID param)
 {
-	NativeWhitebar_Init();
-	uprintf("NativeWhitebar C++ module initialized for ISO downloading.");
-	ErrorStatus = RUFUS_ERROR(APPERR(ERROR_CANCELLED));
+	uprintf("Launching NativeWhitebar ISO Downloader...");
+	NativeWhitebar_ShowGUI(hMainDialog);
 	SendMessage(hMainDialog, UM_ENABLE_CONTROLS, 0, 0);
 	return 0;
 }
