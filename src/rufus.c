@@ -2789,6 +2789,10 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		break;
 	case UM_SELECT_ISO:
 		select_index = 0;
+		if (lParam != 0) {
+			safe_free(image_path);
+			image_path = (char*)lParam;
+		}
 		img_provided = TRUE;
 		SetWindowTextU(GetDlgItem(hDlg, IDC_SELECT), uppercase_select[0]);
 		SendMessage(hDlg, WM_COMMAND, IDC_SELECT, 0);
