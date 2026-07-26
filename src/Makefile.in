@@ -101,7 +101,7 @@ am_rufus_OBJECTS = rufus-badblocks.$(OBJEXT) rufus-darkmode.$(OBJEXT) \
 	rufus-stdfn.$(OBJEXT) rufus-stdio.$(OBJEXT) \
 	rufus-stdlg.$(OBJEXT) rufus-syslinux.$(OBJEXT) \
 	rufus-ui.$(OBJEXT) rufus-vhd.$(OBJEXT) rufus-wue.$(OBJEXT) \
-	rufus-xml.$(OBJEXT)
+	rufus-xml.$(OBJEXT) rufus-Whitebar.$(OBJEXT)
 rufus_OBJECTS = $(am_rufus_OBJECTS)
 am__DEPENDENCIES_1 =
 rufus_DEPENDENCIES = rufus_rc.o bled/libbled.a ext2fs/libext2fs.a \
@@ -110,7 +110,7 @@ rufus_DEPENDENCIES = rufus_rc.o bled/libbled.a ext2fs/libext2fs.a \
 	libcdio/iso9660/libiso9660.a libcdio/udf/libudf.a \
 	libcdio/driver/libdriver.a wimlib/libwim.a \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-rufus_LINK = $(CCLD) $(rufus_CFLAGS) $(CFLAGS) $(rufus_LDFLAGS) \
+rufus_LINK = $(CXXLD) $(rufus_CXXFLAGS) $(CXXFLAGS) $(rufus_LDFLAGS) \
 	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -143,6 +143,19 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
 SOURCES = $(rufus_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
@@ -197,6 +210,8 @@ AWK = @AWK@
 CC = @CC@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DLLTOOL = @DLLTOOL@
@@ -239,6 +254,7 @@ abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
+ac_ct_CXX = @ac_ct_CXX@
 am__leading_dot = @am__leading_dot@
 am__tar = @am__tar@
 am__untar = @am__untar@
@@ -277,7 +293,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = ../.mingw bled ext2fs ms-sys syslinux/libfat syslinux/libinstaller syslinux/win libcdio/iso9660 libcdio/udf libcdio/driver wimlib ../res/loc
 # As far as I can tell, the following libraries are *not* vulnerable to side-loading, so we link using their regular version:
-NONVULNERABLE_LIBS = -lole32 -lgdi32 -lshlwapi -lcomctl32 -luuid -lntdll -lpsapi
+NONVULNERABLE_LIBS = -lole32 -lgdi32 -lshlwapi -lcomctl32 -luuid -lntdll -lpsapi -lrpcrt4
 # The following libraries are vulnerable (or have an unknown vulnerability status), so we link using our delay-loaded replacement:
 # See https://github.com/pbatard/rufus/issues/2272
 VULNERABLE_LIBS = -lcrypt32-delaylib -ldwmapi-delaylib -lsetupapi-delaylib -luxtheme-delaylib -lversion-delaylib -lvirtdisk-delaylib -lwininet-delaylib -lwintrust-delaylib
@@ -286,19 +302,21 @@ AM_V_WINDRES_1 = $(WINDRES)
 AM_V_WINDRES_ = $(AM_V_WINDRES_$(AM_DEFAULT_VERBOSITY))
 AM_V_WINDRES = $(AM_V_WINDRES_$(V))
 rufus_SOURCES = badblocks.c darkmode.c dev.c dos.c dos_locale.c drive.c format.c format_ext.c format_fat32.c hash.c icon.c iso.c localization.c \
-	 net.c parser.c pki.c process.c cregex_compile.c cregex_parse.c cregex_vm.c rufus.c smart.c stdfn.c stdio.c stdlg.c syslinux.c ui.c vhd.c wue.c xml.c
+	 net.c parser.c pki.c process.c cregex_compile.c cregex_parse.c cregex_vm.c rufus.c smart.c stdfn.c stdio.c stdlg.c syslinux.c ui.c vhd.c wue.c xml.c \
+	 nativewhitebar/Whitebar.cpp
 
 rufus_CFLAGS = -I$(srcdir)/ms-sys/inc -I$(srcdir)/syslinux/libfat -I$(srcdir)/syslinux/libinstaller -I$(srcdir)/syslinux/win -I$(srcdir)/libcdio -I$(srcdir)/wimlib -I$(srcdir)/../res $(AM_CFLAGS) \
 	-DEXT2_FLAT_INCLUDES=0 -D_RUFUS -DSOLUTION=rufus
 
+rufus_CXXFLAGS = $(rufus_CFLAGS) -std=gnu++11 -DUSE_WININET_HTTP
 rufus_LDFLAGS = $(AM_LDFLAGS) -mwindows -L../.mingw
 rufus_LDADD = rufus_rc.o bled/libbled.a ext2fs/libext2fs.a ms-sys/libmssys.a syslinux/libfat/libfat.a syslinux/libinstaller/libinstaller.a syslinux/win/libwin.a \
-	libcdio/iso9660/libiso9660.a libcdio/udf/libudf.a libcdio/driver/libdriver.a wimlib/libwim.a $(NONVULNERABLE_LIBS) $(VULNERABLE_LIBS)
+	libcdio/iso9660/libiso9660.a libcdio/udf/libudf.a libcdio/driver/libdriver.a wimlib/libwim.a $(NONVULNERABLE_LIBS) $(VULNERABLE_LIBS) -lstdc++
 
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
+.SUFFIXES: .c .cpp .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -335,7 +353,7 @@ clean-noinstPROGRAMS:
 
 rufus$(EXEEXT): $(rufus_OBJECTS) $(rufus_DEPENDENCIES) $(EXTRA_rufus_DEPENDENCIES) 
 	@rm -f rufus$(EXEEXT)
-	$(AM_V_CCLD)$(rufus_LINK) $(rufus_OBJECTS) $(rufus_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(rufus_LINK) $(rufus_OBJECTS) $(rufus_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -528,6 +546,18 @@ rufus-xml.o: xml.c
 
 rufus-xml.obj: xml.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-xml.obj `if test -f 'xml.c'; then $(CYGPATH_W) 'xml.c'; else $(CYGPATH_W) '$(srcdir)/xml.c'; fi`
+
+.cpp.o:
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+rufus-Whitebar.o: nativewhitebar/Whitebar.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CXXFLAGS) $(CXXFLAGS) -c -o rufus-Whitebar.o `test -f 'nativewhitebar/Whitebar.cpp' || echo '$(srcdir)/'`nativewhitebar/Whitebar.cpp
+
+rufus-Whitebar.obj: nativewhitebar/Whitebar.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CXXFLAGS) $(CXXFLAGS) -c -o rufus-Whitebar.obj `if test -f 'nativewhitebar/Whitebar.cpp'; then $(CYGPATH_W) 'nativewhitebar/Whitebar.cpp'; else $(CYGPATH_W) '$(srcdir)/nativewhitebar/Whitebar.cpp'; fi`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.

@@ -1,13 +1,24 @@
 EXPORTS
   HttpQueryInfoA@20
+  HttpQueryInfoW@20
   HttpOpenRequestA@32
+  HttpOpenRequestW@32
   HttpSendRequestA@20
+  HttpSendRequestW@20
   HttpAddRequestHeadersA@16
+  HttpAddRequestHeadersW@16
   InternetCloseHandle@4
   InternetConnectA@32
+  InternetConnectW@32
   InternetCrackUrlA@16
+  InternetCrackUrlW@16
   InternetGetConnectedState@8
   InternetGetLastResponseInfoA@12
+  InternetGetLastResponseInfoW@12
   InternetOpenA@20
+  InternetOpenW@20
+  InternetOpenUrlA@24
+  InternetOpenUrlW@24
   InternetReadFile@16
   InternetSetOptionA@16
+  InternetSetOptionW@16
