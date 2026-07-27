@@ -33,7 +33,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 IDD_DIALOG DIALOGEX 12, 12, 232, 326
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_ACCEPTFILES
-CAPTION "Rufus 4.15.2396"
+CAPTION "Ruflux 4.15.2396"
 FONT 9, "Segoe UI Symbol", 400, 0, 0x0
 BEGIN
     LTEXT           "Drive Properties",IDS_DRIVE_PROPERTIES_TXT,8,6,53,12,NOT WS_GROUP
@@ -85,7 +85,7 @@ END
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 319, 237
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About Rufus"
+CAPTION "About Ruflux"
 FONT 9, "Segoe UI Symbol", 400, 0, 0x0
 BEGIN
     ICON            IDI_ICON,IDC_ABOUT_ICON,11,8,20,20
@@ -113,7 +113,7 @@ END
 
 IDD_LICENSE DIALOGEX 0, 0, 335, 213
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Rufus License"
+CAPTION "Ruflux License"
 FONT 9, "Segoe UI Symbol", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "Close",IDCANCEL,278,192,50,12
@@ -133,7 +133,7 @@ END
 
 IDD_NOTIFICATION DIALOGEX 0, 0, 263, 73
 STYLE DS_SETFONT | DS_NOFAILCREATE | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_THICKFRAME
-CAPTION "Rufus"
+CAPTION "Ruflux"
 FONT 9, "Segoe UI Symbol", 400, 0, 0x0
 BEGIN
     LTEXT           "",IDC_NOTIFICATION_LINE,0,0,263,35
@@ -150,7 +150,7 @@ END
 
 IDD_SELECTION DIALOGEX 0, 0, 312, 71
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_NOFAILCREATE | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_THICKFRAME
-CAPTION "Rufus"
+CAPTION "Ruflux"
 FONT 9, "Segoe UI Symbol", 400, 0, 0x0
 BEGIN
     LTEXT           "",IDC_SELECTION_LINE,0,0,312,47
@@ -181,7 +181,7 @@ END
 
 IDD_LIST DIALOGEX 0, 0, 312, 59
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_NOFAILCREATE | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_THICKFRAME
-CAPTION "Rufus"
+CAPTION "Ruflux"
 FONT 9, "Segoe UI Symbol", 400, 0, 0x0
 BEGIN
     LTEXT           "",IDC_LIST_LINE,0,0,312,32
@@ -226,7 +226,7 @@ END
 
 IDD_NEW_VERSION DIALOGEX 0, 0, 384, 268
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Check For Updates - Rufus"
+CAPTION "Check For Updates - Ruflux"
 FONT 9, "Segoe UI Symbol", 400, 0, 0x0
 BEGIN
     PUSHBUTTON      "Close",IDCANCEL,167,245,50,12,WS_GROUP
@@ -425,15 +425,15 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "https://rufus.ie"
-            VALUE "CompanyName", "Akeo Consulting"
-            VALUE "FileDescription", "Rufus"
+            VALUE "Comments", "https://lyndenlewis.com"
+            VALUE "CompanyName", "Smu1zel"
+            VALUE "FileDescription", "Ruflux"
             VALUE "FileVersion", "4.15.2396"
-            VALUE "InternalName", "Rufus"
-            VALUE "LegalCopyright", "© 2011-2026 Pete Batard (GPL v3)"
+            VALUE "InternalName", "Ruflux"
+            VALUE "LegalCopyright", "2026 Lynden Lewis (GPL v3)"
             VALUE "LegalTrademarks", "https://www.gnu.org/licenses/gpl-3.0.html"
-            VALUE "OriginalFilename", "rufus-4.15.exe"
-            VALUE "ProductName", "Rufus"
+            VALUE "OriginalFilename", "ruflux-4.15.exe"
+            VALUE "ProductName", "Ruflux"
             VALUE "ProductVersion", "4.15.2396"
         END
     END
