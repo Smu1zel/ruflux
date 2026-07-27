@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Chinese Traditional (正體中文)\n"
-"X-Rufus-LCID: 0x0404, 0x0c04, 0x1404, 0x7c04\n"
+"X-Ruflux-LanguageName: Chinese Traditional (正體中文)\n"
+"X-Ruflux-LCID: 0x0404, 0x0c04, 0x1404, 0x7c04\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "執行"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "關於 Rufus"
+msgid "About Ruflux"
+msgstr "關於 Ruflux"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr "關閉"
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Rufus 授權合約"
+msgid "Ruflux License"
+msgstr "Ruflux 授權合約"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,8 +168,8 @@ msgid "Check Now"
 msgstr "立即檢查"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "線上更新 - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "線上更新 - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -195,10 +195,10 @@ msgstr "偵測到其他程序"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"已有其他 Rufus 程序在執行中。\n"
+"已有其他 Ruflux 程序在執行中。\n"
 "請先關閉執行中的程序。"
 
 #. • MSG_003
@@ -210,11 +210,11 @@ msgstr ""
 "請再次確認是否繼續。"
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Rufus 線上更新規則"
+msgid "Ruflux update policy"
+msgstr "Ruflux 線上更新規則"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
 msgstr "是否啟用自動線上檢查更新?"
 
 #. • MSG_007
@@ -533,13 +533,13 @@ msgstr "裝置尚未就緒。"
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus 偵測到 Windows 正在排清緩衝區至 USB 裝置。\n"
+"Ruflux 偵測到 Windows 正在排清緩衝區至 USB 裝置。\n"
 "\n"
 "此作業可能需要一段時間才完成，視裝置速度及檔案大小而定。\n"
 "\n"
@@ -550,8 +550,8 @@ msgid "Unsupported image"
 msgstr "不支援的映像檔"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "此映像檔無法開機，或是使用 Rufus 不支援的開機、壓縮方式..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "此映像檔無法開機，或是使用 Ruflux 不支援的開機、壓縮方式..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -562,7 +562,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -572,7 +572,7 @@ msgstr ""
 "此 ISO 映像檔似乎使用過時版本的 '%s'。\n"
 "開機選單可能因此無法正常運作。\n"
 "\n"
-"Rufus 可下載新版本來修正問題:\n"
+"Ruflux 可下載新版本來修正問題:\n"
 "- 選 '是' 將連線到網路並下載檔案\n"
 "- 選 '否' 保留原始 ISO 內容\n"
 "如果你不知道該如何抉擇，建議選擇 '是'。\n"
@@ -686,18 +686,18 @@ msgstr "是否下載 %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s 或更新版本需要同時安裝 '%s' 檔案方可支援。\n"
-"由於這個檔案大於 100KB 且已包含在每一版 %s ISO 映像檔中，故 Rufus 未預載。\n"
+"由於這個檔案大於 100KB 且已包含在每一版 %s ISO 映像檔中，故 Ruflux 未預載。\n"
 "\n"
-"Rufus 可自動下載:\n"
+"Ruflux 可自動下載:\n"
 "- 選擇 '是' 將連上網並下載檔案\n"
 "- 選擇 '否' 若您要自行複製檔案到裝置\n"
 "\n"
@@ -720,8 +720,8 @@ msgid "All files"
 msgstr "所有檔案"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Rufus 記錄檔"
+msgid "Ruflux log"
+msgstr "Ruflux 記錄檔"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -756,7 +756,7 @@ msgstr "大 UDF 磁碟區"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -766,7 +766,7 @@ msgstr ""
 "\n"
 "由於不同版本的 Syslinux 互不相容，因此需額外下載以下擴充檔案: \n"
 "'ldlinux.sys' 和 'ldlinux.bss'\n"
-"如欲下載這份檔案，請選擇「是」，Rufus 將會自動上網下載。若要終止作業，請選擇「否」\n"
+"如欲下載這份檔案，請選擇「是」，Ruflux 將會自動上網下載。若要終止作業，請選擇「否」\n"
 "\n"
 "(僅需下載一次，以後可直接沿用不須再次下載)"
 
@@ -781,9 +781,9 @@ msgstr "需額外下載擴充檔案"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
@@ -792,7 +792,7 @@ msgstr ""
 "\n"
 "由於不同版本的 Grub 互不相容，因此需額外下載以下符合映像檔 Grub 版本的擴充檔案: \n"
 "'core.img'\n"
-"如欲下載這份檔案，請選擇「是」，Rufus 將會自動上網下載，或選擇「否」使用 Rufus 內建版本。若要終止作業，請選擇「取消」\n"
+"如欲下載這份檔案，請選擇「是」，Ruflux 將會自動上網下載，或選擇「否」使用 Ruflux 內建版本。若要終止作業，請選擇「取消」\n"
 "\n"
 "(僅需下載一次，以後可直接沿用不須再次下載；若無法下載到相同版本的檔案，則會自動使用內建版本)"
 
@@ -885,25 +885,25 @@ msgstr "另一個程式或程序正在使用此裝置，要繼續格式化?"
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus 偵測到您將要建立 'Windows To Go' 1809 版本。\n"
+"Ruflux 偵測到您將要建立 'Windows To Go' 1809 版本。\n"
 "\n"
 "由於微軟的程式錯誤，您將無法正常開機 (藍底白字當機)，除非您自行更換 'WppRecorder.sys' 成 1803 版本。\n"
 "\n"
-"此檔案版權擁有者為微軟，Rufus 愛莫能助..."
+"此檔案版權擁有者為微軟，Ruflux 愛莫能助..."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"由於選擇使用 MBR 磁區，Rufus 最大只能建立 2 TB 磁區，而剩下空間 %s 將無法使用\n"
+"由於選擇使用 MBR 磁區，Ruflux 最大只能建立 2 TB 磁區，而剩下空間 %s 將無法使用\n"
 "\n"
 "請確認是否繼續?"
 
@@ -1063,7 +1063,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "下載簽章無效"
@@ -1114,7 +1114,7 @@ msgstr "您的 IP 位置"
 
 #. • MSG_184
 msgid "For the purpose of generating private usage statistics, we may keep the information collected, \\b for at most a year\\b0 . However, we will not willingly disclose any of this individual data to third parties."
-msgstr "所蒐集之資料\\b最多保留一年\\b0 ，目的僅供內部統計分析 Rufus 使用概況，絕不會主動將資料提供給第三方。"
+msgstr "所蒐集之資料\\b最多保留一年\\b0 ，目的僅供內部統計分析 Ruflux 使用概況，絕不會主動將資料提供給第三方。"
 
 #. • MSG_185
 msgid "Update Process:"
@@ -1122,9 +1122,9 @@ msgstr "更新流程:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
-msgstr "Rufus 沒有常駐或背景程式，因此當主程式執行時才會進行自動線上檢查更新。當然，還必須是在連網狀態。"
+msgstr "Ruflux 沒有常駐或背景程式，因此當主程式執行時才會進行自動線上檢查更新。當然，還必須是在連網狀態。"
 
 #. • MSG_187
 msgid "Invalid image for selected boot option"
@@ -1173,12 +1173,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "重要: 此裝置使用非標準磁區大小!\n"
 "\n"
 "一般裝置使用 512-byte 磁區，但是此裝置使用 %d-byte。在多數情況下，這代表你無法使用此裝置開機。\n"
-"Rufus 可嘗試建立開機磁碟，但不保證能正常使用。"
+"Ruflux 可嘗試建立開機磁碟，但不保證能正常使用。"
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1385,7 +1385,7 @@ msgstr "正在刪除磁區分割 (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1404,7 +1404,7 @@ msgid "Failed to download file."
 msgstr "檔案下載失敗。"
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
+msgid "Checking for Ruflux updates..."
 msgstr "線上更新: 檢查更新版本中..."
 
 #. • MSG_244
@@ -1416,20 +1416,20 @@ msgid "Updates: Unable to access version data"
 msgstr "線上更新: 無法確認軟體版本"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
+msgid "A new version of Ruflux is available!"
 msgstr "線上更新: 有更新版本!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
+msgid "No new version of Ruflux was found"
 msgstr "線上更新: 已是最新版"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
-msgstr "Rufus 登錄檔已成功清除"
+msgstr "Ruflux 登錄檔已成功清除"
 
 #. • MSG_249
 msgid "Failed to delete application registry keys"
-msgstr "Rufus 登錄檔清除失敗"
+msgstr "Ruflux 登錄檔清除失敗"
 
 #. • MSG_250
 #.
@@ -1542,13 +1542,13 @@ msgstr "偵測到 %s 映像檔"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "你選擇的映像檔為 'ISOHybrid' 格式。該檔案格式可以使用以下模式寫入%s (檔案複製) 模式 或 %s (磁碟映像) 模式。\n"
-"Rufus 建議使用 %s 模式，你將擁有磁碟的完整存取權限。\n"
+"Ruflux 建議使用 %s 模式，你將擁有磁碟的完整存取權限。\n"
 "如果你在開機時遭遇問題，你可以嘗試使用 %s 模式寫入。\n"
 "\n"
 "請選擇寫入模式:"
@@ -1637,11 +1637,11 @@ msgstr "不支援的 Windows 版本"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"Rufus 已不再支援此 Windows 版本。\n"
-"此平台Rufus所支援的最新版本為v%d.%d。"
+"Ruflux 已不再支援此 Windows 版本。\n"
+"此平台Ruflux所支援的最新版本為v%d.%d。"
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1649,11 +1649,11 @@ msgstr "警告: 非官方版本"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"此 Rufus 版本不是由官方開發者發布的。\n"
+"此 Ruflux 版本不是由官方開發者發布的。\n"
 "\n"
 "你確定要執行嗎?"
 
@@ -1667,7 +1667,7 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "你選擇的 ISO 映像檔不符合它所宣告的大小: 缺少 %s !\n"
 "\n"
@@ -1681,11 +1681,11 @@ msgstr "時間戳記驗證錯誤"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Rufus 不能驗證下載的更新其時間戳記比現有的執行檔還新。\n"
+"Ruflux 不能驗證下載的更新其時間戳記比現有的執行檔還新。\n"
 "\n"
 "為避免可能的資安攻擊，更新流程已停止且下載的更新檔將會刪除。更多詳情請參見記錄檔。"
 
@@ -1858,7 +1858,7 @@ msgstr ""
 "- 選 '是' 將連線到網路並進行下載\n"
 "- 選 '否' 將取消操作\n"
 "\n"
-"註: 該檔案將被下載到 Rufus 所在的資料夾中，如果已存在將會自動使用。"
+"註: 該檔案將被下載到 Ruflux 所在的資料夾中，如果已存在將會自動使用。"
 
 #. • MSG_338
 msgid "Revoked UEFI bootloader detected"
@@ -1866,12 +1866,12 @@ msgstr "偵測到被撤銷的 UEFI 開機引導程式"
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus 偵測到選取的 ISO 包含一個被撤銷的 UEFI 開機引導程式，當你在完全更新的 UEFI 系統上啟用安全開機時，將產生 %s。\n"
+"Ruflux 偵測到選取的 ISO 包含一個被撤銷的 UEFI 開機引導程式，當你在完全更新的 UEFI 系統上啟用安全開機時，將產生 %s。\n"
 "\n"
 "- 如果你從無法信任的來源取得這個 ISO 映像，應該考慮到它可能包含 UEFI 惡意程式，並避免以此進行開機。\n"
 "- 如果你從可以信任的來源取得，應該嘗試找到一個更新的版本，才不會出現這個警告。"
@@ -1919,8 +1919,8 @@ msgid "Extracting archive files: %s"
 msgstr "正在擷取封存檔案: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "使用 Rufus MBR"
+msgid "Use Ruflux MBR"
+msgstr "使用 Ruflux MBR"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1940,17 +1940,17 @@ msgstr "有可用的 DBX 更新"
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"Rufus 發現用於執行 UEFI 安全開機撤銷檢查的 DBX 檔案更新版本，是否下載此更新？\n"
+"Ruflux 發現用於執行 UEFI 安全開機撤銷檢查的 DBX 檔案更新版本，是否下載此更新？\n"
 "- 選擇 '是': 將連線到網路並進行下載\n"
 "- 選擇 '否': 取消此操作\n"
 "\n"
-"註: 該檔案將被下載到 Rufus 所在的資料夾中，如果已存在將會自動使用。"
+"註: 該檔案將被下載到 Ruflux 所在的資料夾中，如果已存在將會自動使用。"
 
 #. • MSG_355
 msgid "⚠SILENTLY⚠ erase disk and install:"
@@ -2039,8 +2039,8 @@ msgstr "如果你使用此選項，請確保目標電腦中除了要安裝 Windo
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus 是個能格式化並製作可開機 USB 快閃磁碟 (如 USB 隨身碟等) 的工具。"
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux 是個能格式化並製作可開機 USB 快閃磁碟 (如 USB 隨身碟等) 的工具。"
 
 #. • MSG_901
 msgid "Official site: %s"

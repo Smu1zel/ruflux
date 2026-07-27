@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Russian (Русский)\n"
-"X-Rufus-LCID: 0x0419, 0x0819\n"
+"X-Ruflux-LanguageName: Russian (Русский)\n"
+"X-Ruflux-LCID: 0x0419, 0x0819\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "Старт"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "О программе Rufus"
+msgid "About Ruflux"
+msgstr "О программе Ruflux"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr "ОК"
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Лицензия Rufus"
+msgid "Ruflux License"
+msgstr "Лицензия Ruflux"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,8 +168,8 @@ msgid "Check Now"
 msgstr "Проверить"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "Проверка наличия обновлений - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "Проверка наличия обновлений - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -191,11 +191,11 @@ msgstr "Скачать"
 
 #. • MSG_001
 msgid "Other instance detected"
-msgstr "Запущена другая копия Rufus"
+msgstr "Запущена другая копия Ruflux"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
 "Запущена другая копия программы.\n"
@@ -210,12 +210,12 @@ msgstr ""
 "Чтобы продолжить, нажмите ОК. Для выхода нажмите 'Отмена'."
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Политика обновления Rufus"
+msgid "Ruflux update policy"
+msgstr "Политика обновления Ruflux"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Хотите, чтобы Rufus проверял обновления автоматически?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Хотите, чтобы Ruflux проверял обновления автоматически?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -402,11 +402,11 @@ msgid "Multiple Partitions"
 msgstr "Несколько разделов"
 
 #. • MSG_048
-msgid "Rufus - Flushing buffers"
+msgid "Ruflux - Flushing buffers"
 msgstr "Очистка буферов"
 
 #. • MSG_049
-msgid "Rufus - Cancellation"
+msgid "Ruflux - Cancellation"
 msgstr "Отмена"
 
 #. • MSG_050
@@ -533,13 +533,13 @@ msgstr "Устройство не готово."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus обнаружил, что Windows всё ещё очищает внутренний буфер USB-устройства.\n"
+"Ruflux обнаружил, что Windows всё ещё очищает внутренний буфер USB-устройства.\n"
 "\n"
 "В зависимости от скорости USB-устройства, эта операция может занять много времени, особенно для больших файлов.\n"
 "\n"
@@ -550,8 +550,8 @@ msgid "Unsupported image"
 msgstr "Неподдерживаемый образ"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "Образ либо незагрузочный, либо использует метод загрузки или сжатия, не поддерживаемый Rufus."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "Образ либо незагрузочный, либо использует метод загрузки или сжатия, не поддерживаемый Ruflux."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -562,7 +562,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -572,7 +572,7 @@ msgstr ""
 "Образ ISO использует устаревшую версию '%s'.\n"
 "Загрузочные меню могут отображаться неправильно.\n"
 "\n"
-"Новую версию можно скачать с помощью Rufus:\n"
+"Новую версию можно скачать с помощью Ruflux:\n"
 "- Выберите 'Да', чтобы скачать файл из Интернета\n"
 "- Выберите 'Нет', чтобы не изменять образ ISO\n"
 "Если вы не знаете, что делать, то выберите 'Да'.\n"
@@ -688,18 +688,18 @@ msgstr "Загрузить %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s или новее требует наличия файла '%s'.\n"
-"Поскольку размер этого файла больше 100 КБ, и он всегда присутствует в ISO-образах %s, он не встроен в Rufus.\n"
+"Поскольку размер этого файла больше 100 КБ, и он всегда присутствует в ISO-образах %s, он не встроен в Ruflux.\n"
 "\n"
-"Rufus может скачать недостающий файл:\n"
+"Ruflux может скачать недостающий файл:\n"
 "- Выберите 'Да', если хотите скачать этот файл\n"
 "- Выберите 'Нет', если хотите скачать его вручную позже\n"
 "\n"
@@ -722,8 +722,8 @@ msgid "All files"
 msgstr "Все файлы"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Журнал Rufus"
+msgid "Ruflux log"
+msgstr "Журнал Ruflux"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -758,7 +758,7 @@ msgstr "Большой UDF-том"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -783,18 +783,18 @@ msgstr "Требуется загрузка из Интернета"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "Этот образ использует загрузчик GRUB %s, но приложение включает только установочные файлы для GRUB %s.\n"
 "\n"
-"Различные версии GRUB могут быть несовместимы друг с другом. Rufus попытается найти нужную версию установочного файла GRUB (core.img), соответствующую версии загрузчика вашего образа:\n"
+"Различные версии GRUB могут быть несовместимы друг с другом. Ruflux попытается найти нужную версию установочного файла GRUB (core.img), соответствующую версии загрузчика вашего образа:\n"
 "- Выберите 'Да', чтобы скачать установочный файл из Интернета\n"
-"- Выберите 'Нет', чтобы использовать версию по умолчанию из Rufus\n"
+"- Выберите 'Нет', чтобы использовать версию по умолчанию из Ruflux\n"
 "- Выберите 'Отмена', чтобы отменить операцию\n"
 "\n"
 "* Файл загрузится в текущую папку приложения, если в ней уже есть одноимённый файл, он будет автоматически перезаписан. Если нужную версию установщика не удастся найти в Интернете, будет использоваться версия по умолчанию."
@@ -888,25 +888,25 @@ msgstr "К этому диску обращается другая програ�
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
 "Вы пытаетесь создать носитель Windows To Go на основе ISO 1809.\n"
 "\n"
 "Из-за *ОШИБКИ MICROSOFT* этот носитель будет давать сбой (BSOD) при загрузке Windows, если вы вручную не замените файл WppRecorder.sys версией 1803.\n"
 "\n"
-"Rufus не может это исправить автоматически, так как WppRecorder.sys - это файл Microsoft, защищённый авторскими правами, поэтому мы не можем легально встраивать в приложение его копию."
+"Ruflux не может это исправить автоматически, так как WppRecorder.sys - это файл Microsoft, защищённый авторскими правами, поэтому мы не можем легально встраивать в приложение его копию."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"Поскольку для схемы разделов выбрана MBR, на этом носителе Rufus может создать только раздел размером до 2 ТБ, а %s дискового пространства останутся недоступными.\n"
+"Поскольку для схемы разделов выбрана MBR, на этом носителе Ruflux может создать только раздел размером до 2 ТБ, а %s дискового пространства останутся недоступными.\n"
 "\n"
 "Вы действительно хотите продолжить?"
 
@@ -1070,7 +1070,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "Неверная подпись обновления"
@@ -1080,8 +1080,8 @@ msgid "Click to select..."
 msgstr "Нажмите для выбора..."
 
 #. • MSG_174
-msgid "Rufus - The Reliable USB Formatting Utility"
-msgstr "Rufus - Надёжная утилита для форматирования USB-дисков"
+msgid "Ruflux - The Reliable USB Formatting Utility"
+msgstr "Ruflux - Надёжная утилита для форматирования USB-дисков"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"
@@ -1129,10 +1129,10 @@ msgstr "Обновление:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus не устанавливает и не запускает фоновые службы, поэтому проверка наличия обновлений выполняется, только когда запущено основное приложение.\\line\n"
+"Ruflux не устанавливает и не запускает фоновые службы, поэтому проверка наличия обновлений выполняется, только когда запущено основное приложение.\\line\n"
 "Для проверки обновлений требуется доступ к Интернету."
 
 #. • MSG_187
@@ -1182,12 +1182,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "ВАЖНО: НА ЭТОМ ДИСКЕ СЕКТОРЫ НЕСТАНДАРТНОГО РАЗМЕРА!\n"
 "\n"
 "Обычные накопители используют секторы размером 512 байт, а на этом диске они %d-байтовые. Во многих случаях это означает, что Вы НЕ СМОЖЕТЕ загрузиться с этого диска.\n"
-"Rufus попытается создать загрузочный диск, но БЕЗ ГАРАНТИИ, что он будет работать."
+"Ruflux попытается создать загрузочный диск, но БЕЗ ГАРАНТИИ, что он будет работать."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1394,7 +1394,7 @@ msgstr "Удаление разделов (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1413,7 +1413,7 @@ msgid "Failed to download file."
 msgstr "Не удалось скачать файл."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
+msgid "Checking for Ruflux updates..."
 msgstr "Проверка наличия обновлений..."
 
 #. • MSG_244
@@ -1425,12 +1425,12 @@ msgid "Updates: Unable to access version data"
 msgstr "Обновления: Нет доступа к данным о версии"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Доступна новая версия Rufus!"
+msgid "A new version of Ruflux is available!"
+msgstr "Доступна новая версия Ruflux!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
-msgstr "Новых версий Rufus не найдено"
+msgid "No new version of Ruflux was found"
+msgstr "Новых версий Ruflux не найдено"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
@@ -1551,7 +1551,7 @@ msgstr "Обнаружен образ %s"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
@@ -1646,11 +1646,11 @@ msgstr "Неподдерживаемая версия Windows"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"Эта версия Windows больше не поддерживается Rufus.\n"
-"Последняя версия Rufus, совместимая с этой платформой - v%d.%d."
+"Эта версия Windows больше не поддерживается Ruflux.\n"
+"Последняя версия Ruflux, совместимая с этой платформой - v%d.%d."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1658,11 +1658,11 @@ msgstr "ВНИМАНИЕ: Неофициальная версия"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"Эта версия Rufus не была выпущена официальным разработчиком.\n"
+"Эта версия Ruflux не была выпущена официальным разработчиком.\n"
 "\n"
 "Вы действительно хотите её запустить?"
 
@@ -1676,13 +1676,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "Выбранный образ ISO не соответствует заявленному размеру: %s данных отсутствует!\n"
 "\n"
 "Если Вы скачали этот файл из Интернета, загрузите его снова и проверьте, совпадают ли контрольные суммы MD5 или SHA.\n"
 "\n"
-"Чтобы вычислить MD5 или SHA в Rufus, нажмите кнопку (✓)."
+"Чтобы вычислить MD5 или SHA в Ruflux, нажмите кнопку (✓)."
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1690,11 +1690,11 @@ msgstr "Ошибка проверки временной метки"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Rufus не смог подтвердить, что временная метка загруженного обновления более поздняя, ​​чем дата текущего исполняемого файла.\n"
+"Ruflux не смог подтвердить, что временная метка загруженного обновления более поздняя, ​​чем дата текущего исполняемого файла.\n"
 "\n"
 "Чтобы предотвратить возможную атаку, обновление было прервано, а загруженный файл - удалён. См. подробности в файле-журнале."
 
@@ -1875,7 +1875,7 @@ msgstr "Обнаружен отозванный загрузчик UEFI"
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
@@ -1928,8 +1928,8 @@ msgid "Extracting archive files: %s"
 msgstr "Распаковка архивов: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "Использовать MBR Rufus"
+msgid "Use Ruflux MBR"
+msgstr "Использовать MBR Ruflux"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1949,7 +1949,7 @@ msgstr "Доступно обновление DBX"
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -2046,8 +2046,8 @@ msgstr "Если вы используете эту опцию, обязател
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus - это утилита для форматирования и создания загрузочных флеш-накопителей USB."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux - это утилита для форматирования и создания загрузочных флеш-накопителей USB."
 
 #. • MSG_901
 msgid "Official site: %s"

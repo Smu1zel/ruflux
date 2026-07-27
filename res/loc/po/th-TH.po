@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Thai (ไทย)\n"
-"X-Rufus-LCID: 0x041e\n"
+"X-Ruflux-LanguageName: Thai (ไทย)\n"
+"X-Ruflux-LCID: 0x041e\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "เริ่ม"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "เกี่ยวกับ Rufus"
+msgid "About Ruflux"
+msgstr "เกี่ยวกับ Ruflux"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr "ตกลง"
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "ลิขสิทธิ์ของ Rufus"
+msgid "Ruflux License"
+msgstr "ลิขสิทธิ์ของ Ruflux"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,12 +168,12 @@ msgid "Check Now"
 msgstr "ตรวจสอบ"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "ตรวจหาการอัพเดต - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "ตรวจหาการอัพเดต - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
-msgstr "พบ Rufus รุ่นใหม่กว่า! โปรดอัพเดตโปรแกรมให้เป็นรุ่นล่าสุด!"
+msgstr "พบ Ruflux รุ่นใหม่กว่า! โปรดอัพเดตโปรแกรมให้เป็นรุ่นล่าสุด!"
 
 #. • IDD_NEW_VERSION → IDC_WEBSITE
 msgid "Click here to go to the website"
@@ -191,15 +191,15 @@ msgstr "ดาวน์โหลด"
 
 #. • MSG_001
 msgid "Other instance detected"
-msgstr "Rufus กำลังถูกเรียกใช้งานอยู่"
+msgstr "Ruflux กำลังถูกเรียกใช้งานอยู่"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"คุณได้เปิด Rufus ไว้ก่อนหน้าแล้ว\n"
-"กรุณาปิดหน้าต่างเก่าก่อนเรียกใช้งาน Rufus อีกครั้งหนึ่ง"
+"คุณได้เปิด Ruflux ไว้ก่อนหน้าแล้ว\n"
+"กรุณาปิดหน้าต่างเก่าก่อนเรียกใช้งาน Ruflux อีกครั้งหนึ่ง"
 
 #. • MSG_003
 msgid ""
@@ -210,12 +210,12 @@ msgstr ""
 "หากต้องการดำเนินการต่อ โปรดคลิก OK แต่หากต้องการยกเลิก โปรดคลิก Cancel"
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "นโยบายการอัพเดตของ Rufus"
+msgid "Ruflux update policy"
+msgstr "นโยบายการอัพเดตของ Ruflux"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "คุณต้องการให้ Rufus ตรวจหาการอัพเดตออนไลน์หรือไม่?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "คุณต้องการให้ Ruflux ตรวจหาการอัพเดตออนไลน์หรือไม่?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -533,13 +533,13 @@ msgstr "อุปกรณ์ไม่พร้อมใช้งาน"
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus พบว่าขณะนี้ Windows กำลังดำเนินการเขียนไฟล์ลงบนอุปกรณ์ USB\n"
+"Ruflux พบว่าขณะนี้ Windows กำลังดำเนินการเขียนไฟล์ลงบนอุปกรณ์ USB\n"
 "\n"
 "ความเร็วขึ้นอยู่กับ USB ของคุณ ดังนั้นการดำเนินการนี้อาจใช้เวลานานโดยเฉพาะอย่างยิ่งกับไฟล์ที่มีขนาดใหญ่มากๆ\n"
 "\n"
@@ -550,8 +550,8 @@ msgid "Unsupported image"
 msgstr "ไม่รองรับอิมเมจไฟล์นี้"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "อิมเมจไฟล์นี้ไม่สามารถบูตได้ หรืออาจจะมีการใช้วิธีการบูตอื่นๆ ที่ Rufus ไม่รองรับ"
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "อิมเมจไฟล์นี้ไม่สามารถบูตได้ หรืออาจจะมีการใช้วิธีการบูตอื่นๆ ที่ Ruflux ไม่รองรับ"
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -562,7 +562,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -572,7 +572,7 @@ msgstr ""
 "ไฟล์ ISO นี้อาจมีการใช้เวอร์ชันที่ล้าสมัยของ '%s'\n"
 "ซึ่งอาจทำให้เมนูการบูตไม่สามารถแสดงผลได้ถูกต้อง\n"
 "\n"
-"Rufus สามารถดาวน์โหลดเวอร์ชันที่ใหม่กว่าให้คุณได้:\n"
+"Ruflux สามารถดาวน์โหลดเวอร์ชันที่ใหม่กว่าให้คุณได้:\n"
 "- เลือก 'ใช่ (Yes)' เพื่อดาวน์โหลดไฟล์ผ่านอินเทอร์เน็ต\n"
 "- เลือก 'ไม่ใช่ (No)' เพื่อใช้อิมเมจไฟล์อันเดิม\n"
 "หากไม่รู้จะเลือกวิธีใด ให้เลือก 'ใช่ (Yes)'\n"
@@ -688,18 +688,18 @@ msgstr "ดาวน์โหลด %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s หรือใหม่กว่า จำเป็นต้องมี '%s' ติดตั้งไว้\n"
-"เนื่องจากไฟล์นี้มีขนาดใหญ่กว่า 100 KB และพบเจอได้ใน ISO: %s ซึ่งไม่ได้รวมไว้ในโปรแกรม Rufus\n"
+"เนื่องจากไฟล์นี้มีขนาดใหญ่กว่า 100 KB และพบเจอได้ใน ISO: %s ซึ่งไม่ได้รวมไว้ในโปรแกรม Ruflux\n"
 "\n"
-"Rufus สามารถดาวน์โหลดไฟล์ดังกล่าวให้คุณได้:\n"
+"Ruflux สามารถดาวน์โหลดไฟล์ดังกล่าวให้คุณได้:\n"
 "- เลือก 'ใช่ (Yes)' เพื่อดาวน์โหลดไฟล์ผ่านอินเทอร์เน็ต\n"
 "- เลือก 'ไม่ใช่ (No)' คุณต้องการคัดลอกไฟล์ดังกล่าวด้วยตัวเอง\n"
 "\n"
@@ -722,7 +722,7 @@ msgid "All files"
 msgstr "ไฟล์ทั้งหมด"
 
 #. • MSG_108
-msgid "Rufus log"
+msgid "Ruflux log"
 msgstr ""
 
 #. • MSG_109
@@ -758,7 +758,7 @@ msgstr "UDF volume ขนาดใหญ่"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -783,18 +783,18 @@ msgstr "จำเป็นต้องดาวน์โหลดไฟล์"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "อิมเมจนี้ใช้ Grub %s แต่โปรแกรมนี้มีเฉพาะไฟล์ติดตั้งของ Grub %s \n"
 "\n"
-"โดยเวอร์ชันใหม่ของ Grub อาจไม่รองรับกับรุ่นที่ต่างกันไป Rufus สามารถค้นหาอิมเมจของ Grub เวอร์ชันล่าสุด ('core.img') ที่เข้ากันได้กับอิมเมจไฟล์ที่คุณเลือก:\n"
+"โดยเวอร์ชันใหม่ของ Grub อาจไม่รองรับกับรุ่นที่ต่างกันไป Ruflux สามารถค้นหาอิมเมจของ Grub เวอร์ชันล่าสุด ('core.img') ที่เข้ากันได้กับอิมเมจไฟล์ที่คุณเลือก:\n"
 "- เลือก 'ใช่ (Yes)' เพื่อดาวน์โหลดไฟล์ผ่านอินเทอร์เน็ต\n"
-"- เลือก 'ไม่ใช่ (No)' เพื่อใช้เวอร์ชันปัจจุบันที่ติดมากับ Rufus\n"
+"- เลือก 'ไม่ใช่ (No)' เพื่อใช้เวอร์ชันปัจจุบันที่ติดมากับ Ruflux\n"
 "-เลือก 'ยกเลิก (Cancel)' เพื่อยกเลิกการดำเนินการนี้\n"
 "\n"
 "หมายเหตุ: ไฟล์ใหม่จะถูกจัดเก็บในโฟลเดอร์ปัจจุบัน และไฟล์จะถูกเลือกใช้โดยอัตโนมัติหากไม่พบไฟล์ที่ใหม่กว่า ไฟล์เวอร์ชันปัจจุบันจะถูกใช้แทน"
@@ -888,25 +888,25 @@ msgstr "ไดรฟ์นี้กำลังถูกใช้งานอย
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus ตรวจพบว่าคุณกำลังสร้าง Windows To Go จากไฟล์ ISO เวอร์ชัน 1809\n"
+"Ruflux ตรวจพบว่าคุณกำลังสร้าง Windows To Go จากไฟล์ ISO เวอร์ชัน 1809\n"
 "\n"
 "เพราะว่า *บั๊กจากทาง Microsoft* จึงทำให้ media นี้อาจจะขึ้นหน้าจอฟ้า (BSOD) ในระหว่างการบูตเข้า Windowsได้ นอกจากว่าคุณจะเปลี่ยนไฟล์ 'WppRecorder.sys' กลับไปเป็นของเวอร์ชัน 1803\n"
 "\n"
-"Rufus ไม่สามารถแก้ไขปัญหานี้โดยอัตโนมัติได้ เนื่องจาก ไฟล์ 'WppRecorder.sys' เป็นลิขสิทธิ์ของ Microsoft ทางเราจึงไม่สามารถใส่สำเนาของไฟล์นี้ลงมาในแอปพลิเคชันนี้ได้อย่างถูกกฎหมาย..."
+"Ruflux ไม่สามารถแก้ไขปัญหานี้โดยอัตโนมัติได้ เนื่องจาก ไฟล์ 'WppRecorder.sys' เป็นลิขสิทธิ์ของ Microsoft ทางเราจึงไม่สามารถใส่สำเนาของไฟล์นี้ลงมาในแอปพลิเคชันนี้ได้อย่างถูกกฎหมาย..."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"เนื่องจากพาร์ติชันถูกเซ็ตเป็น MBR และ Rufus สามารถสร้างพาร์ติชันได้มากที่สุดเพียง 2 TB ซึ่งจะเหลือพื้นที่ว่าง %s\n"
+"เนื่องจากพาร์ติชันถูกเซ็ตเป็น MBR และ Ruflux สามารถสร้างพาร์ติชันได้มากที่สุดเพียง 2 TB ซึ่งจะเหลือพื้นที่ว่าง %s\n"
 "\n"
 "คุณแน่ใจว่าจะทำต่อหรือไม่"
 
@@ -1064,7 +1064,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "ใบรับรองดิจิทัลของการดาวน์โหลดไม่ถูกต้อง"
@@ -1126,10 +1126,10 @@ msgstr "กระบวนการการอัพเดต:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus ไม่ได้ติดตั้ง service ที่ทำงานในพื้นหลัง ดังนั้นการตรวจสอบอัพเดตจะเกิดขึ้นก็ต่อเมื่อมีการเปิดโปรแกรมเท่านั้น\\line\n"
+"Ruflux ไม่ได้ติดตั้ง service ที่ทำงานในพื้นหลัง ดังนั้นการตรวจสอบอัพเดตจะเกิดขึ้นก็ต่อเมื่อมีการเปิดโปรแกรมเท่านั้น\\line\n"
 "การเชื่อมต่ออินเทอร์เน็ตมีความจำเป็นที่จะทำการอัพเดต"
 
 #. • MSG_187
@@ -1179,7 +1179,7 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "สำคัญมาก: อุปกรณ์นี้ใช้ขนาดของเซคเตอร์ที่ไม่เป็นมาตรฐาน!!\n"
 "\n"
@@ -1391,7 +1391,7 @@ msgstr "กำลังลบพาร์ติชัน (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1410,8 +1410,8 @@ msgid "Failed to download file."
 msgstr "ไม่สามารถดาวน์โหลดไฟล์ได้"
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "กำลังตรวจหาการอัพเดต Rufus..."
+msgid "Checking for Ruflux updates..."
+msgstr "กำลังตรวจหาการอัพเดต Ruflux..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1422,12 +1422,12 @@ msgid "Updates: Unable to access version data"
 msgstr "การอัพเดต: ไม่สามารถหาเวอร์ชันปัจจุบันได้"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "พบ Rufus เวอร์ชันใหม่!!!"
+msgid "A new version of Ruflux is available!"
+msgstr "พบ Ruflux เวอร์ชันใหม่!!!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
-msgstr "ไม่พบ Rufus เวอร์ชันที่ใหม่กว่า"
+msgid "No new version of Ruflux was found"
+msgstr "ไม่พบ Ruflux เวอร์ชันที่ใหม่กว่า"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
@@ -1548,7 +1548,7 @@ msgstr "พบอิมเมจแบบ %s"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
@@ -1643,11 +1643,11 @@ msgstr "ไม่รองรับ Windows เวอร์ชันนี้"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"เวอร์ชันของ Windows นี้ไม่ได้รับการสนับสนุนโดย Rufus อีกต่อไป\n"
-"Rufus เวอร์ชันล่าสุดที่เข้ากันได้กับแพลตฟอร์มนี้คือ v%d.%d"
+"เวอร์ชันของ Windows นี้ไม่ได้รับการสนับสนุนโดย Ruflux อีกต่อไป\n"
+"Ruflux เวอร์ชันล่าสุดที่เข้ากันได้กับแพลตฟอร์มนี้คือ v%d.%d"
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1655,11 +1655,11 @@ msgstr "คำเตือน: เวอร์ชันที่ไม่เป�
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"Rufus เวอร์ชันนี้ ไม่ได้ถูกพัฒนาขึ้นโดยผู้พัฒนาหลัก\n"
+"Ruflux เวอร์ชันนี้ ไม่ได้ถูกพัฒนาขึ้นโดยผู้พัฒนาหลัก\n"
 "\n"
 "คุณต้องการเริ่มโปรแกรมหรือไม่?"
 
@@ -1673,13 +1673,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "ไฟล์ ISO ที่คุณเลือกมีคุณสมบัติไม่ตรงกับที่ได้แจ้งไว้ ดังนี้ ขนาดไฟล์: ข้อมูลจำนวน %s ตัวได้หายไปจากต้นฉบับ!\n"
 "\n"
 "หากคุณดาวน์โหลดไฟล์นี้มาจากอินเทอร์เน็ต กรุณาดาวน์โหลดไฟล์อีกครั้ง และตรวจสอบว่าไฟล์นั้นมี MD5 หรือ SHA checksums ตรงกับเวอร์ชันทางการ\n"
 "\n"
-"โปรดจำไว้ว่าคุณสามารถตรวจสอบ checksum ของไฟล์ดังกล่าวได้จากโปรแกรม Rufus โดยกดปุ่ม (✓)"
+"โปรดจำไว้ว่าคุณสามารถตรวจสอบ checksum ของไฟล์ดังกล่าวได้จากโปรแกรม Ruflux โดยกดปุ่ม (✓)"
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1687,11 +1687,11 @@ msgstr "การตรวจสอบบันทึกเวลาผิดพ
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Rufus ไม่สามารถยืนยันความถูกต้องของบันทึกเวลาของการอัพเดตที่เพิ่งดาวน์โหลดมาว่าใหม่กว่าเวอร์ชันที่กำลังใช้อยู่ในปัจจุบันหรือไม่\n"
+"Ruflux ไม่สามารถยืนยันความถูกต้องของบันทึกเวลาของการอัพเดตที่เพิ่งดาวน์โหลดมาว่าใหม่กว่าเวอร์ชันที่กำลังใช้อยู่ในปัจจุบันหรือไม่\n"
 "\n"
 "เพื่อป้องกันความเป็นไปได้ว่านี่อาจจะเป็นการโจมตี การอัพเดตนี้จะถูกยกเลิก และลบทิ้งไป กรุณาดู Log เพื่ออ่านรายละเอียดเพิ่มเติม"
 
@@ -1872,12 +1872,12 @@ msgstr "ตรวจพบ UEFI bootloader ที่ถูกเพิกถอ�
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus ตรวจพบว่าไฟล์ ISO ที่คุณเลือกมี UEFI bootloader ที่ถูกเพิกถอน ซึ่งตุณอาจจะเจอกับ%s เมื่อ SecureBoot เปิดใช้งานบนระบบ UEFI ที่ทันสมัย\n"
+"Ruflux ตรวจพบว่าไฟล์ ISO ที่คุณเลือกมี UEFI bootloader ที่ถูกเพิกถอน ซึ่งตุณอาจจะเจอกับ%s เมื่อ SecureBoot เปิดใช้งานบนระบบ UEFI ที่ทันสมัย\n"
 "\n"
 "- ถ้าคุณได้ไฟล์ ISO นี้มาจากแหล่งที่ไม่น่าเชื่อถือ คุณควรตระหนักถึงความเป็นไปได้ที่ไฟล์ดังกล่าวอาจมี UEFI malware และหลีกเลี่ยงการบูตจากอิมเมจดังกล่าว\n"
 "- ถ้าคุณได้ไฟล์ ISO นี้มาจากแหล่งที่เชื่อถือได้ คุณควรพยายามค้นหาเวอร์ชันที่ทันสมัยกว่านี้ ซึ่งจะไม่ทำให้เกิดคำเตือนนี้"
@@ -1925,8 +1925,8 @@ msgid "Extracting archive files: %s"
 msgstr "กำลังแตกไฟล์: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "Rufus MBR"
+msgid "Use Ruflux MBR"
+msgstr "Ruflux MBR"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1946,13 +1946,13 @@ msgstr "มีการอัปเดตรายการเพิกถอน
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"Rufus ตรวจเจอเวอร์ชั่นอัพเดตที่ใหม่กว่าของไฟล์ DBX ซึ่งใช้สำหรับตรวจสอบการเพิกถอนสิทธิ์ของ UEFI Secure Boot คุณต้องการดาวน์โหลดไฟล์อัพเดตหรือไม่?\n"
+"Ruflux ตรวจเจอเวอร์ชั่นอัพเดตที่ใหม่กว่าของไฟล์ DBX ซึ่งใช้สำหรับตรวจสอบการเพิกถอนสิทธิ์ของ UEFI Secure Boot คุณต้องการดาวน์โหลดไฟล์อัพเดตหรือไม่?\n"
 "- เลือก 'ใช่ (Yes)' เพื่อดาวน์โหลดไฟล์ผ่านอินเทอร์เน็ต\n"
 "- เลือก 'ไม่ใช่ (No)' เพื่อยกเลิกการดำเนินการ\n"
 "\n"
@@ -2043,8 +2043,8 @@ msgstr "ถ้าหากคุณเลือกตัวเลือกนี
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus คือ โปรแกรมที่ช่วยฟอร์แมต และสร้างไดรฟ์บูต USB จาก USB keys, pendrives, memory sticks เป็นต้น"
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux คือ โปรแกรมที่ช่วยฟอร์แมต และสร้างไดรฟ์บูต USB จาก USB keys, pendrives, memory sticks เป็นต้น"
 
 #. • MSG_901
 msgid "Official site: %s"

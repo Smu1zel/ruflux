@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Lithuanian (Lietuvių)\n"
-"X-Rufus-LCID: 0x0427\n"
+"X-Ruflux-LanguageName: Lithuanian (Lietuvių)\n"
+"X-Ruflux-LCID: 0x0427\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -107,8 +107,8 @@ msgid "Start"
 msgstr "Pradėti"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "Apie Rufus"
+msgid "About Ruflux"
+msgstr "Apie Ruflux"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -119,8 +119,8 @@ msgid "OK"
 msgstr ""
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Rufus licencija"
+msgid "Ruflux License"
+msgstr "Ruflux licencija"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -169,8 +169,8 @@ msgid "Check Now"
 msgstr "Tikrinti dabar"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "Rufus naujinių paieška"
+msgid "Check For Updates - Ruflux"
+msgstr "Ruflux naujinių paieška"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -178,7 +178,7 @@ msgstr "Rasta naujesnė versija. Atsisiųskite naujausią versiją!"
 
 #. • IDD_NEW_VERSION → IDC_WEBSITE
 msgid "Click here to go to the website"
-msgstr "Eiti į Rufus svetainę"
+msgstr "Eiti į Ruflux svetainę"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_NOTES_GRP
 msgid "Release Notes"
@@ -196,10 +196,10 @@ msgstr "Aptiktas kitas programos atvejis"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"Vykdoma kita Rufus programa.\n"
+"Vykdoma kita Ruflux programa.\n"
 "Prieš vykdydami naują programą, uždarykite ankstesniąją."
 
 #. • MSG_003
@@ -211,12 +211,12 @@ msgstr ""
 "Norėdami tęsti šį veiksmą, spauskite Gerai. Norėdami išeiti - spauskite Atšaukti."
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Rufus naujinių politika"
+msgid "Ruflux update policy"
+msgstr "Ruflux naujinių politika"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Ar norite leisti Rufus ieškoti programos naujinių internete?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Ar norite leisti Ruflux ieškoti programos naujinių internete?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -534,13 +534,13 @@ msgstr "Įrenginys nepasiruošęs."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus aptiko, kad Windows vis dar išvalo savo vidinius buferius į USB įrenginį.\n"
+"Ruflux aptiko, kad Windows vis dar išvalo savo vidinius buferius į USB įrenginį.\n"
 "\n"
 "Priklausomai nuo jūsų USB įrenginio spartos, šis veiksmas gali užtrukti ilgai, ypač su dideliais failais.\n"
 "\n"
@@ -551,8 +551,8 @@ msgid "Unsupported image"
 msgstr "Nepalaikomas atvaizdas"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "Arba tai ne įkrovos atvaizdas, arba jis naudoja įkrovos ar glaudinimo metodą, kurio nepalaiko Rufus..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "Arba tai ne įkrovos atvaizdas, arba jis naudoja įkrovos ar glaudinimo metodą, kurio nepalaiko Ruflux..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -563,7 +563,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -573,7 +573,7 @@ msgstr ""
 "Atrodo, šis ISO atvaizdas naudoja pasenusią „%s“ versiją.\n"
 "Įkrovos meniu dėl to gali būti vaizduojamas blogai.\n"
 "\n"
-"Galima atsisiųsti naujesnę Rufus versiją išspręsti problemai:\n"
+"Galima atsisiųsti naujesnę Ruflux versiją išspręsti problemai:\n"
 "- Pasirinkite 'Taip' norėdami prisijungti prie interneto ir atsisiųsti failą\n"
 "- Pasirinkite 'Ne' norėdami palikti esamą ISO failą nepakeistą\n"
 "Jei nežinote ką daryti, reikėtų pasirinkti 'Taip'.\n"
@@ -689,18 +689,18 @@ msgstr "Atsiųsti %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s ar vėlesniam reikia, kad '%s' failas būtų įdiegtas.\n"
-"Kadangi šis failas didesnis nei 100 KB ir visada yra %s ISO atvaizduose, jis nėra įtrauktas į Rufus.\n"
+"Kadangi šis failas didesnis nei 100 KB ir visada yra %s ISO atvaizduose, jis nėra įtrauktas į Ruflux.\n"
 "\n"
-"Rufus gali jums atsiųsti trūkstamą failą:\n"
+"Ruflux gali jums atsiųsti trūkstamą failą:\n"
 "- Pasirinkite 'Taip' norėdami prisijungti prie interneto ir atsisiųsti failą\n"
 "- Pasirinkite 'Ne' norėdami rankiniu būdu nukopijuoti šį failą į diską vėliau\n"
 "\n"
@@ -723,8 +723,8 @@ msgid "All files"
 msgstr "Visi failai"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Rufus dienynas"
+msgid "Ruflux log"
+msgstr "Ruflux dienynas"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -759,7 +759,7 @@ msgstr "Didelis UDF tomas"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -767,7 +767,7 @@ msgid ""
 msgstr ""
 "Šis atvaizdas naudoja Syslinux %s%s, bet ši programa turi tik diegimo failus, skirtus Syslinux %s%s.\n"
 "\n"
-"Kadangi naujos Syslinux versijos tarpusavyje nesuderinamos, ir nėra galimybės į Rufus įtraukti jas visas, du papildomi failai turi būti atsisiųsti iš interneto ('ldlinux.sys' ir 'ldlinux.bss'):\n"
+"Kadangi naujos Syslinux versijos tarpusavyje nesuderinamos, ir nėra galimybės į Ruflux įtraukti jas visas, du papildomi failai turi būti atsisiųsti iš interneto ('ldlinux.sys' ir 'ldlinux.bss'):\n"
 "- Pasirinkite 'Taip' norėdami prisijungti prie interneto ir atsisiųsti šiuos failus\n"
 "- Pasirinkite 'Ne' norėdami veiksmą atšaukti\n"
 "\n"
@@ -784,18 +784,18 @@ msgstr "Reikalingas atsisiuntimas"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "Šis atvaizdas naudoja Grub %s, bet ši programa turi tik diegimo failus, skirtus Grub %s.\n"
 "\n"
-"Kadangi skirtingos Grub versijos gali būti nesuderinamos tarpusavyje, o jų visų įtraukti nėra galimybės, Rufus bandys surasti Grub įdiegimo failo ('core.img') versiją, atitinkančią esančią jūsų atvaizde:\n"
+"Kadangi skirtingos Grub versijos gali būti nesuderinamos tarpusavyje, o jų visų įtraukti nėra galimybės, Ruflux bandys surasti Grub įdiegimo failo ('core.img') versiją, atitinkančią esančią jūsų atvaizde:\n"
 "- Pasirinkite 'Taip' norėdami prisijungti prie interneto ir atsisiųsti ją\n"
-"- Pasirinkite 'Ne' norėdami naudoti numatytąją versiją iš Rufus\n"
+"- Pasirinkite 'Ne' norėdami naudoti numatytąją versiją iš Ruflux\n"
 "- Pasirinkite 'Atšaukti' norėdami nutraukti veiksmą\n"
 "\n"
 "Pastaba: Failas bus atsiųstas į dabartinį programos aplanką ir vėliau jam ten esant bus naudojamas automatiškai. Jei atitinkančio nebus rasta internete, bus naudojama numatytoji versija."
@@ -890,25 +890,25 @@ msgstr "Kita programa arba procesas kreipiasi į šį diską. Ar vis tiek norite
 #. • MSG_133
 #, fuzzy
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus aptiko, kad jūs bandote sukurti Windows To Go laikmeną remiantis 1809 ISO.\n"
+"Ruflux aptiko, kad jūs bandote sukurti Windows To Go laikmeną remiantis 1809 ISO.\n"
 "\n"
 "Dėl *MICROSOFT klaidos*, ši laikmena užlūš įkraunant Windows (mėlynas mirties ekranas), nebent jūs rankiniu būdu pakeisite failą \"WppRecorder. sys\" į 1803 versiją.\n"
 "\n"
-"Taip pat atkreipkite dėmesį, kad Rufus negali automatiškai pataisyti to už jus, nes \"WppRecorder. sys\" yra \"Microsoft\" autorių teisėmis apsaugotas failas, todėl mes negalime legaliai įterpti šio failo kopijos mūsų programoje..."
+"Taip pat atkreipkite dėmesį, kad Ruflux negali automatiškai pataisyti to už jus, nes \"WppRecorder. sys\" yra \"Microsoft\" autorių teisėmis apsaugotas failas, todėl mes negalime legaliai įterpti šio failo kopijos mūsų programoje..."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"Kadangi MBR buvo pasirinkta kaip skaidinio schema, Rufus gali sukurti tik iki 2 TB skaidinį šioje laikmenoje, dėl ko %s disko vietos liks nepasiekiama.\n"
+"Kadangi MBR buvo pasirinkta kaip skaidinio schema, Ruflux gali sukurti tik iki 2 TB skaidinį šioje laikmenoje, dėl ko %s disko vietos liks nepasiekiama.\n"
 "\n"
 "Ar tikrai norite tęsti?"
 
@@ -1069,7 +1069,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "Negaliojantis atsisiuntimo parašas"
@@ -1128,10 +1128,10 @@ msgstr "Atnaujinimo procesas:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus neįdiegia ir nevykdo foninių tarnybų, todėl naujinių tikrinimai yra atliekami tik vykdant pagrindinę programą.\\line\n"
+"Ruflux neįdiegia ir nevykdo foninių tarnybų, todėl naujinių tikrinimai yra atliekami tik vykdant pagrindinę programą.\\line\n"
 "Interneto prieiga, be abejo, yra reikalinga naujinių tikrinimui."
 
 #. • MSG_187
@@ -1181,12 +1181,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "SVARBU: ŠIS DISKAS NAUDOJA NESTANDARTINĮ SEKTORIAUS DYDĮ!\n"
 "\n"
 "Įprastiniai diskai naudoja 512 baitų sektoriaus dydį, bet šis diskas naudoja %d baitų. Daugeliu atveju tai reiškia, kad jūs NEGALĖSITE įkrauti sistemos iš šio disko.\n"
-"Rufus gali mėginti sukurti įkrovos diską, bet NĖRA GARANTIJŲ, kad jis veiks."
+"Ruflux gali mėginti sukurti įkrovos diską, bet NĖRA GARANTIJŲ, kad jis veiks."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1393,7 +1393,7 @@ msgstr "Naikinami skaidiniai (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1412,8 +1412,8 @@ msgid "Failed to download file."
 msgstr "Nepavyko atsiųsti failo."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "Tikrinama, ar yra Rufus naujinių..."
+msgid "Checking for Ruflux updates..."
+msgstr "Tikrinama, ar yra Ruflux naujinių..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1424,12 +1424,12 @@ msgid "Updates: Unable to access version data"
 msgstr "Naujiniai: negaliu pasiekti versijos duomenų"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Rasta nauja Rufus versija!"
+msgid "A new version of Ruflux is available!"
+msgstr "Rasta nauja Ruflux versija!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
-msgstr "Naujos Rufus versijos nerasta"
+msgid "No new version of Ruflux was found"
+msgstr "Naujos Ruflux versijos nerasta"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
@@ -1550,13 +1550,13 @@ msgstr "Aptiktas %s atvaizdas"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "Jūsų pasirinktas atvaizdas yra „ISOHybrid“ atvaizdas. Tai reiškia, kad jis gali būti įrašytas %s (failų kopijavimo) režimu arba %s (disko atvaizdo) režimu.\n"
-"Rufus rekomenduoja naudoti režimą %s tam, kad visada turėtumėte visišką prieigą prie disko po įrašymo.\n"
+"Ruflux rekomenduoja naudoti režimą %s tam, kad visada turėtumėte visišką prieigą prie disko po įrašymo.\n"
 "Tačiau, jei susiduriate su problemomis įkrovos metu, galite pabandyti įrašyti šį atvaizdą iš naujo %s režimu.\n"
 "\n"
 "Prašome pasirinkti režimą, kuriuo norite įrašyti šį atvaizdą:"
@@ -1645,11 +1645,11 @@ msgstr "Nepalaikoma Windows versija"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"Šios Windows versijos Rufus nebepalaiko.\n"
-"Paskutinė Rufus versija, suderinama su šia platforma, yra v%d.%d."
+"Šios Windows versijos Ruflux nebepalaiko.\n"
+"Paskutinė Ruflux versija, suderinama su šia platforma, yra v%d.%d."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1657,11 +1657,11 @@ msgstr "Įspėjimas: neoficiali versija"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"Ši Rufus versija NĖRA išleista jos oficialaus kūrėjo(ų).\n"
+"Ši Ruflux versija NĖRA išleista jos oficialaus kūrėjo(ų).\n"
 "\n"
 "Ar tikrai norite ją vykdyti?"
 
@@ -1675,13 +1675,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "Jūsų pasirinktas ISO failas neatitinka deklaruojamo dydžio: %s duomenų trūksta!\n"
 "\n"
 "Jei jūs gavote šį failą iš interneto, pabandykite atsisiųsti jį iš naujo ir patikrinkite, ar MD5 arba SHA kontrolinės sumos atitinka oficialiąsias.\n"
 "\n"
-"Beje, jūs galite apskaičiuoti MD5 arba SHA per Rufus, paspaudę."
+"Beje, jūs galite apskaičiuoti MD5 arba SHA per Ruflux, paspaudę."
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1689,11 +1689,11 @@ msgstr "Laiko žymos tikrinimo klaida"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Rufus negalėjo patikrinti ar atsisiųsto naujinio laiko žyma yra naujesnė už dabartinio vykdomojo failo.\n"
+"Ruflux negalėjo patikrinti ar atsisiųsto naujinio laiko žyma yra naujesnė už dabartinio vykdomojo failo.\n"
 "\n"
 "Kad būtų užkirstas kelias galimai atakos grėsmei, naujinimo procesas buvo nutrauktas, o naujinys bus ištrintas. Daugiau informacijos rasite dienyne."
 
@@ -1879,12 +1879,12 @@ msgstr "Aptikta panaikinta UEFI įkrovos tvarkyklė"
 #. • MSG_339
 #, fuzzy
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus aptiko, kad šis pasirinktas ISO tūri UEFI įkrovos programa kuris buvo panaikintas ir kuris kurs %s, kai visiškai atnaujintoje EUFI sistemoje yra įjungtas saugus įkrovimas.\n"
+"Ruflux aptiko, kad šis pasirinktas ISO tūri UEFI įkrovos programa kuris buvo panaikintas ir kuris kurs %s, kai visiškai atnaujintoje EUFI sistemoje yra įjungtas saugus įkrovimas.\n"
 "\n"
 "- Jei ši ISO atvaizdą gavote iš nepatikimo šaltinio, turėtumėte apsvarstyti galimybę, kad jame gali būti UEFI kenkėjiška programa, ir vengti paleisti sistemą iš jos.\n"
 "- Jei gavote iš patikimo šaltinio, turėtumėte pabandyti rasti naujesnę versiją, kuri nesukels šio įspėjimo."
@@ -1942,8 +1942,8 @@ msgstr "Išskleiskite failus iš čia: %s"
 
 #. • MSG_349
 #, fuzzy
-msgid "Use Rufus MBR"
-msgstr "Naudokit Rufus MBR"
+msgid "Use Ruflux MBR"
+msgstr "Naudokit Ruflux MBR"
 
 #. • MSG_350
 #, fuzzy
@@ -1968,13 +1968,13 @@ msgstr "DBX atnaujinimas pasiekimas"
 #. • MSG_354
 #, fuzzy
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"Rufus rado atnaujintą DBX failų versija, naudojamų UEFI saugaus įkrovimo atšaukimo patikrinimams atlikti. Ar norite atsisiųsti šį atnaujinimą?\n"
+"Ruflux rado atnaujintą DBX failų versija, naudojamų UEFI saugaus įkrovimo atšaukimo patikrinimams atlikti. Ar norite atsisiųsti šį atnaujinimą?\n"
 "- Pasirinkite 'Taip' kad prisijungtumėte prie Interneto ir atsisiųstumėte jį\n"
 "- Pasirinkite 'Ne' kad atšaukti operacija\n"
 "\n"
@@ -2081,8 +2081,8 @@ msgstr "Jei naudojate šią parinktį, būtinai atjunkite visus diskus nuo tiksl
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus programa leidžia suženklinti ir sukurti sistemų paleidimo laikmenas, kaip pvz. USB atmintukus, atminties korteles ir pan."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux programa leidžia suženklinti ir sukurti sistemų paleidimo laikmenas, kaip pvz. USB atmintukus, atminties korteles ir pan."
 
 #. • MSG_901
 msgid "Official site: %s"

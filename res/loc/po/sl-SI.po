@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Slovenian (Slovenščina)\n"
-"X-Rufus-LCID: 0x0424\n"
+"X-Ruflux-LanguageName: Slovenian (Slovenščina)\n"
+"X-Ruflux-LCID: 0x0424\n"
 "X-Generator: Poedit 3.4.4\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "Začni"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "O Rufusu"
+msgid "About Ruflux"
+msgstr "O Rufluxu"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr "V redu"
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Rufusova licenca"
+msgid "Ruflux License"
+msgstr "Rufluxova licenca"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,7 +168,7 @@ msgid "Check Now"
 msgstr "Preveri zdaj"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
+msgid "Check For Updates - Ruflux"
 msgstr "Ruflux - posodobitve"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
@@ -195,10 +195,10 @@ msgstr "Drug primerek zaznan"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"Še en primerek Rufusa se izvaja.\n"
+"Še en primerek Rufluxa se izvaja.\n"
 "Prosim, zaprite ga, preden zaženete še enega."
 
 #. • MSG_003
@@ -210,12 +210,12 @@ msgstr ""
 "Če želite nadaljevati s to operacijo, izberite \"V redu\", drugače izberite \"Prekliči\"."
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Rufusova posodobitvena politika"
+msgid "Ruflux update policy"
+msgstr "Rufluxova posodobitvena politika"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Ali dovolite, da Rufus na internetu išče posodobitve zase?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Ali dovolite, da Ruflux na internetu išče posodobitve zase?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -533,13 +533,13 @@ msgstr "Naprava ni pripravljena."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus je zaznal, da Windows še vedno izpira svoje notranje medpomnilnike na napravo USB.\n"
+"Ruflux je zaznal, da Windows še vedno izpira svoje notranje medpomnilnike na napravo USB.\n"
 "\n"
 "Odvisno od hitrosti naprave to lahko traja veliko časa, še posebej za velike datoteke.\n"
 "\n"
@@ -550,8 +550,8 @@ msgid "Unsupported image"
 msgstr "Nepodprta slika"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "Ta slika ni zagonska ali pa Rufus ne podpira njenega načina zagona ali metode stiskanja.Ta ISO očitno ne uporablja nobenega izmed njih..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "Ta slika ni zagonska ali pa Ruflux ne podpira njenega načina zagona ali metode stiskanja.Ta ISO očitno ne uporablja nobenega izmed njih..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -562,7 +562,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -572,7 +572,7 @@ msgstr ""
 "Zdi se, da ta ISO slika uporablja zastarelo verzijo \"%s\".\n"
 "Zaradi tega se zagonski meniji morda ne bodo prikazovali pravilno.\n"
 "\n"
-"Rufus lahko prenese novejšo verzijo, da to težavo odpravi.\n"
+"Ruflux lahko prenese novejšo verzijo, da to težavo odpravi.\n"
 "- Izberite \"Da\", da se povežete na internet in prenesete datoteko.\n"
 "- Izberite \"Ne\", da slike ne spreminjate.\n"
 "Če ne veste, kaj storiti, izberite \"Da\".\n"
@@ -688,18 +688,18 @@ msgstr "Prenesem %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s ali novejši zahteva, da je nameščena datoteka \"%s\".\n"
-"Ker je ta datoteka večja od 100 KB in je vedno prisotna na ISO slikah s %s ali novejšim, ni vgrajena v Rufus.\n"
+"Ker je ta datoteka večja od 100 KB in je vedno prisotna na ISO slikah s %s ali novejšim, ni vgrajena v Ruflux.\n"
 "\n"
-"Rufus jo lahko prenese namesto vas.\n"
+"Ruflux jo lahko prenese namesto vas.\n"
 "- Izberite \"Da\", da se povežete na internet in prenesete datoteko.\n"
 "- Izberite \"Ne\", če želite to datoteko pozneje sami kopirati na pogon.\n"
 "\n"
@@ -722,8 +722,8 @@ msgid "All files"
 msgstr "Vse datoteke"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Rufusov zapisnik"
+msgid "Ruflux log"
+msgstr "Rufluxov zapisnik"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -758,7 +758,7 @@ msgstr "Velik nosilec UDF"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -766,11 +766,11 @@ msgid ""
 msgstr ""
 "Ta slika uporablja Syslinux %s%s, toda ta aplikacija vsebuje le namestitvene datoteke za Syslinux %s%s.\n"
 "\n"
-"Ker novejše verzije Syslinuxa niso združljive in Rufus ne more vsebovati vseh, morata biti prenešeni še dve dodatni datoteki (ldlinux.sys in ldlinux.bss):\n"
+"Ker novejše verzije Syslinuxa niso združljive in Ruflux ne more vsebovati vseh, morata biti prenešeni še dve dodatni datoteki (ldlinux.sys in ldlinux.bss):\n"
 "- Izberite \"Da\", da se povežete na internet in prenesete ti dve datoteki.\n"
 "- Izberite \"Ne\", da prekinete dejanje.\n"
 "\n"
-"Opomba: datoteki bosta prenešeni v mapo, kjer je nameščen Rufus, in bosta v prihodnje ponovno uporabljeni."
+"Opomba: datoteki bosta prenešeni v mapo, kjer je nameščen Ruflux, in bosta v prihodnje ponovno uporabljeni."
 
 #. • MSG_115
 msgid "Download required"
@@ -783,21 +783,21 @@ msgstr "Prenos potreben"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "Ta slika uporablja GRUB %s, toda ta aplikacija vsebuje le namestitvene datoteke za GRUB %s.\n"
 "\n"
-"Ker različne verzije programa GRUB niso nujno združljive in Rufus ne more vsebovati vseh, bo Rufus poskušal najti verzijo namestitvene datoteke za GRUB (core.img), ki se ujema s tisto na sliki:\n"
+"Ker različne verzije programa GRUB niso nujno združljive in Ruflux ne more vsebovati vseh, bo Ruflux poskušal najti verzijo namestitvene datoteke za GRUB (core.img), ki se ujema s tisto na sliki:\n"
 "- Izberite \"Da\", da se povežete na internet in prenesete to datoteko.\n"
-"- Izberite \"Ne\", da uporabite privzeto verzijo, ki jo Rufus že vsebuje.\n"
+"- Izberite \"Ne\", da uporabite privzeto verzijo, ki jo Ruflux že vsebuje.\n"
 "- Izberite \"Prekliči\", da prekinete dejanje.\n"
 "\n"
-"Opomba: datoteka bo prenešena v mapo, kjer je nameščen Rufus, in bo v prihodnje ponovno uporabljena. Če Rufus ne more najti ustrezne datoteke, bo uporabljena privzeta verzija."
+"Opomba: datoteka bo prenešena v mapo, kjer je nameščen Ruflux, in bo v prihodnje ponovno uporabljena. Če Ruflux ne more najti ustrezne datoteke, bo uporabljena privzeta verzija."
 
 #. • MSG_117
 msgid "Standard Windows installation"
@@ -888,21 +888,21 @@ msgstr "Do tega pogona dostopa drug program oz. proces. Ali ga želite vseeno fo
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a Windows To Go media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a Windows To Go media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus je zaznal, da poskušate ustvariti medij za Windows To Go z verzijo 1809.\n"
+"Ruflux je zaznal, da poskušate ustvariti medij za Windows To Go z verzijo 1809.\n"
 "\n"
 "Zaradi hrošča v Windowsu bo ta medij povzročil sesutje (\"blue screen of death\" - BSOD) med zagonom, razen če ročno zamenjate datoteko WppRecorder.sys s tisto iz verzije 1803.\n"
 "\n"
-"Ker avtorske pravice za to datoteko pripadajo Microsoftu, Rufus te datoteke ne vključuje in zato tega ne more storiti namesto vas."
+"Ker avtorske pravice za to datoteko pripadajo Microsoftu, Ruflux te datoteke ne vključuje in zato tega ne more storiti namesto vas."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
@@ -1067,7 +1067,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "Podpis prenesene datoteke ni pristen"
@@ -1126,10 +1126,10 @@ msgstr "Postopek posodobitve:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus ne namesti ali zaganja storitev v ozadju, zato se posodobitve prenašajo samo, ko Rufus zaženete sami.\\line\n"
+"Ruflux ne namesti ali zaganja storitev v ozadju, zato se posodobitve prenašajo samo, ko Ruflux zaženete sami.\\line\n"
 "Za preverjanje in prenos posodobitev seveda potrebujete povezavo z internetom."
 
 #. • MSG_187
@@ -1179,12 +1179,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "OPOZORILO: TA NAPRAVA UPORABLJA NESTANDARDNO VELIKOST SEKTORJEV!\n"
 "\n"
 "Večina naprav uporablja 512-bajtne sektorje, ta naprava pa %d-bajtne. V večini primerov to pomeni, da z nje NE boste mogli zagnati računalnika.\n"
-"Rufus lahko poskusi ustvariti zagonski disk, vendar NI ZAGOTOVILA, da bo to delovalo."
+"Ruflux lahko poskusi ustvariti zagonski disk, vendar NI ZAGOTOVILA, da bo to delovalo."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1391,7 +1391,7 @@ msgstr "Brišem particije (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1410,8 +1410,8 @@ msgid "Failed to download file."
 msgstr "Ni mogoče prenesti datoteke."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "Preverjam za posodobitve Rufusa..."
+msgid "Checking for Ruflux updates..."
+msgstr "Preverjam za posodobitve Rufluxa..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1422,11 +1422,11 @@ msgid "Updates: Unable to access version data"
 msgstr "Posodobitve: ni mogoče dostopati do podatka o verziji"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Nova verzija Rufusa je na voljo!"
+msgid "A new version of Ruflux is available!"
+msgstr "Nova verzija Rufluxa je na voljo!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
+msgid "No new version of Ruflux was found"
 msgstr "Najdena ni bila nobena novejša verzija"
 
 #. • MSG_248
@@ -1548,13 +1548,13 @@ msgstr "Zaznana je bila slika %s"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "Slika, ki ste jo izbrali, je vrste \"ISOHybrid\". To pomeni, da jo lahko zapišete kot %s (s kopiranjem datotek) ali pa kot %s (s kopiranjem cele slike).\n"
-"Rufus priporoča, da jo zapišete kot %s, tako da boste imeli poln dostop do nosilca, ko bo slika zapisana.\n"
+"Ruflux priporoča, da jo zapišete kot %s, tako da boste imeli poln dostop do nosilca, ko bo slika zapisana.\n"
 "Če opazite težave pri zaganjanju, pa jo lahko še enkrat zapišete kot %s..\n"
 "\n"
 "Izberite, kako jo želite zapisati:"
@@ -1643,11 +1643,11 @@ msgstr "Operacijski sistem ni podprt"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"Rufus več ne podpira tega operacijskega sistema.\n"
-"Zadnja različica programa Rufus, združljiva s to platformo, je v%d.%d."
+"Ruflux več ne podpira tega operacijskega sistema.\n"
+"Zadnja različica programa Ruflux, združljiva s to platformo, je v%d.%d."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1655,11 +1655,11 @@ msgstr "Opozorilo: neuradna verzija"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"Te verzije Rufusa ni izdelal njegov uradni razvijalec.\n"
+"Te verzije Rufluxa ni izdelal njegov uradni razvijalec.\n"
 "\n"
 "Ali ste prepričani, da jo želite uporabljati?"
 
@@ -1673,13 +1673,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "Datoteka ISO, ki ste jo izbrali, ni pričakovane velikosti: %s njenih podatkov manjka.\n"
 "\n"
 "Če ste jo prenesli z interneta, jo prenesite še enkrat in preverite, ali se vrednosti MD5 in SHA ujemata z uradnima.\n"
 "\n"
-"V Rufusu ju lahko izračunate z gumbom (✓)."
+"V Rufluxu ju lahko izračunate z gumbom (✓)."
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1687,11 +1687,11 @@ msgstr "Napaka pri preverjanju časovnega žiga"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Ni bilo mogoče ugotoviti, da je časovni žig prenesene posodobitve res novejši od vaše trenutne verzije Rufusa.\n"
+"Ni bilo mogoče ugotoviti, da je časovni žig prenesene posodobitve res novejši od vaše trenutne verzije Rufluxa.\n"
 "\n"
 "Da ne bi prišlo do potencialnega napada, je bil postopek posodobitve prekinjen, prenesena posodobitev pa bo izbrisana. Za več podrobnosti preverite zapisnik."
 
@@ -1867,12 +1867,12 @@ msgstr "Zaznan preklican zagonski nalagalnik UEFI"
 #. • MSG_339
 #, fuzzy
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus je zaznal, da ISO, ki ste ga izbrali, vsebuje zagonski nalagalnik UEFI, ki je bil preklican in bo ustvaril %s, ko je varen zagon omogočen v popolnoma posodobljenem sistemu UEFI.\n"
+"Ruflux je zaznal, da ISO, ki ste ga izbrali, vsebuje zagonski nalagalnik UEFI, ki je bil preklican in bo ustvaril %s, ko je varen zagon omogočen v popolnoma posodobljenem sistemu UEFI.\n"
 "\n"
 "- Če ste to ISO sliko pridobili iz neuglednega vira, razmislite o možnosti, da morda vsebuje zlonamerno programsko opremo UEFI, in se izogibajte zagonu iz nje.\n"
 "- Če ste jo pridobili iz zaupanja vrednega vira, poskusite poiskati posodobljenejšo različico, ki tega ne bo povzročila tega opozorila."
@@ -1930,14 +1930,14 @@ msgstr "Ekstrahiranje arhivskih datotek: %s"
 
 #. • MSG_349
 #, fuzzy
-msgid "Use Rufus MBR"
-msgstr "Uporabite Rufus MBR"
+msgid "Use Ruflux MBR"
+msgstr "Uporabite Ruflux MBR"
 
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus je program za formatiranje in ustvarjanje zagonskih naprav USB."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux je program za formatiranje in ustvarjanje zagonskih naprav USB."
 
 #. • MSG_901
 msgid "Official site: %s"

@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Vietnamese (Tiếng Việt)\n"
-"X-Rufus-LCID: 0x042A\n"
+"X-Ruflux-LanguageName: Vietnamese (Tiếng Việt)\n"
+"X-Ruflux-LCID: 0x042A\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "Bắt đầu"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "Thông tin về Rufus"
+msgid "About Ruflux"
+msgstr "Thông tin về Ruflux"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr ""
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Giấy phép Rufus"
+msgid "Ruflux License"
+msgstr "Giấy phép Ruflux"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,8 +168,8 @@ msgid "Check Now"
 msgstr "Kiểm tra ngay"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "Kiểm tra cập nhật - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "Kiểm tra cập nhật - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -195,10 +195,10 @@ msgstr "Đã phát hiện tiến trình chạy đồng thời"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"Ứng dụng Rufus khác đang chạy.\n"
+"Ứng dụng Ruflux khác đang chạy.\n"
 "Vui lòng đóng ứng dụng đầu tiên trước khi chạy một ứng dụng mới."
 
 #. • MSG_003
@@ -210,12 +210,12 @@ msgstr ""
 "Để tiếp tục tiến trình này, nhấn OK. Để thoát nhấn HUỶ."
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Chính sách cập nhật Rufus"
+msgid "Ruflux update policy"
+msgstr "Chính sách cập nhật Ruflux"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Bạn có muốn cho phép Rufus kiểm tra các bản cập nhật ứng dụng trực tuyến?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Bạn có muốn cho phép Ruflux kiểm tra các bản cập nhật ứng dụng trực tuyến?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -533,13 +533,13 @@ msgstr "Thiết bị chưa sẵn sàng."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus đã phát hiện Windows vẫn đang xả bộ đệm bên trong thiết bị USB.\n"
+"Ruflux đã phát hiện Windows vẫn đang xả bộ đệm bên trong thiết bị USB.\n"
 "\n"
 "Tuỳ thuộc vào tốc độ thiết bị USB của bạn, hoạt động này có thể mất một thời gian dài để hoàn tất, đặc biệt với những tập tin lớn.\n"
 "\n"
@@ -550,8 +550,8 @@ msgid "Unsupported image"
 msgstr "Tệp tin không được hỗ trợ"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "Tệp này không có khả năng khởi động hoặc sử dụng một tuỳ chọn khởi động hoặc nén không được Rufus hỗ trợ..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "Tệp này không có khả năng khởi động hoặc sử dụng một tuỳ chọn khởi động hoặc nén không được Ruflux hỗ trợ..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -562,7 +562,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -572,7 +572,7 @@ msgstr ""
 "Tệp ISO này có vẻ là phiên bản lỗi thời của '%s'.\n"
 "Các menu khởi động có thể không hiện chính xác vì điều này.\n"
 "\n"
-"Một phiên bản mới có thể được tải xuống bởi Rufus để khắc phục vấn đề này:\n"
+"Một phiên bản mới có thể được tải xuống bởi Ruflux để khắc phục vấn đề này:\n"
 "- Chọn 'Có' để kết nối với Internet và tải tập tin xuống\n"
 "- Chọn 'Không' để không thay đổi tập tin ISO đang có\n"
 "Nếu bạn không biết phải làm gì, bạn nên chọn 'Có'.\n"
@@ -688,18 +688,18 @@ msgstr "Tải xuống %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s hoặc mới hơn yêu cầu tập tin '%s' được cài đặt.\n"
-"Vì tập tin này lớn hơn 100 KB, và luôn có trong các tệp ISO %s, nó không được kèm theo trong Rufus.\n"
+"Vì tập tin này lớn hơn 100 KB, và luôn có trong các tệp ISO %s, nó không được kèm theo trong Ruflux.\n"
 "\n"
-"Rufus có thể tải xuống tập tin còn thiếu cho bạn:\n"
+"Ruflux có thể tải xuống tập tin còn thiếu cho bạn:\n"
 "- Chọn 'Có' để kết nối với Internet và tải tập tin\n"
 "- Chọn 'Không' nếu bạn muốn tự chép tập tin này trên đĩa lúc khác\n"
 "\n"
@@ -722,8 +722,8 @@ msgid "All files"
 msgstr "Tất cả tập tin"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Nhật ký Rufus"
+msgid "Ruflux log"
+msgstr "Nhật ký Ruflux"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -758,7 +758,7 @@ msgstr "Ổ UDF lớn"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -766,7 +766,7 @@ msgid ""
 msgstr ""
 "Tệp này dùng Syslinux %s%s nhưng ứng dụng này chỉ bao gồm tập tin cài đặt cho Syslinux %s%s.\n"
 "\n"
-"Phiên bản mới của Syslinux không tương thích với các phiên bản khác, và Rufus không thể kèm theo tất cả chúng, bạn phải tải xuống thêm hai tập tin từ Internet ('ldlinux.sys' và 'ldlinux.bss'):\n"
+"Phiên bản mới của Syslinux không tương thích với các phiên bản khác, và Ruflux không thể kèm theo tất cả chúng, bạn phải tải xuống thêm hai tập tin từ Internet ('ldlinux.sys' và 'ldlinux.bss'):\n"
 "- Chọn 'Có' để kết nối tới Internet và tải xuống những tập tin này\n"
 "- Chọn 'Không' để huỷ hoạt động\n"
 "\n"
@@ -783,18 +783,18 @@ msgstr "Yêu cầu tải xuống"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "Tệp này dùng Grub %s nhưng ứng dụng này chỉ bao gồm tập tin cài đặt cho Grub %s.\n"
 "\n"
-"Các phiên bản khác nhau của Grub có thể không tương thích với nhau, và Rufus không thể kèm theo tất cả chúng, ứng dụng sẽ cố tìm một phiên bản tập tin cài đặt Grub ('core.img') khớp với phiên bản có trong tệp của bạn:\n"
+"Các phiên bản khác nhau của Grub có thể không tương thích với nhau, và Ruflux không thể kèm theo tất cả chúng, ứng dụng sẽ cố tìm một phiên bản tập tin cài đặt Grub ('core.img') khớp với phiên bản có trong tệp của bạn:\n"
 "- Chọn 'Có' để kết nối tới Internet và thử tải nó xuống\n"
-"- Chọn 'Không' để dùng phiên bản mặc định từ Rufus\n"
+"- Chọn 'Không' để dùng phiên bản mặc định từ Ruflux\n"
 "- Chọn 'Huỷ' để bỏ qua hoạt động\n"
 "\n"
 "Chú ý: Các tập tin sẽ được tải xuống vào thư mục ứng dụng hiện tại và sẽ được tự tái sử dụng nếu có. Nếu không tìm thấy bản trùng khớp nào trực tuyến thì phiên bản mặc định sẽ được sử dụng."
@@ -888,25 +888,25 @@ msgstr "Có một chương trình hoặc tiến trình khác đang truy cập �
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus nhận thấy bạn đang cố gắng tạo ổ đĩa Windows To Go dựa vào ISO phiên bản 1809.\n"
+"Ruflux nhận thấy bạn đang cố gắng tạo ổ đĩa Windows To Go dựa vào ISO phiên bản 1809.\n"
 "\n"
 "Bởi vì một *LỖI CỦA MICROSOFT*, ổ đĩa này sẽ bị lỗi trong quá trình khởi động Windows (Màn hình xanh chết chóc), trừ khi bạn tự tay thay thế file 'WppRecorder.sys' của phiên bản 1803.\n"
 "\n"
-"Cũng xin lưu ý rằng Rufus không thể tự động sửa lỗi này vì file 'WppRecorder.sys' thuộc bản quyền của Microsoft, vì vậy chúng tôi không thể nhúng file này vào chương trình..."
+"Cũng xin lưu ý rằng Ruflux không thể tự động sửa lỗi này vì file 'WppRecorder.sys' thuộc bản quyền của Microsoft, vì vậy chúng tôi không thể nhúng file này vào chương trình..."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"Bởi vì MBR được chọn để định dạng phân vùng, Rufus chỉ có thể tạo phân vùng tới 2 TB cho ổ đĩa này, việc này sẽ bỏ phí %s không được sử dung.\n"
+"Bởi vì MBR được chọn để định dạng phân vùng, Ruflux chỉ có thể tạo phân vùng tới 2 TB cho ổ đĩa này, việc này sẽ bỏ phí %s không được sử dung.\n"
 "\n"
 "Bạn có muốn tiếp tục?"
 
@@ -1066,7 +1066,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "Chữ kí tải xuống không hợp lệ"
@@ -1125,10 +1125,10 @@ msgstr "Tiến trình cập nhật:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus không cài đặt hoặc chạy dịch vụ nền, do đó việc kiểm tra cập nhật chỉ được thực hiện khi ứng dụng chính đang chạy.\\line\n"
+"Ruflux không cài đặt hoặc chạy dịch vụ nền, do đó việc kiểm tra cập nhật chỉ được thực hiện khi ứng dụng chính đang chạy.\\line\n"
 "Quyền truy cập Internet dĩ nhiên cần thiết khi kiểm tra cập nhật."
 
 #. • MSG_187
@@ -1178,12 +1178,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "QUAN TRỌNG: ĐĨA NÀY DÙNG KÍCH CỠ CUNG KHÔNG CHUẨN!\n"
 "\n"
 "Ổ cứng thông thường dùng kích cỡ cung 512-byte nhưng ổ đĩa này lại dùng %d byte. Trong nhiều trường hợp, điều này có nghĩa bạn sẽ KHÔNG thể khởi động từ ổ đĩa này.\n"
-"Rufus có thể thử tạo một ổ đĩa khởi động, nhưng KHÔNG ĐẢM BẢO rằng nó sẽ hoạt động."
+"Ruflux có thể thử tạo một ổ đĩa khởi động, nhưng KHÔNG ĐẢM BẢO rằng nó sẽ hoạt động."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1390,7 +1390,7 @@ msgstr "Đang xoá phân vùng (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1409,8 +1409,8 @@ msgid "Failed to download file."
 msgstr "Không thể tải xuống tập tin."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "Đang kiểm tra cập nhật Rufus..."
+msgid "Checking for Ruflux updates..."
+msgstr "Đang kiểm tra cập nhật Ruflux..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1421,12 +1421,12 @@ msgid "Updates: Unable to access version data"
 msgstr "Cập nhật: Không thể truy cập dữ liệu phiên bản"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Đã có phiên bản mới của Rufus!"
+msgid "A new version of Ruflux is available!"
+msgstr "Đã có phiên bản mới của Ruflux!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
-msgstr "Không tìm thấy phiên bản mới của Rufus"
+msgid "No new version of Ruflux was found"
+msgstr "Không tìm thấy phiên bản mới của Ruflux"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
@@ -1547,13 +1547,13 @@ msgstr "Đã phát hiện tệp %s"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "Tệp bạn đã chọn là một tệp 'ISOHybrid'. Điều này có nghĩa nó có thể được ghi trong chế độ %s (chép tập tin) hoặc %s (tệp đĩa).\n"
-"Rufus khuyến cáo sử dụng chế độ %s, để bạn luôn có toàn quyền truy cập ổ đĩa sau khi ghi nó.\n"
+"Ruflux khuyến cáo sử dụng chế độ %s, để bạn luôn có toàn quyền truy cập ổ đĩa sau khi ghi nó.\n"
 "Tuy nhiên, nếu bạn gặp vấn đề trong lúc khởi động, bạn có thể thử ghi lại tệp này trong chế độ %s.\n"
 "\n"
 "Hãy chọn chế độ mà bạn muốn dùng để ghi tệp này:"
@@ -1642,11 +1642,11 @@ msgstr "Phiên bản Windows không được hỗ trợ"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"Phiên bản này của Windows không còn được Rufus hỗ trợ nữa.\n"
-"Phiên bản cuối cùng của Rufus tương thích với nền tảng này là v%d.%d."
+"Phiên bản này của Windows không còn được Ruflux hỗ trợ nữa.\n"
+"Phiên bản cuối cùng của Ruflux tương thích với nền tảng này là v%d.%d."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1654,11 +1654,11 @@ msgstr "Cảnh báo: Phiên bản không chính thức"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"Phiên bản Rufus này KHÔNG PHẢI do chính tác giả tạo ra.\n"
+"Phiên bản Ruflux này KHÔNG PHẢI do chính tác giả tạo ra.\n"
 "\n"
 "Bạn chắc muốn tiếp tục chạy chứ?"
 
@@ -1672,13 +1672,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "Tập tin ISO bạn đã chọn không trùng khớp kích cỡ của nó: thiếu mất %s dữ liệu!\n"
 "\n"
 "nếu bạn tải tập tin này từ Internet, bạn nên tải lại một bản sao mới và xác nhận rằng mã MD5 hoặc SHA trùng khớp với bản chính thức.\n"
 "\n"
-"Hãy nhớ rằng bạn có thể tính mã MD5 hoặc SHA trong Rufus bằng cách chọn nút (✓)."
+"Hãy nhớ rằng bạn có thể tính mã MD5 hoặc SHA trong Ruflux bằng cách chọn nút (✓)."
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1686,11 +1686,11 @@ msgstr "Lỗi xác thực dấu thời gian"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Rufus không thể xác thực liệu dấu thời gian trên phiên bản cập nhật được tải xuống gần đây có mới hơn so với phiên bản đang chạy.\n"
+"Ruflux không thể xác thực liệu dấu thời gian trên phiên bản cập nhật được tải xuống gần đây có mới hơn so với phiên bản đang chạy.\n"
 "\n"
 "Để tránh nguy cơ bị tấn công tiềm ẩn, quá trình cập nhật đã bị hủy và file tải sẽ bị xóa. Hãy kiểm tra log để biết thêm thông tin."
 
@@ -1871,12 +1871,12 @@ msgstr "Đã phát hiện bộ khởi động UEFI bị thu hồi"
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus đã phát hiện ra rằng tệp ISO bạn đã chọn có chứa một bộ khởi động UEFI đã bị thu hồi và nó sẽ tạo ra %s, khi Secure Boot được kích hoạt trên một hệ thống UEFI được cập nhật đầy đủ và mới nhất.\n"
+"Ruflux đã phát hiện ra rằng tệp ISO bạn đã chọn có chứa một bộ khởi động UEFI đã bị thu hồi và nó sẽ tạo ra %s, khi Secure Boot được kích hoạt trên một hệ thống UEFI được cập nhật đầy đủ và mới nhất.\n"
 "\n"
 "- Nếu bạn sở hữu tệp ISO này từ một nguồn không đáng tin cậy, bạn nên cân nhắc khả năng có thể chứa mã độc UEFI và tránh khởi động từ nó.\n"
 "- Nếu bạn sở hữu từ một nguồn uy tín, bạn nên thử tìm một bản mới hơn, theo đó cảnh báo này sẽ không hiện ra."
@@ -1924,8 +1924,8 @@ msgid "Extracting archive files: %s"
 msgstr "Đang giải nén tệp lưu trữ: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "Sử dụng Rufus MBR"
+msgid "Use Ruflux MBR"
+msgstr "Sử dụng Ruflux MBR"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1945,13 +1945,13 @@ msgstr "Đã phát hiện bản cập nhật DBX của UEFI"
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"Rufus đã phát hiện phiên bản cập nhật của các tệp DBX, được dùng để kiểm tra thu hồi Secure Boot trong UEFI. Bạn có muốn tải bản cập nhật này không?\n"
+"Ruflux đã phát hiện phiên bản cập nhật của các tệp DBX, được dùng để kiểm tra thu hồi Secure Boot trong UEFI. Bạn có muốn tải bản cập nhật này không?\n"
 "- Chọn “Có” để kết nối Internet và tải nội dung này.\n"
 "- Chọn “Không” để hủy thao tác.\n"
 "\n"
@@ -2042,8 +2042,8 @@ msgstr "Nếu bạn sử dụng tuỳ chọn này, hãy chắc chắn rằng b�
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus là một tiện ích giúp định dạng và tạo khả năng khởi động cho các thiết bị USB, ví dụ như thẻ USB/đĩa di động, thẻ nhớ, v.v..."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux là một tiện ích giúp định dạng và tạo khả năng khởi động cho các thiết bị USB, ví dụ như thẻ USB/đĩa di động, thẻ nhớ, v.v..."
 
 #. • MSG_901
 msgid "Official site: %s"

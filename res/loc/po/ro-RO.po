@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Romanian (Română)\n"
-"X-Rufus-LCID: 0x0418, 0x0818\n"
+"X-Ruflux-LanguageName: Romanian (Română)\n"
+"X-Ruflux-LCID: 0x0418, 0x0818\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr ""
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "Despre Rufus"
+msgid "About Ruflux"
+msgstr "Despre Ruflux"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr ""
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Licență Rufus"
+msgid "Ruflux License"
+msgstr "Licență Ruflux"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,8 +168,8 @@ msgid "Check Now"
 msgstr "Căutare acum"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "Căutare actualizări - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "Căutare actualizări - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -195,10 +195,10 @@ msgstr "S-a detectat altă instanță"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"O altă aplicație Rufus rulează.\n"
+"O altă aplicație Ruflux rulează.\n"
 "Vă rugăm să închideți prima aplicație înainte de a deschide alta."
 
 #. • MSG_003
@@ -210,12 +210,12 @@ msgstr ""
 "Pentru a continua, alegeți OK. Pentru a renunța, alegeți ANULARE."
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Politica de actualizare Rufus"
+msgid "Ruflux update policy"
+msgstr "Politica de actualizare Ruflux"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Permiteți aplicației Rufus să caute actualizări pe internet?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Permiteți aplicației Ruflux să caute actualizări pe internet?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -533,13 +533,13 @@ msgstr "Dispozitivul nu este pregătit."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus a observat că Windows încă mai scrie date din buffer pe dispozitivul USB.\n"
+"Ruflux a observat că Windows încă mai scrie date din buffer pe dispozitivul USB.\n"
 "\n"
 "În funcție de viteza dispozitivului USB, poate dura mult timp pentru ca această operațiune să se finalizeze, mai ales dacă există fișiere mari.\n"
 "\n"
@@ -550,8 +550,8 @@ msgid "Unsupported image"
 msgstr "Imagine neacceptată"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "Această imagine nu este de tip boot, sau folosește o metodă de boot sau compresie care nu este acceptată de Rufus..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "Această imagine nu este de tip boot, sau folosește o metodă de boot sau compresie care nu este acceptată de Ruflux..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -562,7 +562,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -572,7 +572,7 @@ msgstr ""
 "Această imagine ISO pare să folosească o versiune învechită de '%s'.\n"
 "Drept urmare, este posibil ca meniul de boot să nu funcționeze corect.\n"
 "\n"
-"Rufus poate descărca o versiune mai nouă pentru rezolva această problemă:\n"
+"Ruflux poate descărca o versiune mai nouă pentru rezolva această problemă:\n"
 "- Alegeți 'Da' pentru a vă conecta la internet și a descărca fișierul\n"
 "- Alegeți 'Nu' pentru a lăsa fișierul ISO neschimbat.\n"
 "Dacă nu știți care este alegerea potrivită, este recomandat să alegeți 'Da'.\n"
@@ -688,18 +688,18 @@ msgstr "Descărcați %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "Începând cu %s, este necesară instalarea unui fișier '%s'.\n"
-"Având o mărime de peste 100 KB și fiind mereu prezent în imaginile ISO %s, acest fișier nu este integrat în Rufus.\n"
+"Având o mărime de peste 100 KB și fiind mereu prezent în imaginile ISO %s, acest fișier nu este integrat în Ruflux.\n"
 "\n"
-"Rufus poate descărca fișierul pentru dumneavoastră:\n"
+"Ruflux poate descărca fișierul pentru dumneavoastră:\n"
 "- Alegeți 'Da' pentru a vă conecta la internet și a descărca fișierul\n"
 "- Alegeți 'Nu' dacă doriți să copiați manual acest fișier mai târziu\n"
 "\n"
@@ -722,8 +722,8 @@ msgid "All files"
 msgstr "Toate fișierele"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Jurnal Rufus"
+msgid "Ruflux log"
+msgstr "Jurnal Ruflux"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -758,7 +758,7 @@ msgstr "Volum UDF mare"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -766,7 +766,7 @@ msgid ""
 msgstr ""
 "Această imagine folosește Syslinux %s%s, însă această aplicație include doar fișierele de instalare pentru Syslinux %s%s.\n"
 "\n"
-"Întrucât versiunile noi de Syslinux nu sunt compatibile cu cele vechi, iar Rufus nu le poate include pe toate, este necesar ca două fișiere suplimentare să fie descărcate de pe internet ('ldlinux.sys' și 'ldlinux.bss'):\n"
+"Întrucât versiunile noi de Syslinux nu sunt compatibile cu cele vechi, iar Ruflux nu le poate include pe toate, este necesar ca două fișiere suplimentare să fie descărcate de pe internet ('ldlinux.sys' și 'ldlinux.bss'):\n"
 "- Alegeți 'Da' pentru a vă conecta la internet și a descărca fișierele respective\n"
 "- Alegeți 'Nu' pentru a anula operațiunea.\n"
 "\n"
@@ -783,18 +783,18 @@ msgstr "Descărcare necesară"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "Această imagine folosește Grub %s, însă aplicația include doar fișierele de instalare pentru Grub %s.\n"
 "\n"
-"Întrucât versiunile noi de Grub pot fi incompatibile cu cele vechi, iar Rufus nu le poate include pe toate, Rufus va căuta un fișier de instalare Grub ('core.img') potrivit pentru versiunea din imaginea dvs:\n"
+"Întrucât versiunile noi de Grub pot fi incompatibile cu cele vechi, iar Ruflux nu le poate include pe toate, Ruflux va căuta un fișier de instalare Grub ('core.img') potrivit pentru versiunea din imaginea dvs:\n"
 "- Alegeți 'Da' pentru a vă conecta la internet și a încerca descărcarea\n"
-"- Alegeți 'Nu' pentru a utiliza versiunea implicită din Rufus\n"
+"- Alegeți 'Nu' pentru a utiliza versiunea implicită din Ruflux\n"
 "- Alegeți 'Anulare' pentru a anula operațiunea\n"
 "\n"
 "Observație: Noul fișier va fi descărcat în folderul curent al aplicației. Odată prezent în folder, acesta va fi refolosit automat. Daca nu este găsită nicio potrivire online, atunci va fi utilizată versiunea implicită."
@@ -888,25 +888,25 @@ msgstr "Un alt program sau proces utilizează această unitate. Doriți să o fo
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus a observat că încercați să creați un media 'Windows To Go' bazat pe un ISO cu versiunea 1809.\n"
+"Ruflux a observat că încercați să creați un media 'Windows To Go' bazat pe un ISO cu versiunea 1809.\n"
 "\n"
 "Din cauza unui *BUG MICROSOFT*, acest media va eșua în timpul pornirii Windows (Blue Screen Of Death), cu excepția cazului în care înlocuiți manual fișierul 'WppRecorder.sys' cu o versiune 1803.\n"
 "\n"
-"De asemenea, rețineți că motivul pentru care Rufus nu poate remedia automat acest lucru pentru dvs. este că 'WppRecorder.sys' este un fișier Microsoft protejat prin drepturi de autor, deci nu putem încorpora în mod legal o copie a fișierului în aplicație..."
+"De asemenea, rețineți că motivul pentru care Ruflux nu poate remedia automat acest lucru pentru dvs. este că 'WppRecorder.sys' este un fișier Microsoft protejat prin drepturi de autor, deci nu putem încorpora în mod legal o copie a fișierului în aplicație..."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"Deoarece MBR a fost selectat pentru schema de partiționare, Rufus poate crea doar o partiție de până la 2 TB pe acest suport media, ceea ce va lăsa %s spațiu de disc indisponibil.\n"
+"Deoarece MBR a fost selectat pentru schema de partiționare, Ruflux poate crea doar o partiție de până la 2 TB pe acest suport media, ceea ce va lăsa %s spațiu de disc indisponibil.\n"
 "\n"
 "Sigur doriți să continuați?"
 
@@ -1066,7 +1066,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "Semnătura descărcării nu este validă"
@@ -1125,10 +1125,10 @@ msgstr "Proces de actualizare:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus nu instalează și nu rulează servicii de fundal. Așadar, căutarea actualizărilor va avea loc doar în timp ce aplicația principală rulează.\\line\n"
+"Ruflux nu instalează și nu rulează servicii de fundal. Așadar, căutarea actualizărilor va avea loc doar în timp ce aplicația principală rulează.\\line\n"
 "Accesul la internet este, desigur, necesar atunci când se caută actualizări."
 
 #. • MSG_187
@@ -1178,12 +1178,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "IMPORTANT: ACEASTĂ UNITATE UTILIZEAZĂ O MĂRIME DE SECTOR NON-STANDARD!\n"
 "\n"
 "Unitățile convenționale folosesc o mărime de sector de 512 baiți, însă această unitate folosește una de %d baiți. În multe cazuri, unitatea NU va porni.\n"
-"Rufus poate încerca să creeze o unitate bootabilă, însă nu există NICIO GARANȚIE că aceasta va funcționa corect."
+"Ruflux poate încerca să creeze o unitate bootabilă, însă nu există NICIO GARANȚIE că aceasta va funcționa corect."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1390,7 +1390,7 @@ msgstr "Se șterg partițiile (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1409,8 +1409,8 @@ msgid "Failed to download file."
 msgstr "Nu s-a putut descărca fișierul."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "Se caută actualizări Rufus..."
+msgid "Checking for Ruflux updates..."
+msgstr "Se caută actualizări Ruflux..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1421,12 +1421,12 @@ msgid "Updates: Unable to access version data"
 msgstr "Actualizări: Nu s-au putut accesa datele despre versiune"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Este disponibilă o nouă versiune Rufus!"
+msgid "A new version of Ruflux is available!"
+msgstr "Este disponibilă o nouă versiune Ruflux!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
-msgstr "Nu a fost găsită o versiune nouă de Rufus"
+msgid "No new version of Ruflux was found"
+msgstr "Nu a fost găsită o versiune nouă de Ruflux"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
@@ -1547,13 +1547,13 @@ msgstr "Imagine %s detectată"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "Imaginea selectată este de tip 'ISOHybrid'. Aceasta poate fi scrisă fie în modul %s (copiere fișiere) sau în modul %s (imagine disc).\n"
-"Rufus recomandă modul %s, astfel încât să aveți acces deplin la unitatea utilizată.\n"
+"Ruflux recomandă modul %s, astfel încât să aveți acces deplin la unitatea utilizată.\n"
 "Dacă vă confruntați cu probleme în timpul pornirii, puteți încerca să scrieți imaginea din nou în modul %s.\n"
 "\n"
 "Vă rugăm să alegeți modul în care doriți să se scrie această imagine:"
@@ -1642,11 +1642,11 @@ msgstr "Versiune Windows neacceptată"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"Această versiune de Windows nu mai este acceptată de Rufus.\n"
-"Ultima versiune de Rufus compatibilă cu această platformă este v%d.%d."
+"Această versiune de Windows nu mai este acceptată de Ruflux.\n"
+"Ultima versiune de Ruflux compatibilă cu această platformă este v%d.%d."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1654,11 +1654,11 @@ msgstr "Avertisment: versiune neoficială"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"Această versiune de Rufus nu a fost produsă de dezvoltatorul oficial.\n"
+"Această versiune de Ruflux nu a fost produsă de dezvoltatorul oficial.\n"
 "\n"
 "Sigur doriți să o rulați?"
 
@@ -1672,13 +1672,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "Fișierul ISO pe care l-ați selectat nu se potrivește cu dimensiunea sa declarată: %s de date lipsesc!\n"
 "\n"
 "Dacă ați obținut acest fișier de pe internet, ar trebui să încercați să descărcați o copie nouă și să verificați dacă sumele de control MD5 sau SHA se potrivesc cu cele oficiale.\n"
 "\n"
-"Rețineți că puteți calcula MD5 sau SHA în Rufus dând click pe butonul (✓)."
+"Rețineți că puteți calcula MD5 sau SHA în Ruflux dând click pe butonul (✓)."
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1686,11 +1686,11 @@ msgstr "Eroare validare marcaj de timp"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Rufus nu a putut valida că marcajul de timp al actualizării descărcate este mai recent decât executabilul curent.\n"
+"Ruflux nu a putut valida că marcajul de timp al actualizării descărcate este mai recent decât executabilul curent.\n"
 "\n"
 "Pentru a preveni posibilele scenarii de atac, procesul de actualizare a fost anulat și descărcarea va fi ștearsă. Vă rugăm să verificați jurnalul pentru mai multe detalii."
 
@@ -1871,12 +1871,12 @@ msgstr "Bootloader UEFI nepermis detectat"
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus a detectat că fișierul ISO selectat conține un bootloader UEFI care a fost revocat și care va produce %s, când Secure Boot este activat pe un sistem UEFI complet actualizat.\n"
+"Ruflux a detectat că fișierul ISO selectat conține un bootloader UEFI care a fost revocat și care va produce %s, când Secure Boot este activat pe un sistem UEFI complet actualizat.\n"
 "\n"
 "- Dacă ați obținut această imagine ISO dintr-o sursă nesigură, luați în considerare posibilitatea că ar putea conține malware UEFI și evitați pornirea de pe aceasta.\n"
 "- Dacă ați obținut-o dintr-o sursă de încredere, încercați să găsiți o versiune mai recentă, care să nu producă acest avertisment."
@@ -1924,8 +1924,8 @@ msgid "Extracting archive files: %s"
 msgstr "Extractând fișiere arhivate: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "Folosește Rufus MBR"
+msgid "Use Ruflux MBR"
+msgstr "Folosește Ruflux MBR"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1945,13 +1945,13 @@ msgstr "Actualizare DBX disponibilă"
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"Rufus a găsit o versiune actualizată a fișierelor DBX folosite pentru verificările de revocare Secure Boot UEFI. Doriți să descărcați această actualizare?\n"
+"Ruflux a găsit o versiune actualizată a fișierelor DBX folosite pentru verificările de revocare Secure Boot UEFI. Doriți să descărcați această actualizare?\n"
 "- Selectați „Da” pentru a vă conecta la internet și a descărca acest conținut\n"
 "- Selectați „Nu” pentru a anula operațiunea\n"
 "\n"
@@ -2042,8 +2042,8 @@ msgstr "Dacă folosiți această opțiune, asigurați-vă că deconectați toate
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus este un utilitar care ajută la formatarea și crearea de drive-uri USB bootabile, precum cheile sau pendriverele USB, unități de memorie, etc."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux este un utilitar care ajută la formatarea și crearea de drive-uri USB bootabile, precum cheile sau pendriverele USB, unități de memorie, etc."
 
 #. • MSG_901
 msgid "Official site: %s"

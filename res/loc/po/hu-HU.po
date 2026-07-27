@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Hungarian (Magyar)\n"
-"X-Rufus-LCID: 0x040e\n"
+"X-Ruflux-LanguageName: Hungarian (Magyar)\n"
+"X-Ruflux-LCID: 0x040e\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "Indítás"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "A Rufus névjegye"
+msgid "About Ruflux"
+msgstr "A Ruflux névjegye"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr ""
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Rufus Licenc"
+msgid "Ruflux License"
+msgstr "Ruflux Licenc"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,8 +168,8 @@ msgid "Check Now"
 msgstr "Ellenőrzés"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "Frissítések keresése - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "Frissítések keresése - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -195,10 +195,10 @@ msgstr "Másik példány észlelve"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"Egy másik Rufus példány már fut.\n"
+"Egy másik Ruflux példány már fut.\n"
 "Kérlek, zárd be, mielőtt ezt futtatnád."
 
 #. • MSG_003
@@ -211,12 +211,12 @@ msgstr ""
 "A művelet megszakításához kattints a Mégse gombra."
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Rufus frissítési irányelvek"
+msgid "Ruflux update policy"
+msgstr "Ruflux frissítési irányelvek"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Engedélyezed, hogy a Rufus frissítéseket keressen?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Engedélyezed, hogy a Ruflux frissítéseket keressen?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -534,13 +534,13 @@ msgstr "Az eszköz nem áll készen."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"A Rufus észlelte, hogy a Windows még mindig ír az USB eszközre.\n"
+"A Ruflux észlelte, hogy a Windows még mindig ír az USB eszközre.\n"
 "\n"
 "Az USB eszközöd sebességétől függően e művelet befejezése hosszú ideig is eltarthat, különösen nagy fájlok esetén.\n"
 "\n"
@@ -551,8 +551,8 @@ msgid "Unsupported image"
 msgstr "Nem támogatott képfájl"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "Ez a képfájl vagy nem bootolható, vagy olyan bootolási vagy tömörítési módszert használ, amelyet a Rufus nem támogat..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "Ez a képfájl vagy nem bootolható, vagy olyan bootolási vagy tömörítési módszert használ, amelyet a Ruflux nem támogat..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -563,7 +563,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -573,7 +573,7 @@ msgstr ""
 "Úgy tűnik, hogy ez az ISO képfájl a(z) '%s' elavult verzióját használja.\n"
 "Emiatt a boot menü valószínűleg nem fog megfelelően megjelenni.\n"
 "\n"
-"A Rufus le tud tölteni egy újabb verziót a probléma megoldásához:\n"
+"A Ruflux le tud tölteni egy újabb verziót a probléma megoldásához:\n"
 "- Válaszd az 'Igen' gombot az új verzió letöltéséhez\n"
 "- Válaszd a 'Nem' gombot a létező ISO képfájl változatlanul hagyásához\n"
 "Ha nem tudod, hogy mit kell tenned, akkor válaszd az 'Igen' gombot.\n"
@@ -689,18 +689,18 @@ msgstr "Letöltöd ezt: %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "A(z) %s vagy újabb verziójához telepíteni kell egy '%s' fájlt.\n"
-"Mivel ez a fájl nagyobb, mint 100 KB, és mindig szerepel a(z) %s ISO képfájlokban, ezért nincs a Rufusba beépítve.\n"
+"Mivel ez a fájl nagyobb, mint 100 KB, és mindig szerepel a(z) %s ISO képfájlokban, ezért nincs a Rufluxba beépítve.\n"
 "\n"
-"A Rufus letöltheti a hiányzó fájlt:\n"
+"A Ruflux letöltheti a hiányzó fájlt:\n"
 "- Válaszd az 'Igen' gombot az internethez történő csatlakozáshoz és a fájl letöltéséhez\n"
 "- Válaszd a 'Nem' gombot, ha magad szeretnéd felmásolni a fájlt a meghajtóra később\n"
 "\n"
@@ -723,8 +723,8 @@ msgid "All files"
 msgstr "Minden fájl"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Rufus napló"
+msgid "Ruflux log"
+msgstr "Ruflux napló"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -759,7 +759,7 @@ msgstr "Nagy UDF kötet"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -767,7 +767,7 @@ msgid ""
 msgstr ""
 "Ez a képfájl ezt használja: Syslinux %s%s, de ez az alkalmazás csak a Syslinux %s%s telepítő fájljait tartalmazza.\n"
 "\n"
-"Mivel a Syslinux új verziói nem kompatibilisek egymással, és a Rufus sem tartalmazhatja az összes verziót, ezért két további fájlt le kell tölteni az internetről ('ldlinux.sys' és 'ldlinux.bss'):\n"
+"Mivel a Syslinux új verziói nem kompatibilisek egymással, és a Ruflux sem tartalmazhatja az összes verziót, ezért két további fájlt le kell tölteni az internetről ('ldlinux.sys' és 'ldlinux.bss'):\n"
 "- Válaszd az 'Igen' gombot az internethez történő kapcsolódáshoz, és ezen fájlok letöltéséhez\n"
 "- Válaszd a 'Nem' gombot a művelet megszakításához\n"
 "\n"
@@ -784,18 +784,18 @@ msgstr "Letöltés szükséges"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "Ez a képfájl ezt használja: Grub %s, de ez az alkalmazás csak a Grub %s telepítő fájljait tartalmazza.\n"
 "\n"
-"Mivel a Grub különböző verziói nem feltétlenül kompatibilisek egymással, és a Rufus sem tartalmazhatja az összes verziót, ezért a Rufus megkísérel találni egy olyan verziót a Grub telepítő fájlból ('core.img'), ami egyezik a képfájlban lévővel:\n"
+"Mivel a Grub különböző verziói nem feltétlenül kompatibilisek egymással, és a Ruflux sem tartalmazhatja az összes verziót, ezért a Ruflux megkísérel találni egy olyan verziót a Grub telepítő fájlból ('core.img'), ami egyezik a képfájlban lévővel:\n"
 "- Válaszd az 'Igen' gombot az internethez történő csatlakozáshoz és a letöltés megkísérléséhez\n"
-"- Válaszd a 'Nem' gombot a Rufus által biztosított, alapértelmezett verzió használatához\n"
+"- Válaszd a 'Nem' gombot a Ruflux által biztosított, alapértelmezett verzió használatához\n"
 "- Válaszd a 'Mégse' gombot a művelet megszakításához\n"
 "\n"
 "Megjegyzés: A fájl a program mappájába lesz letöltve és automatikusan újra lesz használva, ha létezik. Ha az interneten nincs megegyező verzió, akkor az alapértelmezett verzió lesz használva."
@@ -889,25 +889,25 @@ msgstr "Egy másik alkalmazás vagy folyamat használja ezt az eszközt. Így is
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"A Rufus észlelte, hogy egy 1809-es verziójú ISO alapján kíséreltél meg egy Windows To Go meghajtót készíteni.\n"
+"A Ruflux észlelte, hogy egy 1809-es verziójú ISO alapján kíséreltél meg egy Windows To Go meghajtót készíteni.\n"
 "\n"
 "Egy *MICROSOFT HIBA* miatt ez a meghajtó a Windows indulása során össze fog omlani (kék halál), hacsak nem cseréled ki manuálisan a 'WppRecorder.sys' fájlt egy 1803-as verzióra.\n"
 "\n"
-"Vedd figyelembe azt is, hogy a Rufus azért nem tudja automatikusan kijavítani ezt, mert a 'WppRecorder.sys' a Microsoft jogvédett fájlja, ezért nem tudjuk törvényesen beágyazni a fájl másolatát az alkalmazásba..."
+"Vedd figyelembe azt is, hogy a Ruflux azért nem tudja automatikusan kijavítani ezt, mert a 'WppRecorder.sys' a Microsoft jogvédett fájlja, ezért nem tudjuk törvényesen beágyazni a fájl másolatát az alkalmazásba..."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"Mivel MBR lett kiválasztva partíciós sémaként, a Rufus legfeljebb 2 TB-os partíciót tud létrehozni ezen az adathordozón, amellyel így %s lemezterület elérhetetlenné válik.\n"
+"Mivel MBR lett kiválasztva partíciós sémaként, a Ruflux legfeljebb 2 TB-os partíciót tud létrehozni ezen az adathordozón, amellyel így %s lemezterület elérhetetlenné válik.\n"
 "\n"
 "Biztosan folytatni szeretnéd?"
 
@@ -1067,7 +1067,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "Érvénytelen a letöltés aláírása"
@@ -1126,10 +1126,10 @@ msgstr "Frissítési folyamat:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"A Rufus nem telepít vagy futtat háttérben futó szolgáltatásokat, a frissítések ellenőrzése csak akkor történik, amikor az alkalmazás fut.\\line\n"
+"A Ruflux nem telepít vagy futtat háttérben futó szolgáltatásokat, a frissítések ellenőrzése csak akkor történik, amikor az alkalmazás fut.\\line\n"
 "Természetesen a frissítések ellenőrzéséhez internet kapcsolat szükséges."
 
 #. • MSG_187
@@ -1179,12 +1179,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "FONTOS: EZ AZ ESZKÖZ 'NEM SZABVÁNYOS' SZEKTOR MÉRETET HASZNÁL!\n"
 "\n"
 "A hagyományos eszközök szektor mérete 512 bájt, de ennek az eszköznek a szektor mérete %d bájt. Sok esetben ez azt jelenti, hogy NEM lehet bootolni erről az eszközről.\n"
-"A Rufus megpróbálhat egy bootolható meghajtót készíteni, de NINCS RÁ GARANCIA hogy működni fog."
+"A Ruflux megpróbálhat egy bootolható meghajtót készíteni, de NINCS RÁ GARANCIA hogy működni fog."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1391,7 +1391,7 @@ msgstr "Partíciók törlése (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1410,8 +1410,8 @@ msgid "Failed to download file."
 msgstr "A fájl letöltése sikertelen."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "Rufus frissítések keresése..."
+msgid "Checking for Ruflux updates..."
+msgstr "Ruflux frissítések keresése..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1422,12 +1422,12 @@ msgid "Updates: Unable to access version data"
 msgstr "Frissítés: Nem sikerült a verzióadatokhoz hozzáférni"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Elérhető egy új Rufus verzió!"
+msgid "A new version of Ruflux is available!"
+msgstr "Elérhető egy új Ruflux verzió!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
-msgstr "Nem található új Rufus verzió"
+msgid "No new version of Ruflux was found"
+msgstr "Nem található új Ruflux verzió"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
@@ -1548,13 +1548,13 @@ msgstr "%s képfájl észlelve"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "A kiválasztott képfájl egy 'ISOHybrid' képfájl. Ez azt jelenti, hogy írható %s (fájlmásolás) módban vagy %s (lemezképfájl) módban.\n"
-"A Rufus a(z) %s mód használatát javasolja, mivel így mindig teljes hozzáférésed lesz a meghajtóhoz az írás után.\n"
+"A Ruflux a(z) %s mód használatát javasolja, mivel így mindig teljes hozzáférésed lesz a meghajtóhoz az írás után.\n"
 "Azonban, ha bootolás közben hibát észlelsz, akkor megpróbálhatod ezt a képfájlt újraírni %s módban.\n"
 "\n"
 "Kérlek, válaszd ki, hogy mely írási módot szeretnéd használni:"
@@ -1643,11 +1643,11 @@ msgstr "Nem támogatott Windows verzió"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"A Rufus már nem támogatja a Windows ezen verzióját.\n"
-"A jelenlegi platformmal kompatibilis utolsó Rufus verzió: v%d.%d."
+"A Ruflux már nem támogatja a Windows ezen verzióját.\n"
+"A jelenlegi platformmal kompatibilis utolsó Ruflux verzió: v%d.%d."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1655,11 +1655,11 @@ msgstr "Figyelem: Nem hivatalos verzió"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"A Rufus ezen verzióját nem a hivatalos fejlesztője adta ki.\n"
+"A Ruflux ezen verzióját nem a hivatalos fejlesztője adta ki.\n"
 "\n"
 "Biztosan futtatni szeretnéd?"
 
@@ -1673,13 +1673,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "A kiválasztott ISO képfájl nem egyezik az általa meghatározott mérettel: %s mennyiségű adat hiányzik!\n"
 "\n"
 "Ha ezt a fájlt az internetről szerezted be, próbálj meg egy új példányt letölteni, és ellenőrizd, hogy az MD5 vagy SHA ellenőrző összegek megegyeznek-e a hivatalosakkal.\n"
 "\n"
-"Vedd figyelembe, hogy a (✓) gombra kattintva kiszámíthatod az MD5 vagy SHA értékeket a Rufusban."
+"Vedd figyelembe, hogy a (✓) gombra kattintva kiszámíthatod az MD5 vagy SHA értékeket a Rufluxban."
 
 # ' gombbal számíthatod ki"
 #. • MSG_299
@@ -1688,11 +1688,11 @@ msgstr "Időbélyeg érvényesítési hiba"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"A Rufus nem tudta érvényesíteni, hogy a letöltött frissítés időbélyege újabb-e, mint a jelenlegié.\n"
+"A Ruflux nem tudta érvényesíteni, hogy a letöltött frissítés időbélyege újabb-e, mint a jelenlegié.\n"
 "\n"
 "Egy esetleges támadást megelőzve a frissítési folyamat meg lett szakítva, és a letöltött fájlok törölve lettek. Kérlek, ellenőrizd a naplót több részletért."
 
@@ -1873,12 +1873,12 @@ msgstr "Visszavont UEFI rendszerbetöltő detektálva"
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"A Rufus észlelte, hogy a kiválasztott ISO egy olyan UEFI rendszerbetöltőt tartalmaz, amelyet visszavontak, és ha a Secure Boot engedélyezve van egy teljesen naprakész UEFI rendszeren, akkor ehhez vezet: %s.\n"
+"A Ruflux észlelte, hogy a kiválasztott ISO egy olyan UEFI rendszerbetöltőt tartalmaz, amelyet visszavontak, és ha a Secure Boot engedélyezve van egy teljesen naprakész UEFI rendszeren, akkor ehhez vezet: %s.\n"
 "\n"
 "- Ha ezt az ISO képet nem megbízható forrásból szerezted be, akkor számolnod kell azzal a lehetőséggel, hogy UEFI kártevőt tartalmazhat, és elkerülendő az erről történő rendszerindítás.\n"
 "- Ha megbízható forrásból szerezted be, akkor próbálj meg egy naprakészebb verziót találni, amelyre ez a figyelmeztetés nem jelenik meg."
@@ -1926,8 +1926,8 @@ msgid "Extracting archive files: %s"
 msgstr "Archív fájlok kibontása: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "Rufus MBR használata"
+msgid "Use Ruflux MBR"
+msgstr "Ruflux MBR használata"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1947,13 +1947,13 @@ msgstr "DBX frissítés elérhető"
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"A Rufus talált frissített verziót az UEFI Secure Boot visszavonási ellenőrzéséhez használt DBX fájlokból. Szeretnéd letölteni ezt a frissítést?\n"
+"A Ruflux talált frissített verziót az UEFI Secure Boot visszavonási ellenőrzéséhez használt DBX fájlokból. Szeretnéd letölteni ezt a frissítést?\n"
 "- Válaszd az 'Igen' gombot az internethez történő kapcsolódáshoz, és a fájlok letöltéséhez\n"
 "- Válaszd a 'Nem' gombot a művelet megszakításához\n"
 "\n"
@@ -2044,8 +2044,8 @@ msgstr "Ha ezt a beállítást használod, győződj meg arról, hogy minden lem
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "A Rufus egy segédprogram, amellyel bootolható USB flash meghajtókat formázhat és készíthet, például USB kulcsokat/pendrive-okat, memóriakártyákat, stb."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "A Ruflux egy segédprogram, amellyel bootolható USB flash meghajtókat formázhat és készíthet, például USB kulcsokat/pendrive-okat, memóriakártyákat, stb."
 
 #. • MSG_901
 msgid "Official site: %s"

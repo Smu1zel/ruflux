@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Korean (한국어)\n"
-"X-Rufus-LCID: 0x0412\n"
+"X-Ruflux-LanguageName: Korean (한국어)\n"
+"X-Ruflux-LCID: 0x0412\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "시작"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "Rufus 정보"
+msgid "About Ruflux"
+msgstr "Ruflux 정보"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr "확인"
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Rufus 라이선스"
+msgid "Ruflux License"
+msgstr "Ruflux 라이선스"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,8 +168,8 @@ msgid "Check Now"
 msgstr "지금 확인"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "업데이트 확인 - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "업데이트 확인 - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -195,10 +195,10 @@ msgstr "다른 인스턴스가 감지되었습니다"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"다른 Rufus 응용 프로그램이 실행 중입니다.\n"
+"다른 Ruflux 응용 프로그램이 실행 중입니다.\n"
 "다른 응용 프로그램을 실행하기 전에 첫 번째 응용 프로그램을 닫아주세요."
 
 #. • MSG_003
@@ -210,12 +210,12 @@ msgstr ""
 "이 작업을 계속하려면 확인을 클릭합니다. 종료하려면 취소를 클릭합니다."
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Rufus 업데이트 정책"
+msgid "Ruflux update policy"
+msgstr "Ruflux 업데이트 정책"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Rufus가 온라인으로 응용 프로그램 업데이트를 확인할 수 있도록 허용하시겠습니까?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Ruflux가 온라인으로 응용 프로그램 업데이트를 확인할 수 있도록 허용하시겠습니까?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -533,13 +533,13 @@ msgstr "장치가 준비되지 않았습니다."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus는 Windows가 여전히 내부 버퍼를 USB 장치로 플러시하고 있음을 감지했습니다.\n"
+"Ruflux는 Windows가 여전히 내부 버퍼를 USB 장치로 플러시하고 있음을 감지했습니다.\n"
 "\n"
 "USB 장치의 속도에 따라 특히 대용량 파일의 경우 이 작업을 완료하는 데 시간이 오래 걸릴 수 있습니다.\n"
 "\n"
@@ -550,8 +550,8 @@ msgid "Unsupported image"
 msgstr "지원되지 않는 이미지"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "이 이미지는 부팅할 수 없거나 Rufus에서 지원하지 않는 부팅 또는 압축 방식을 사용합니다..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "이 이미지는 부팅할 수 없거나 Ruflux에서 지원하지 않는 부팅 또는 압축 방식을 사용합니다..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -562,7 +562,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -572,7 +572,7 @@ msgstr ""
 "이 ISO 이미지는 '%s'의 오래된 버전을 사용하는 것 같습니다.\n"
 "이로 인해 부팅 메뉴가 제대로 표시되지 않을 수 있습니다.\n"
 "\n"
-"Rufus는 이 문제를 해결하기 위해 최신 버전을 다운로드할 수 있습니다:\n"
+"Ruflux는 이 문제를 해결하기 위해 최신 버전을 다운로드할 수 있습니다:\n"
 "- 인터넷에 연결하고 파일을 다운로드하려면 '예'를 선택합니다\n"
 "- 기존 ISO 파일을 수정하지 않은 상태로 두려면 '아니요'를 선택합니다\n"
 "무엇을 해야 할지 모르면 '예'를 선택해야 합니다.\n"
@@ -688,18 +688,18 @@ msgstr "%s(을)를 다운로드하시겠습니까?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s 이상에서는 '%s' 파일을 설치해야 합니다.\n"
-"이 파일은 크기가 100KB 이상이고 항상 %s ISO 이미지에 존재하기 때문에 Rufus에 포함되어 있지 않습니다.\n"
+"이 파일은 크기가 100KB 이상이고 항상 %s ISO 이미지에 존재하기 때문에 Ruflux에 포함되어 있지 않습니다.\n"
 "\n"
-"Rufus가 누락된 파일을 다운로드할 수 있습니다:\n"
+"Ruflux가 누락된 파일을 다운로드할 수 있습니다:\n"
 "- 인터넷에 연결하고 파일을 다운로드하려면 '예'를 선택합니다\n"
 "- 나중에 드라이브에 이 파일을 수동으로 복사하려면 '아니요'를 선택합니다\n"
 "\n"
@@ -722,8 +722,8 @@ msgid "All files"
 msgstr "모든 파일"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Rufus 로그"
+msgid "Ruflux log"
+msgstr "Ruflux 로그"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -758,7 +758,7 @@ msgstr "대용량 UDF 볼륨"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -766,7 +766,7 @@ msgid ""
 msgstr ""
 "이 이미지에서는 Syslinux %s%s를 사용하지만 이 응용 프로그램에는 Syslinux %s%s에 대한 설치 파일만 포함됩니다.\n"
 "\n"
-"새 버전의 Syslinux는 서로 호환되지 않으므로 Rufus가 모두 포함할 수 없으므로 인터넷에서 두 개의 추가 파일 ('ldlinux.sys' 및 'ldlinux.bss')을 다운로드해야 합니다:\n"
+"새 버전의 Syslinux는 서로 호환되지 않으므로 Ruflux가 모두 포함할 수 없으므로 인터넷에서 두 개의 추가 파일 ('ldlinux.sys' 및 'ldlinux.bss')을 다운로드해야 합니다:\n"
 "- 인터넷에 연결하고 이러한 파일을 다운로드하려면 '예'를 선택합니다\n"
 "- 작업을 취소하려면 '아니요'를 선택합니다\n"
 "\n"
@@ -783,18 +783,18 @@ msgstr "다운로드가 필요합니다"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "이 이미지는 Grub %s을(를) 사용하지만 응용 프로그램에는 Grub %s에 대한 설치 파일만 포함합니다.\n"
 "\n"
-"다른 버전의 Grub은 서로 호환되지 않을 수 있으며, 모두 포함할 수 없기 때문에 Rufus는 이미지에서 일치하는 Grub 설치 파일 ('core.img')의 버전을 찾으려고 시도합니다:\n"
+"다른 버전의 Grub은 서로 호환되지 않을 수 있으며, 모두 포함할 수 없기 때문에 Ruflux는 이미지에서 일치하는 Grub 설치 파일 ('core.img')의 버전을 찾으려고 시도합니다:\n"
 "- 인터넷에 연결하고 다운로드하려면 '예'를 선택합니다\n"
-"- Rufus의 기본 버전을 사용하려면 '아니요'를 선택합니다\n"
+"- Ruflux의 기본 버전을 사용하려면 '아니요'를 선택합니다\n"
 "- 작업을 중단하려면 '취소'를 선택합니다\n"
 "\n"
 "참고: 파일은 현재 응용 프로그램 디렉터리에 다운로드되며 있는 경우 자동으로 재사용됩니다. 일치하는 항목을 온라인으로 찾을 수 없는 경우 기본 버전이 사용됩니다."
@@ -888,25 +888,25 @@ msgstr "다른 프로그램 또는 프로세스가 이 드라이브에 액세스
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus에서 현재 1809 버전 ISO를 기반으로 'Windows To Go' 미디어를 생성하려는 것을 감지했습니다.\n"
+"Ruflux에서 현재 1809 버전 ISO를 기반으로 'Windows To Go' 미디어를 생성하려는 것을 감지했습니다.\n"
 "\n"
 "\"Microsoft의 버그\"로 인해, 사용자가 직접 'WppRecorder.sys' 파일을 1803 버전으로 교체하지 않으면 이 미디어는 Windows 부팅 중에 충돌(블루스크린)을 일으킵니다.\n"
 "\n"
-"또한 Rufus가 이를 자동으로 수정해 드리지 못하는 이유는 'WppRecorder.sys' 파일이 Microsoft의 저작권 보호를 받는 파일이기 때문입니다. 따라서 법적으로 해당 파일의 복사본을 애플리케이션에 포함할 수 없음을 양해 바랍니다."
+"또한 Ruflux가 이를 자동으로 수정해 드리지 못하는 이유는 'WppRecorder.sys' 파일이 Microsoft의 저작권 보호를 받는 파일이기 때문입니다. 따라서 법적으로 해당 파일의 복사본을 애플리케이션에 포함할 수 없음을 양해 바랍니다."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"파티션 구성표에서 MBR이 선택되었기 때문에 Rufus는 이 미디어에 최대 2TB의 파티션만 만들 수 있으며, 이로 인해 %s의 디스크 공간을 사용할 수 없게 됩니다.\n"
+"파티션 구성표에서 MBR이 선택되었기 때문에 Ruflux는 이 미디어에 최대 2TB의 파티션만 만들 수 있으며, 이로 인해 %s의 디스크 공간을 사용할 수 없게 됩니다.\n"
 "\n"
 "계속하시겠습니까?"
 
@@ -1066,7 +1066,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "유효하지 않은 다운로드 서명"
@@ -1125,10 +1125,10 @@ msgstr "업데이트 과정:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus는 백그라운드 서비스를 설치하거나 실행하지 않으므로 업데이트 확인은 기본 응용 프로그램이 실행 중일 때만 수행됩니다.\\line\n"
+"Ruflux는 백그라운드 서비스를 설치하거나 실행하지 않으므로 업데이트 확인은 기본 응용 프로그램이 실행 중일 때만 수행됩니다.\\line\n"
 "업데이트를 확인할 때는 당연히 인터넷 접속이 필요합니다."
 
 #. • MSG_187
@@ -1178,12 +1178,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "중요: 이 드라이브는 비표준 섹터 크기를 사용합니다!\n"
 "\n"
 "기존 드라이브는 512바이트 섹터 크기를 사용하지만 이 드라이브는 %d바이트 섹터 크기를 사용합니다. 대부분의 경우 이 드라이브에서 부팅할 수 없습니다.\n"
-"Rufus는 부팅 가능한 드라이브를 만들 수 있지만 작동한다는 보장은 없습니다."
+"Ruflux는 부팅 가능한 드라이브를 만들 수 있지만 작동한다는 보장은 없습니다."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1390,7 +1390,7 @@ msgstr "파티션 삭제 중 (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1409,8 +1409,8 @@ msgid "Failed to download file."
 msgstr "파일을 다운로드하지 못했습니다."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "Rufus 업데이트 확인 중..."
+msgid "Checking for Ruflux updates..."
+msgstr "Ruflux 업데이트 확인 중..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1421,12 +1421,12 @@ msgid "Updates: Unable to access version data"
 msgstr "업데이트: 버전 데이터에 액세스할 수 없습니다"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Rufus의 새 버전을 사용할 수 있습니다!"
+msgid "A new version of Ruflux is available!"
+msgstr "Ruflux의 새 버전을 사용할 수 있습니다!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
-msgstr "Rufus의 새 버전이 발견되지 않았습니다"
+msgid "No new version of Ruflux was found"
+msgstr "Ruflux의 새 버전이 발견되지 않았습니다"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
@@ -1547,13 +1547,13 @@ msgstr "%s 이미지가 감지되었습니다"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "선택한 이미지는 'ISO 하이브리드' 이미지입니다. 즉, %s (파일 복사) 모드 또는 %s (디스크 이미지) 모드로 쓸 수 있습니다.\n"
-"Rufus는 %s 모드를 사용하는 것이 좋습니다. 따라서 드라이브를 작성한 후에는 항상 드라이브에 대한 전체 액세스 권한을 가질 수 있습니다.\n"
+"Ruflux는 %s 모드를 사용하는 것이 좋습니다. 따라서 드라이브를 작성한 후에는 항상 드라이브에 대한 전체 액세스 권한을 가질 수 있습니다.\n"
 "그러나 부팅하는 동안 문제가 발생하면 %s 모드에서 이 이미지를 다시 작성해 볼 수 있습니다.\n"
 "\n"
 "이 이미지를 작성하는 데 사용할 모드를 선택하세요:"
@@ -1642,11 +1642,11 @@ msgstr "지원되지 않는 Windows 버전"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"이 버전의 Windows는 더 이상 Rufus에서 지원되지 않습니다.\n"
-"이 플랫폼과 호환되는 Rufus의 마지막 버전은 v%d.%d입니다."
+"이 버전의 Windows는 더 이상 Ruflux에서 지원되지 않습니다.\n"
+"이 플랫폼과 호환되는 Ruflux의 마지막 버전은 v%d.%d입니다."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1654,11 +1654,11 @@ msgstr "경고: 비공식 버전"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"이 버전의 Rufus는 공식 개발자가 제작한 것이 아닙니다.\n"
+"이 버전의 Ruflux는 공식 개발자가 제작한 것이 아닙니다.\n"
 "\n"
 "정말 실행하시겠습니까?"
 
@@ -1672,13 +1672,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "선택한 ISO 파일이 선언된 크기와 일치하지 않습니다. %s의 데이터가 없습니다!\n"
 "\n"
 "인터넷에서 이 파일을 가져온 경우 새 사본을 다운로드하고 MD5 또는 SHA 체크섬이 공식 체크섬과 일치하는지 확인해야 합니다.\n"
 "\n"
-"(✓) 버튼을 클릭하여 Rufus에서 MD5 또는 SHA를 계산할 수 있습니다."
+"(✓) 버튼을 클릭하여 Ruflux에서 MD5 또는 SHA를 계산할 수 있습니다."
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1686,11 +1686,11 @@ msgstr "타임스탬프 유효성 검사 오류"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Rufus가 다운로드한 업데이트의 타임스탬프가 현재 실행 파일의 타임스탬프보다 최신인지 확인할 수 없습니다.\n"
+"Ruflux가 다운로드한 업데이트의 타임스탬프가 현재 실행 파일의 타임스탬프보다 최신인지 확인할 수 없습니다.\n"
 "\n"
 "잠재적인 공격 시나리오를 방지하기 위해 업데이트 프로세스가 중단되었으며 다운로드가 삭제됩니다. 자세한 내용은 로그를 확인하시기 바랍니다."
 
@@ -1871,12 +1871,12 @@ msgstr "취소된 UEFI 부트로더가 탐지됨"
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus는 사용자가 선택한 ISO에 취소된 UEFI 부트로더가 포함되어 있으며, 이는 완전히 최신 UEFI 시스템에서 보안 부팅이 활성화된 경우에 %s을(를) 생성한다는 것을 감지했습니다.\n"
+"Ruflux는 사용자가 선택한 ISO에 취소된 UEFI 부트로더가 포함되어 있으며, 이는 완전히 최신 UEFI 시스템에서 보안 부팅이 활성화된 경우에 %s을(를) 생성한다는 것을 감지했습니다.\n"
 "\n"
 "- 평판이 좋지 않은 소스에서 이 ISO 이미지를 가져온 경우 UEFI 멀웨어가 포함되어 있을 가능성을 고려하고 부팅을 피해야 합니다.\n"
 "- 신뢰할 수 있는 소스에서 가져온 경우에는 보다 최신 버전을 찾아야 합니다. 그러면 이 경고가 발생하지 않습니다.."
@@ -1924,8 +1924,8 @@ msgid "Extracting archive files: %s"
 msgstr "압축 파일 추출 중: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "Rufus MBR 사용"
+msgid "Use Ruflux MBR"
+msgstr "Ruflux MBR 사용"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1945,13 +1945,13 @@ msgstr "DBX 업데이트 사용 가능"
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"Rufus가 UEFI 보안 부팅 취소 확인에 사용되는 최신 버전의 DBX 파일을 찾았습니다. 이 업데이트를 다운로드하시겠습니까?\n"
+"Ruflux가 UEFI 보안 부팅 취소 확인에 사용되는 최신 버전의 DBX 파일을 찾았습니다. 이 업데이트를 다운로드하시겠습니까?\n"
 "- 인터넷에 연결하여 파일을 다운로드하려면 '예'를 선택하세요.\n"
 "- 작업을 취소하려면 '아니오'를 선택하세요.\n"
 "\n"
@@ -2042,8 +2042,8 @@ msgstr "이 옵션을 사용하는 경우, Windows를 설치할 디스크를 제
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus는 USB 메모리 및 플래시 드라이브를 포맷하고 부팅할 수 있도록 만드는 도구입니다."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux는 USB 메모리 및 플래시 드라이브를 포맷하고 부팅할 수 있도록 만드는 도구입니다."
 
 #. • MSG_901
 msgid "Official site: %s"

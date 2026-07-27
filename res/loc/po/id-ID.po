@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Indonesian (Bahasa Indonesia)\n"
-"X-Rufus-LCID: 0x0421\n"
+"X-Ruflux-LanguageName: Indonesian (Bahasa Indonesia)\n"
+"X-Ruflux-LCID: 0x0421\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "Mulai"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "Tentang Rufus"
+msgid "About Ruflux"
+msgstr "Tentang Ruflux"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr "Oke"
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Lisensi Rufus"
+msgid "Ruflux License"
+msgstr "Lisensi Ruflux"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -168,8 +168,8 @@ msgid "Check Now"
 msgstr "Periksa Sekarang"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "Periksa Pembaruan - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "Periksa Pembaruan - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -191,14 +191,14 @@ msgstr "Unduh"
 
 #. • MSG_001
 msgid "Other instance detected"
-msgstr "Rufus lain terdeteksi"
+msgstr "Ruflux lain terdeteksi"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"Aplikasi Rufus lain sedang berjalan.\n"
+"Aplikasi Ruflux lain sedang berjalan.\n"
 "Silakan tutup aplikasi tersebut dulu sebelum menjalankan yang lain."
 
 #. • MSG_003
@@ -210,12 +210,12 @@ msgstr ""
 "Untuk melanjutkan operasi ini, klik OKE. Untuk keluar klik BATAL."
 
 #. • MSG_004
-msgid "Rufus update policy"
-msgstr "Ketentuan pembaruan Rufus"
+msgid "Ruflux update policy"
+msgstr "Ketentuan pembaruan Ruflux"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Apakah Anda ingin mengizinkan Rufus memeriksa pembaruan aplikasi secara online?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Apakah Anda ingin mengizinkan Ruflux memeriksa pembaruan aplikasi secara online?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -533,13 +533,13 @@ msgstr "Perangkat tidak siap."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Rufus mendeteksi bahwa Windows masih mem-buffer ke perangkat USB.\n"
+"Ruflux mendeteksi bahwa Windows masih mem-buffer ke perangkat USB.\n"
 "\n"
 "Tergantung pada kecepatan perangkat USB Anda , operasi ini mungkin memakan waktu lama untuk selesai, terutama untuk file besar.\n"
 "\n"
@@ -550,8 +550,8 @@ msgid "Unsupported image"
 msgstr "Image tidak didukung"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "Image ini kemungkinan non-bootable, atau menggunakan metode boot atau kompresi yang tidak didukung oleh Rufus..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "Image ini kemungkinan non-bootable, atau menggunakan metode boot atau kompresi yang tidak didukung oleh Ruflux..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -562,7 +562,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -572,7 +572,7 @@ msgstr ""
 "ISO image ini tampaknya menggunakan versi lawas dari '%s'.\n"
 "Menu Boot mungkin tidak ditampilkan dengan baik karena masalah ini.\n"
 "\n"
-"Versi yang lebih baru dapat diunduh oleh Rufus untuk menyelesaikan masalah ini:\n"
+"Versi yang lebih baru dapat diunduh oleh Ruflux untuk menyelesaikan masalah ini:\n"
 "- Pilih 'Ya' untuk menyambungkan ke internet dan mengunduh berkas\n"
 "- Pilih 'Tidak' untuk membiarkan berkas ISO yang ada tidak termodifikasi\n"
 "Jika Anda tidak mengetahui apa yang harus dilakukan, sebaiknya pilih 'Ya'.\n"
@@ -688,18 +688,18 @@ msgstr "Unduh %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s atau yang lebih baru memerlukan berkas '%s' untuk diinstal.\n"
-"Karena berkas ini berukuran lebih dari 100 KB, dan selalu ada pada ISO images %s, berkas ini tidak tersematkan didalam Rufus.\n"
+"Karena berkas ini berukuran lebih dari 100 KB, dan selalu ada pada ISO images %s, berkas ini tidak tersematkan didalam Ruflux.\n"
 "\n"
-"Rufus dapat mengunduh berkas yang hilang ini untuk Anda:\n"
+"Ruflux dapat mengunduh berkas yang hilang ini untuk Anda:\n"
 "- Pilih 'Ya' untuk menyambungkan ke internet dan mengunduh berkas\n"
 "- Pilih 'Tidak' jika Anda ingin menyalin berkas ini secara manual pada perangkat nanti\n"
 "\n"
@@ -722,8 +722,8 @@ msgid "All files"
 msgstr "Semua berkas"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Log Rufus"
+msgid "Ruflux log"
+msgstr "Log Ruflux"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -758,7 +758,7 @@ msgstr "Volume UDF besar"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -766,7 +766,7 @@ msgid ""
 msgstr ""
 "Image ini menggunakan Syslinux %s%s namun aplikasi ini hanya menyertakan berkas instalasi untuk Syslinux %s%s.\n"
 "\n"
-"Karena versi baru Syslinux tidak kompatibel satu dengan lainnya, dan tidak mungkin bagi Rufus untuk menyertakan semuanya, dua berkas tambahan harus diunduh dari Internet ('ldlinux.sys' dan 'ldlinux.bss'):\n"
+"Karena versi baru Syslinux tidak kompatibel satu dengan lainnya, dan tidak mungkin bagi Ruflux untuk menyertakan semuanya, dua berkas tambahan harus diunduh dari Internet ('ldlinux.sys' dan 'ldlinux.bss'):\n"
 "- Pilih 'Ya' untuk menyambungkan ke Internet dan mengunduh berkas tersebut\n"
 "- Pilih 'Tidak' untuk membatalkan operasi\n"
 "\n"
@@ -783,18 +783,18 @@ msgstr "Unduh diperlukan"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "Image ini menggunakan Grub %s namun aplikasi ini hanya menyertakan berkas instalasi untuk Grub %s.\n"
 "\n"
-"Karena versi baru Grub tidak kompatibel satu dengan lainnya, dan tidak mungkin bagi Rufus untuk menyertakan semuanya, Rufus akan mencoba mencari versi berkas instalasi Grub ('core.img') yang sesuai dengan image Anda:\n"
+"Karena versi baru Grub tidak kompatibel satu dengan lainnya, dan tidak mungkin bagi Ruflux untuk menyertakan semuanya, Ruflux akan mencoba mencari versi berkas instalasi Grub ('core.img') yang sesuai dengan image Anda:\n"
 "- Pilih 'Ya' untuk menyambungkan ke Internet dan mencoba untuk mengunduhnya\n"
-"- Pilih 'Tidak' untuk menggunakan versi default dari Rufus\n"
+"- Pilih 'Tidak' untuk menggunakan versi default dari Ruflux\n"
 "- Pilih 'Batal' untuk membatalkan operasi\n"
 "\n"
 "Catatan: Berkas akan diunduh di direktori aplikasi saat ini dan akan digunakan kembali jika diminta. Jika tidak ada yang cocok yang ditemukan secara online, versi default akan digunakan."
@@ -888,25 +888,25 @@ msgstr "Program atau proses lain sedang mengakses drive ini. Apakah Anda tetap i
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus mendeteksi Anda sedang mencoba membuat media Windows To Go berbasis pada ISO 1809.\n"
+"Ruflux mendeteksi Anda sedang mencoba membuat media Windows To Go berbasis pada ISO 1809.\n"
 "\n"
 "Karena terdapat *MICROSOFT BUG*, media ini akan crash saat proses booting Windows (Blue Screen Of Death), kecuali Anda mengganti secara manual berkas 'WppRecorder.sys' dengan versi 1803.\n"
 "\n"
-"Perhatikan juga bahwa alasan Rufus tidak dapat secara otomatis memperbaikinya untuk Anda adalah bahwa 'WppRecorder.sys' adalah berkas yang dilindungi hak cipta Microsoft, jadi kami tidak dapat secara legal menyematkan salinan berkas tersebut ke dalam aplikasi ..."
+"Perhatikan juga bahwa alasan Ruflux tidak dapat secara otomatis memperbaikinya untuk Anda adalah bahwa 'WppRecorder.sys' adalah berkas yang dilindungi hak cipta Microsoft, jadi kami tidak dapat secara legal menyematkan salinan berkas tersebut ke dalam aplikasi ..."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"Karena MBR telah dipilih untuk skema partisi ini, Rufus hanya dapat membuat partisi sampai 2 TB pada media ini, yang akan membuat %s ruang disk menjadi tidak tersedia.\n"
+"Karena MBR telah dipilih untuk skema partisi ini, Ruflux hanya dapat membuat partisi sampai 2 TB pada media ini, yang akan membuat %s ruang disk menjadi tidak tersedia.\n"
 "\n"
 "Apakah Anda yakin ingin melanjutkan?"
 
@@ -1066,7 +1066,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "Tanda tangan unduhan tidak valid"
@@ -1125,10 +1125,10 @@ msgstr "Proses Pembaruan:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus tidak memasang atau menjalankan layanan latar belakang, oleh karena itu pemeriksaan pembaruan dapat dilakukan hanya ketika aplikasi utama berjalan.\\line\n"
+"Ruflux tidak memasang atau menjalankan layanan latar belakang, oleh karena itu pemeriksaan pembaruan dapat dilakukan hanya ketika aplikasi utama berjalan.\\line\n"
 "Akses internet tentu saja diperlukan bila memeriksa pembaruan."
 
 #. • MSG_187
@@ -1178,12 +1178,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "PENTING: PERANGKAT INI MENGGUNAKAN UKURAN SEKTOR YANG TIDAK STANDAR!\n"
 "\n"
 "Perangkat konvensional menggunakan ukuran sektor 512-byte tetapi perangkat ini menggunakan %d-byte. Biasanya, hal ini berarti Anda TIDAK dapat melakukan boot dari perangkat ini.\n"
-"Rufus dapat mencoba untuk membuat perangkat bootable, tetapi TIDAK ADA JAMINAN ini akan dapat bekerja."
+"Ruflux dapat mencoba untuk membuat perangkat bootable, tetapi TIDAK ADA JAMINAN ini akan dapat bekerja."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1390,7 +1390,7 @@ msgstr "Menghapus partisi (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1409,8 +1409,8 @@ msgid "Failed to download file."
 msgstr "Gagal mengunduh berkas."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "Memeriksa pembaruan Rufus..."
+msgid "Checking for Ruflux updates..."
+msgstr "Memeriksa pembaruan Ruflux..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1421,12 +1421,12 @@ msgid "Updates: Unable to access version data"
 msgstr "Pembaruan: Tidak dapat mengakses data versi"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Versi baru Rufus tersedia!"
+msgid "A new version of Ruflux is available!"
+msgstr "Versi baru Ruflux tersedia!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
-msgstr "Tidak ada versi baru Rufus yang ditemukan"
+msgid "No new version of Ruflux was found"
+msgstr "Tidak ada versi baru Ruflux yang ditemukan"
 
 #. • MSG_248
 msgid "Application registry keys successfully deleted"
@@ -1547,13 +1547,13 @@ msgstr "Image %s terdeteksi"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "Image yang Anda pilih merupakan image 'ISOHybrid'. Ini artinya image tersebut dapat ditulis dalam mode %s (salin berkas) atau mode %s (disk image).\n"
-"Rufus menyarankan untuk menggunakan mode %s, sehingga Anda tetap memiliki akses pada perangkat setelah menulisnya.\n"
+"Ruflux menyarankan untuk menggunakan mode %s, sehingga Anda tetap memiliki akses pada perangkat setelah menulisnya.\n"
 "Namun, jika Anda menemukan masalah saat boot, Anda bisa mencoba menulis image ini kembali dalam mode %s.\n"
 "\n"
 "Silakan pilih mode mana yang ingin digunakan untuk menulis image ini:"
@@ -1642,11 +1642,11 @@ msgstr "Versi Windows Tidak didukung"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"Windows versi ini tidak lagi didukung oleh Rufus.\n"
-"Versi terakhir Rufus yang kompatibel dengan platform ini adalah v%d.%d."
+"Windows versi ini tidak lagi didukung oleh Ruflux.\n"
+"Versi terakhir Ruflux yang kompatibel dengan platform ini adalah v%d.%d."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1654,11 +1654,11 @@ msgstr "Peringatan: Versi tidak resmi"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"Rufus versi ini TIDAK diproduksi oleh pengembang resminya.\n"
+"Ruflux versi ini TIDAK diproduksi oleh pengembang resminya.\n"
 "\n"
 "Apakah Anda yakin ingin menjalankannya?"
 
@@ -1672,13 +1672,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "Berkas ISO yang Anda pilih tidak sesuai dengan ukuran yang dideklarasikan: %s data hilang!\n"
 "\n"
 "Jika Anda mendapatkan berkas ini dari Internet, Anda sebaiknya mengunduh salinan yang baru dan pastikan ceksum MD5 atau SHA cocok dengan yang asli.\n"
 "\n"
-"Perhatikan bahwa Anda dapat menghitung MD5 atau SHA dalam Rufus dengan mengklik tombol (✓)."
+"Perhatikan bahwa Anda dapat menghitung MD5 atau SHA dalam Ruflux dengan mengklik tombol (✓)."
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1686,10 +1686,10 @@ msgstr "Kesalahan memvalidasi stempel waktu"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
-msgstr "Rufus tidak dapat memvalidasi bahwa stempel waktu pembaruan yang diunduh lebih baru daripada yang sedang dijalankan saat ini. Untuk mencegah kemungkinan skenario serangan, proses pembaruan telah dibatalkan dan unduhan akan dihapus. Silakan periksa log untuk lebih jelasnya."
+msgstr "Ruflux tidak dapat memvalidasi bahwa stempel waktu pembaruan yang diunduh lebih baru daripada yang sedang dijalankan saat ini. Untuk mencegah kemungkinan skenario serangan, proses pembaruan telah dibatalkan dan unduhan akan dihapus. Silakan periksa log untuk lebih jelasnya."
 
 #. • MSG_301
 msgid "Show application settings"
@@ -1868,12 +1868,12 @@ msgstr "Terdeteksi pembatalan bootloader UEFI"
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus mendeteksi bahwa ISO yang dipilih terdapat bootloader UEFI yang dibatalkan dan dapat memberikan peringatan %s, ketika Secure Boot diaktifkan pada UEFI system terbaru.\n"
+"Ruflux mendeteksi bahwa ISO yang dipilih terdapat bootloader UEFI yang dibatalkan dan dapat memberikan peringatan %s, ketika Secure Boot diaktifkan pada UEFI system terbaru.\n"
 "\n"
 "- Kalau berkas ISO ini didapatkan dari sumber yang tidak terpercaya, terdapat kemungkinan ada malware UEFI dan hindarilah menggunakan image ini.\n"
 "- Kalau berkas ISO ini didapatkan dari sumber yang terpercaya, carilah versi yang lebih baru yang tidak memberikan peringatan ini."
@@ -1921,8 +1921,8 @@ msgid "Extracting archive files: %s"
 msgstr "Mengekstrak berkas arsip: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "Gunakan Rufus MBR"
+msgid "Use Ruflux MBR"
+msgstr "Gunakan Ruflux MBR"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1942,13 +1942,13 @@ msgstr "Pembaruan DBX tersedia"
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"Rufus menemukan pembaruan berkas DBX yang digunakan untuk mengecek pembatalan UEFI Secure Boot. Apakah anda ingin mengunduhnya?\n"
+"Ruflux menemukan pembaruan berkas DBX yang digunakan untuk mengecek pembatalan UEFI Secure Boot. Apakah anda ingin mengunduhnya?\n"
 "- Pilih 'Ya' untuk menyambungkan ke Internet dan mencoba untuk mengunduhnya\n"
 "- Pilih 'Tidak' untuk membatalkan operasi"
 
@@ -2037,8 +2037,8 @@ msgstr "Jika Anda menggunakan pilihan ini, mohon untuk mencabut semua disk dari 
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus adalah alat yang membantu untuk memformat dan membuat perangkat USB flash menjadi bootable, seperti USB flashdisk, kartu memori, dll."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux adalah alat yang membantu untuk memformat dan membuat perangkat USB flash menjadi bootable, seperti USB flashdisk, kartu memori, dll."
 
 #. • MSG_901
 msgid "Official site: %s"

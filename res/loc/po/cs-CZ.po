@@ -11,8 +11,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Rufus-LanguageName: Czech (Čeština)\n"
-"X-Rufus-LCID: 0x0405\n"
+"X-Ruflux-LanguageName: Czech (Čeština)\n"
+"X-Ruflux-LCID: 0x0405\n"
 "X-Generator: Poedit 3.9\n"
 
 #. • IDD_DIALOG → IDS_DRIVE_PROPERTIES_TXT
@@ -106,8 +106,8 @@ msgid "Start"
 msgstr "Spustit"
 
 #. • IDD_ABOUTBOX → IDD_ABOUTBOX
-msgid "About Rufus"
-msgstr "O programu Rufus"
+msgid "About Ruflux"
+msgstr "O programu Ruflux"
 
 #. • IDD_ABOUTBOX → IDC_ABOUT_LICENSE
 msgid "License"
@@ -118,8 +118,8 @@ msgid "OK"
 msgstr ""
 
 #. • IDD_LICENSE → IDD_LICENSE
-msgid "Rufus License"
-msgstr "Licence programu Rufus"
+msgid "Ruflux License"
+msgstr "Licence programu Ruflux"
 
 #. • IDD_NOTIFICATION → IDC_MORE_INFO
 msgid "More information"
@@ -137,7 +137,7 @@ msgstr "Ne"
 
 #. • IDD_LOG → IDD_LOG
 msgid "Log"
-msgstr "Záznam činnosti programu Rufus"
+msgstr "Záznam činnosti programu Ruflux"
 
 #. • IDD_LOG → IDC_LOG_CLEAR
 msgid "Clear"
@@ -168,8 +168,8 @@ msgid "Check Now"
 msgstr "Zkontrolovat"
 
 #. • IDD_NEW_VERSION → IDD_NEW_VERSION
-msgid "Check For Updates - Rufus"
-msgstr "Kontrola aktualizace - Rufus"
+msgid "Check For Updates - Ruflux"
+msgstr "Kontrola aktualizace - Ruflux"
 
 #. • IDD_NEW_VERSION → IDS_NEW_VERSION_AVAIL_TXT
 msgid "A newer version is available. Please download the latest version!"
@@ -195,10 +195,10 @@ msgstr "Zjištěna běžící instance aplikace"
 
 #. • MSG_002
 msgid ""
-"Another Rufus application is running.\n"
+"Another Ruflux application is running.\n"
 "Please close the first application before running another one."
 msgstr ""
-"Program Rufus je již spuštěný.\n"
+"Program Ruflux je již spuštěný.\n"
 "Prosím zavřete běžící aplikaci před opětovným spuštěním."
 
 #. • MSG_003
@@ -211,12 +211,12 @@ msgstr ""
 "Pro zrušení klikněte na tlačítko ZRUŠIT."
 
 #. • MSG_004
-msgid "Rufus update policy"
+msgid "Ruflux update policy"
 msgstr "Nastavení automatických aktualizací"
 
 #. • MSG_005
-msgid "Do you want to allow Rufus to check for application updates online?"
-msgstr "Chcete povolit online kontrolu aktualizací programu Rufus?"
+msgid "Do you want to allow Ruflux to check for application updates online?"
+msgstr "Chcete povolit online kontrolu aktualizací programu Ruflux?"
 
 #. • MSG_007
 msgid "Cancel"
@@ -535,13 +535,13 @@ msgstr "Zařízení není připraveno."
 
 #. • MSG_080
 msgid ""
-"Rufus detected that Windows is still flushing its internal buffers onto the USB device.\n"
+"Ruflux detected that Windows is still flushing its internal buffers onto the USB device.\n"
 "\n"
 "Depending on the speed of your USB device, this operation may take a long time to complete, especially for large files.\n"
 "\n"
 "We recommend that you let Windows finish, to avoid corruption. But if you grow tired of waiting, you can just unplug the device..."
 msgstr ""
-"Program Rufus zjistil, že Windows stále čistí interní vyrovnávací paměť na USB zařízení.\n"
+"Program Ruflux zjistil, že Windows stále čistí interní vyrovnávací paměť na USB zařízení.\n"
 "\n"
 "Dokončení této operace může trvat dlouho, v závislosti na rychlosti Vašeho USB zařízení, zvláště u velkých souborů.\n"
 "\n"
@@ -552,8 +552,8 @@ msgid "Unsupported image"
 msgstr "Nepodporovaný obraz"
 
 #. • MSG_082
-msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Rufus..."
-msgstr "Obraz není bootovací, nebo používá metodu spuštění nebo kompresi, která není podporován Rufusem..."
+msgid "This image is either non-bootable, or it uses a boot or compression method that is not supported by Ruflux..."
+msgstr "Obraz není bootovací, nebo používá metodu spuštění nebo kompresi, která není podporován Rufluxem..."
 
 #. • MSG_083
 msgid "Replace %s?"
@@ -564,7 +564,7 @@ msgid ""
 "This ISO image seems to use an obsolete version of '%s'.\n"
 "Boot menus may not display properly because of this.\n"
 "\n"
-"A newer version can be downloaded by Rufus to fix this issue:\n"
+"A newer version can be downloaded by Ruflux to fix this issue:\n"
 "- Choose 'Yes' to connect to the internet and download the file\n"
 "- Choose 'No' to leave the existing ISO file unmodified\n"
 "If you don't know what to do, you should select 'Yes'.\n"
@@ -574,7 +574,7 @@ msgstr ""
 "Zdá se, že tento ISO obraz používá zastaralou verzi '%s'.\n"
 "Nabídka boot systému se proto nemusí zobrazovat správně.\n"
 "\n"
-"Rufus může odstranit tento problém stažením nové verze:\n"
+"Ruflux může odstranit tento problém stažením nové verze:\n"
 "- Zvolte 'Ano' pro připojení na Internet a stažení souboru\n"
 "- Zvolte 'Ne' pro ponechání stávajícího ISO souboru beze změny\n"
 "Pokud nevíte, co máte udělat, zvolte 'Ano'.\n"
@@ -690,18 +690,18 @@ msgstr "Stáhnout %s?"
 #. file is more than 100 KB in size, and always present on Grub4DOS ISO images (...)"
 msgid ""
 "%s or later requires a '%s' file to be installed.\n"
-"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Rufus.\n"
+"Because this file is more than 100 KB in size, and always present on %s ISO images, it is not embedded in Ruflux.\n"
 "\n"
-"Rufus can download the missing file for you:\n"
+"Ruflux can download the missing file for you:\n"
 "- Select 'Yes' to connect to the internet and download the file\n"
 "- Select 'No' if you want to manually copy this file on the drive later\n"
 "\n"
 "Note: The file will be downloaded in the current directory and once a '%s' exists there, it will be reused automatically."
 msgstr ""
 "%s nebo vyšší vyžaduje instalaci souboru %s.\n"
-"Protože tento soubor je větší než 100 KB a vždy je součástí %s ISO obrazu, není součástí programu Rufus.\n"
+"Protože tento soubor je větší než 100 KB a vždy je součástí %s ISO obrazu, není součástí programu Ruflux.\n"
 "\n"
-"Program Rufus může chybějící soubor stáhnout za Vás:\n"
+"Program Ruflux může chybějící soubor stáhnout za Vás:\n"
 "- Zvolte 'Ano' pro připojení na internet a stažení souboru\n"
 "- Zvolte 'Ne' pokud chcete tento soubor na disk později zkopírovat ručně\n"
 "\n"
@@ -724,8 +724,8 @@ msgid "All files"
 msgstr "Všechny soubory"
 
 #. • MSG_108
-msgid "Rufus log"
-msgstr "Záznam programu Rufus"
+msgid "Ruflux log"
+msgstr "Záznam programu Ruflux"
 
 #. • MSG_109
 msgid "0x%02X (Disk %d)"
@@ -760,7 +760,7 @@ msgstr "Velký UDF svazku"
 msgid ""
 "This image uses Syslinux %s%s but this application only includes the installation files for Syslinux %s%s.\n"
 "\n"
-"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Rufus to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
+"As new versions of Syslinux are not compatible with one another, and it wouldn't be possible for Ruflux to include them all, two additional files must be downloaded from the Internet ('ldlinux.sys' and 'ldlinux.bss'):\n"
 "- Select 'Yes' to connect to the Internet and download these files\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
@@ -768,7 +768,7 @@ msgid ""
 msgstr ""
 "Tento obraz používá Syslinux %s%s, tato aplikace však obsahuje pouze instalační soubory pro Syslinux %s%s.\n"
 "\n"
-"Jelikož nové verze Syslinux nejsou vzájemně kompatibilní a není možné v programu Rufus zahrnout všechny verze, je nutné z Internetu stáhnout dodatečné dva soubory (ldlinux.sys a ldlinux.bss):\n"
+"Jelikož nové verze Syslinux nejsou vzájemně kompatibilní a není možné v programu Ruflux zahrnout všechny verze, je nutné z Internetu stáhnout dodatečné dva soubory (ldlinux.sys a ldlinux.bss):\n"
 "- Zvolte 'Ano' pro stažení souborů z Internetu\n"
 "- Zvolte 'Ne' pro zrušení operace\n"
 "\n"
@@ -785,18 +785,18 @@ msgstr "Nutné stažení souborů"
 msgid ""
 "This image uses Grub %s but the application only includes the installation files for Grub %s.\n"
 "\n"
-"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Rufus will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
+"As different versions of Grub may not be compatible with one another, and it is not possible to include them all, Ruflux will attempt to locate a version of the Grub installation file ('core.img') that matches the one from your image:\n"
 "- Select 'Yes' to connect to the Internet and attempt to download it\n"
-"- Select 'No' to use the default version from Rufus\n"
+"- Select 'No' to use the default version from Ruflux\n"
 "- Select 'Cancel' to abort the operation\n"
 "\n"
 "Note: The file will be downloaded in the current application directory and will be reused automatically if present. If no match can be found online, then the default version will be used."
 msgstr ""
 "Tento obraz používá Grub %s ale aplikace obsahuje pouze instalační soubory Grub %s.\n"
 "\n"
-"Vzhledem k různým verzím Grub nemusí být kompatibilní mezi sebou, Není možné je mít všechny, Rufus se pokusí najít verzi Grub instalace souboru ('core.img') který odpovídá vaší image:\n"
+"Vzhledem k různým verzím Grub nemusí být kompatibilní mezi sebou, Není možné je mít všechny, Ruflux se pokusí najít verzi Grub instalace souboru ('core.img') který odpovídá vaší image:\n"
 "- Vybrat 'Ano' připojit k internetu a pokusit se stáhnout\n"
-"- Vybrat 'Ne' použít výchozí verzi z Rufus\n"
+"- Vybrat 'Ne' použít výchozí verzi z Ruflux\n"
 "- Vybrat 'Zrušit' pro zrušení operace\n"
 "\n"
 "Poznámka: Soubor se stáhne do aktuální složky aplikace a bude použit automaticky, pokud je přítomen. Není-li shoda k dispozici online, pak bude použita standardní verze."
@@ -890,25 +890,25 @@ msgstr "K tomuto disku přistupuje jiný program nebo proces. Chcete ho přesto 
 
 #. • MSG_133
 msgid ""
-"Rufus has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
+"Ruflux has detected that you are attempting to create a 'Windows To Go' media based on a 1809 ISO.\n"
 "\n"
 "Because of a *MICROSOFT BUG*, this media will crash during Windows boot (Blue Screen Of Death), unless you manually replace the file 'WppRecorder.sys' with a 1803 version.\n"
 "\n"
-"Also note that the reason Rufus cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
+"Also note that the reason Ruflux cannot automatically fix this for you is that 'WppRecorder.sys' is a Microsoft copyrighted file, so we cannot legally embed a copy of the file in the application..."
 msgstr ""
-"Rufus zjistil, že se pokoušíte vytvořit médium „Windows To Go“ založené na 1809 ISO.\n"
+"Ruflux zjistil, že se pokoušíte vytvořit médium „Windows To Go“ založené na 1809 ISO.\n"
 "\n"
 "Kvůli chybě *MICROSOFT BUG* dojde k pádu tohoto média během spouštění systému Windows (modrá obrazovka smrti), pokud ručně nenahradíte soubor 'WppRecorder.sys' verzí 1803..\n"
 "\n"
-"Všimněte si také, že důvod, proč to Rufus nemůže automaticky opravit za vás, je ten, že „WppRecorder.sys“ je soubor chráněný autorským právem společnosti Microsoft, takže nemůžeme legálně vložit kopii souboru do aplikace..."
+"Všimněte si také, že důvod, proč to Ruflux nemůže automaticky opravit za vás, je ten, že „WppRecorder.sys“ je soubor chráněný autorským právem společnosti Microsoft, takže nemůžeme legálně vložit kopii souboru do aplikace..."
 
 #. • MSG_134
 msgid ""
-"Because MBR has been selected for the partition scheme, Rufus can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
+"Because MBR has been selected for the partition scheme, Ruflux can only create a partition up to 2 TB on this media, which will leave %s of disk space unavailable.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"Pro schéma oddílu byla vybráno MBR, Rufus na tomto médiu vytvořit pouze oddíl o velikosti až 2 TB, což ponechá místo na disku %s nedostupné.\n"
+"Pro schéma oddílu byla vybráno MBR, Ruflux na tomto médiu vytvořit pouze oddíl o velikosti až 2 TB, což ponechá místo na disku %s nedostupné.\n"
 "\n"
 "Jste si jistý, že chcete pokračovat?"
 
@@ -1070,7 +1070,7 @@ msgstr ""
 
 #. • MSG_172
 #.
-#. As of Rufus 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
+#. As of Ruflux 3.2, *ALL* downloads from the servers are digitally signed, and their signature is validated using the
 #. public key that is embedded in the application. This message appears in an error dialog if the validation fails.
 msgid "Invalid download signature"
 msgstr "Neplatný podpis stažení"
@@ -1113,7 +1113,7 @@ msgstr "Architektura vašeho operačního systému a jeho verzi"
 
 #. • MSG_182
 msgid "The version of the application you use"
-msgstr "Použitá verze aplikace Rufus"
+msgstr "Použitá verze aplikace Ruflux"
 
 #. • MSG_183
 msgid "Your IP address"
@@ -1129,10 +1129,10 @@ msgstr "Aktualizační proces:"
 
 #. • MSG_186
 msgid ""
-"Rufus does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
+"Ruflux does not install or run background services, therefore update checks are performed only when the main application is running.\\line\n"
 "Internet access is of course required when checking for updates."
 msgstr ""
-"Rufus neinstaluje ani nespouští služby na pozadí. Kontrola aktualizací proto probíhá pouze v případě, kdy je spuštěna hlavní aplikace.\\line\n"
+"Ruflux neinstaluje ani nespouští služby na pozadí. Kontrola aktualizací proto probíhá pouze v případě, kdy je spuštěna hlavní aplikace.\\line\n"
 "Pro kontrolu aktualizací programu je samozřejmě nutný přístup k Internetu."
 
 #. • MSG_187
@@ -1182,12 +1182,12 @@ msgid ""
 "IMPORTANT: THIS DRIVE USES A NONSTANDARD SECTOR SIZE!\n"
 "\n"
 "Conventional drives use a 512-byte sector size but this drive uses a %d-byte one. In many cases, this means that you will NOT be able to boot from this drive.\n"
-"Rufus can try to create a bootable drive, but there is NO WARRANTY that it will work."
+"Ruflux can try to create a bootable drive, but there is NO WARRANTY that it will work."
 msgstr ""
 "DŮLEŽITÉ: TATO JEDNOTKA POUŽÍVÁ NESTANDARTNÍ VELIKOS SEKTORŮ!\n"
 "\n"
 "Běžné disky používají 512-byte velikost sektorů jednotka používá %d-byte one. V mnoha případech to znamená, že nebudete moci zavádět systém z jednotky.\n"
-"Rufus můžete zkusit vytvořit bootovací jednotku, ale neexistuje žádná záruka, že to bude fungovat."
+"Ruflux můžete zkusit vytvořit bootovací jednotku, ale neexistuje žádná záruka, že to bude fungovat."
 
 #. • MSG_197
 msgid "Nonstandard sector size detected"
@@ -1394,7 +1394,7 @@ msgstr "Odstraňování oddílů (%s)..."
 
 #. • MSG_240
 #.
-#. This message has to do with the signature validation that Rufus uses when downloading an update.
+#. This message has to do with the signature validation that Ruflux uses when downloading an update.
 msgid ""
 "The signature for the downloaded update can not be validated. This could mean that your system is improperly configured for signature validation or indicate a malicious download.\n"
 "\n"
@@ -1413,8 +1413,8 @@ msgid "Failed to download file."
 msgstr "Stažení souboru se nezdařilo."
 
 #. • MSG_243
-msgid "Checking for Rufus updates..."
-msgstr "Kontrola aktualizací programu Rufus..."
+msgid "Checking for Ruflux updates..."
+msgstr "Kontrola aktualizací programu Ruflux..."
 
 #. • MSG_244
 msgid "Updates: Unable to connect to the internet"
@@ -1425,11 +1425,11 @@ msgid "Updates: Unable to access version data"
 msgstr "Aktualizace: Údaje o verzi jsou nedostupné"
 
 #. • MSG_246
-msgid "A new version of Rufus is available!"
-msgstr "Je dostupná nová verze programu Rufus!"
+msgid "A new version of Ruflux is available!"
+msgstr "Je dostupná nová verze programu Ruflux!"
 
 #. • MSG_247
-msgid "No new version of Rufus was found"
+msgid "No new version of Ruflux was found"
 msgstr "Nebyla nalezena nová verze programu"
 
 #. • MSG_248
@@ -1551,13 +1551,13 @@ msgstr "%s obraz detekován"
 #. '%s' will be replaced with your translations for MSG_036 ("ISO Image") and MSG_095 ("DD Image")
 msgid ""
 "The image you have selected is an 'ISOHybrid' image. This means it can be written either in %s (file copy) mode or %s (disk image) mode.\n"
-"Rufus recommends using %s mode, so that you always have full access to the drive after writing it.\n"
+"Ruflux recommends using %s mode, so that you always have full access to the drive after writing it.\n"
 "However, if you encounter issues during boot, you can try writing this image again in %s mode.\n"
 "\n"
 "Please select the mode that you want to use to write this image:"
 msgstr ""
 "Obráz, který jste si vybrali, je obraz 'ISO Hybrid'. To znamená, že může být zapsán buď v %s (kopírování souborů) v režimu %s (obraz disku) režim.\n"
-"Rufus doporučuje použití %s režim, pokud je plný přístup k jednotce pro zápis.\n"
+"Ruflux doporučuje použití %s režim, pokud je plný přístup k jednotce pro zápis.\n"
 "Pokud narazíte na problémy při startu, můžete zkusit zapsat tento obraz znovu %s režim.\n"
 "\n"
 "Vyberte režim, který chcete použít k zapsání tohoto obrázu:"
@@ -1646,11 +1646,11 @@ msgstr "Nepodporovaná verze systému Windows"
 
 #. • MSG_294
 msgid ""
-"This version of Windows is no longer supported by Rufus.\n"
-"The last version of Rufus compatible with this platform is v%d.%d."
+"This version of Windows is no longer supported by Ruflux.\n"
+"The last version of Ruflux compatible with this platform is v%d.%d."
 msgstr ""
-"Tato verze systému Windows již není systémem Rufus podporována.\n"
-"Poslední verze systému Rufus kompatibilní s touto platformou je v%d.%d."
+"Tato verze systému Windows již není systémem Ruflux podporována.\n"
+"Poslední verze systému Ruflux kompatibilní s touto platformou je v%d.%d."
 
 #. • MSG_295
 msgid "Warning: Unofficial version"
@@ -1658,11 +1658,11 @@ msgstr "Upozornění: Neoficiální verze"
 
 #. • MSG_296
 msgid ""
-"This version of Rufus was not produced by its official developer(s).\n"
+"This version of Ruflux was not produced by its official developer(s).\n"
 "\n"
 "Are you sure you want to run it?"
 msgstr ""
-"Tato verze Rufus, nebyl nepochází z oficiálního vývoje.\n"
+"Tato verze Ruflux, nebyl nepochází z oficiálního vývoje.\n"
 "\n"
 "Jsou si jisti, že ji chcete spustit?"
 
@@ -1676,13 +1676,13 @@ msgid ""
 "\n"
 "If you obtained this file from the Internet, you should try to download a new copy and verify that the MD5 or SHA checksums match the official ones.\n"
 "\n"
-"Note that you can compute the MD5 or SHA in Rufus by clicking the (✓) button."
+"Note that you can compute the MD5 or SHA in Ruflux by clicking the (✓) button."
 msgstr ""
 "U vybraného ISO soubor neodpovídá deklarovaná velikost: %s z údajů chybí!\n"
 "\n"
 "Pokud jste jej získali z internetu, měli by jste stáhnout novou kopii a ověřt, zda odpovídají kontrolní součty MD5 nebo SHA. oficiálně.\n"
 "\n"
-"Poznámka: Klepnutím na(✓)lze vypočítat MD5 nebo SHA v Rufusu."
+"Poznámka: Klepnutím na(✓)lze vypočítat MD5 nebo SHA v Rufluxu."
 
 #. • MSG_299
 msgid "Timestamp validation error"
@@ -1690,11 +1690,11 @@ msgstr "Chyba ověření časového razítka"
 
 #. • MSG_300
 msgid ""
-"Rufus could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
+"Ruflux could not validate that the timestamp of the downloaded update is more recent than the one for the current executable.\n"
 "\n"
 "In order to prevent potential attack scenarios, the update process has been aborted and the download will be deleted. Please check the log for more details."
 msgstr ""
-"Rufus nemohl ověřit časové razítko stažené aktualizace, zda je novější než časový údaj minulé aktuální spustitelný soubor.\n"
+"Ruflux nemohl ověřit časové razítko stažené aktualizace, zda je novější než časový údaj minulé aktuální spustitelný soubor.\n"
 "\n"
 "Aby se zabránilo možným scénářům útoků, proces aktualizace byl zrušen stahování bude smazáno. Zkontrolujte podrobnosti protokolu."
 
@@ -1875,12 +1875,12 @@ msgstr "Byl zjištěn odvolaný zavaděč UEFI"
 
 #. • MSG_339
 msgid ""
-"Rufus detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
+"Ruflux detected that the ISO you have selected contains a UEFI bootloader that has been revoked and that will produce %s, when Secure Boot is enabled on a fully up to date UEFI system.\n"
 "\n"
 "- If you obtained this ISO image from a non reputable source, you should consider the possibility that it might contain UEFI malware and avoid booting from it.\n"
 "- If you obtained it from a trusted source, you should try to locate a more up to date version, that will not produce this warning."
 msgstr ""
-"Rufus zjistil, že vámi vybraný ISO obsahuje zavaděč UEFI, který byl odvolán a který vytvoří %s, když je v plně aktuálním systému UEFI povoleno Secure Boot.\n"
+"Ruflux zjistil, že vámi vybraný ISO obsahuje zavaděč UEFI, který byl odvolán a který vytvoří %s, když je v plně aktuálním systému UEFI povoleno Secure Boot.\n"
 "\n"
 "- Pokud jste tento obraz ISO získali z nerenomovaného zdroje, měli byste zvážit možnost, že by mohl obsahovat malware UEFI a vyhnout se bootování z něj.\n"
 "- Pokud jste jej získali z důvěryhodného zdroje, měli byste se pokusit najít aktuálnější verzi, která toto varování nevyvolá."
@@ -1928,8 +1928,8 @@ msgid "Extracting archive files: %s"
 msgstr "Rozbalení archivních souborů: %s"
 
 #. • MSG_349
-msgid "Use Rufus MBR"
-msgstr "Použijte Rufus MBR"
+msgid "Use Ruflux MBR"
+msgstr "Použijte Ruflux MBR"
 
 #. • MSG_350
 msgid "Use 'Windows CA 2023' signed bootloaders (Requires a compatible target PC)"
@@ -1949,13 +1949,13 @@ msgstr "DBX aktualizace k dispozici"
 
 #. • MSG_354
 msgid ""
-"Rufus has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
+"Ruflux has found an updated version of the DBX files used to perform UEFI Secure Boot revocation checks. Do you want to download this update?\n"
 "- Select 'Yes' to connect to the Internet and download this content\n"
 "- Select 'No' to cancel the operation\n"
 "\n"
 "Note: The files will be downloaded in the application's directory and will be reused automatically if present."
 msgstr ""
-"Rufus našel aktualizovanou verzi souborů DBX používaných k provádění kontrol odvolání UEFI Secure Boot. Chcete stáhnout tuto aktualizaci?\n"
+"Ruflux našel aktualizovanou verzi souborů DBX používaných k provádění kontrol odvolání UEFI Secure Boot. Chcete stáhnout tuto aktualizaci?\n"
 "- Chcete-li se připojit k Internetu a stáhnout tento obsah, vyberte možnost \"Ano\".\n"
 "- Výběrem možnosti \"Ne\" operaci zrušíte\n"
 "\n"
@@ -2046,8 +2046,8 @@ msgstr "Pokud použijete tuto možnost, ujistěte se, že jste od cílového po�
 #. • MSG_900
 #.
 #. The following messages are for the Windows Store listing only and are not used by the application
-msgid "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-msgstr "Rufus je nástroj, který pomáhá formátovat a vytvářet bootovací USB flash disky, jako jsou USB klíče, paměťové karty atd."
+msgid "Ruflux is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+msgstr "Ruflux je nástroj, který pomáhá formátovat a vytvářet bootovací USB flash disky, jako jsou USB klíče, paměťové karty atd."
 
 #. • MSG_901
 msgid "Official site: %s"
