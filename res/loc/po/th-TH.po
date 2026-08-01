@@ -1074,8 +1074,8 @@ msgid "Click to select..."
 msgstr "คลิกเพื่อเลือกไฟล์อิมเมจ..."
 
 #. • MSG_174
-msgid "Ruflux - The Reliable USB Formatting Utility"
-msgstr "Ruflux - ยูทิลิตี้การฟอร์แมต USB ที่ไว้ใจได้"
+msgid "Ruflux - Another USB Formatting Utility"
+msgstr "Ruflux - เครื่องมือฟอร์แมต USB อีกตัว"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

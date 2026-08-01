@@ -1076,8 +1076,8 @@ msgid "Click to select..."
 msgstr "선택하려면 클릭..."
 
 #. • MSG_174
-msgid "Ruflux - The Reliable USB Formatting Utility"
-msgstr "Ruflux - 신뢰할 수 있는 USB 포맷 유틸리티"
+msgid "Ruflux - Another USB Formatting Utility"
+msgstr "Ruflux - 또 다른 USB 포맷 유틸리티"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

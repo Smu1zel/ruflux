@@ -1077,8 +1077,8 @@ msgid "Click to select..."
 msgstr "Klicken Sie, um auszuwählen..."
 
 #. • MSG_174
-msgid "Ruflux - The Reliable USB Formatting Utility"
-msgstr "Ruflux - Das zuverlässige USB-Formatierungstool"
+msgid "Ruflux - Another USB Formatting Utility"
+msgstr "Ruflux - ein weiteres USB-Formatierungs-Tool"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"
