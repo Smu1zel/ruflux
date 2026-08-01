@@ -1077,7 +1077,7 @@ msgstr "Seçmek için tıklayın..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - Başka Bir USB Biçimlendirme Yardımcı Programı"
+msgstr "Ruflux - Başka Bir USB Biçimlendirme Aracı"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

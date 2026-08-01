@@ -1080,7 +1080,7 @@ msgstr "Spauskite pasirinkti..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - Darinis USB formatavimo įrankis"
+msgstr "Ruflux – Kita USB formatavimo programa"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

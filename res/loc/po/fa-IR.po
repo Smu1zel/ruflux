@@ -1086,7 +1086,7 @@ msgstr "برای انتخاب کلیک کنید..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - یک ابزار دیگر برای فرمت‌بندی USB"
+msgstr "Ruflux - ابزار دیگری برای فرمت کردن حافظه‌های USB"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

@@ -1078,7 +1078,7 @@ msgstr "Kattints a kiválasztáshoz..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - Egy másik USB formázási eszköz"
+msgstr "Ruflux – Egy másik USB formázó eszköz"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

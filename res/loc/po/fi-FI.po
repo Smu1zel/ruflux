@@ -1077,7 +1077,7 @@ msgstr "Paina valitaksesi..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - toinen USB-muistin muotoilutyökalu"
+msgstr "Ruflux - Toinen USB-muistitikun formatointityökalu"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

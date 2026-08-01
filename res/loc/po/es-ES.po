@@ -1080,7 +1080,7 @@ msgstr "Haga clic para seleccionar..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - otra utilidad de formateo de USB"
+msgstr "Ruflux - Otra utilidad para formatear dispositivos USB"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

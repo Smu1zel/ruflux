@@ -1077,7 +1077,7 @@ msgstr "Piespiediet izvēlei..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - Otrais USB formatēšanas rīks"
+msgstr "Ruflux - Vēl viena USB formātu utilīta"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

@@ -1074,7 +1074,7 @@ msgstr "選取內容..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - 另一個USB格式化工具"
+msgstr "Ruflux - 另一個 USB 格式化工具"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"

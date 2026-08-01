@@ -1077,7 +1077,7 @@ msgstr "Натисніть для вибору..."
 
 #. • MSG_174
 msgid "Ruflux - Another USB Formatting Utility"
-msgstr "Ruflux - Інша утиліта для форматування USB"
+msgstr "Ruflux - Ще одна утиліта для форматування USB-накопичувачів"
 
 #. • MSG_175
 msgid "Version %d.%d (Build %d)"
