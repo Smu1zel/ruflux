@@ -454,6 +454,8 @@ static void PaintButton(HWND hWnd, HDC hdc, ButtonData* pButtonData)
 		state_id = RBS_UNCHECKEDHOT;
 	if (state & BST_CHECKED)
 		state_id += 4;
+	else if (state & BST_INDETERMINATE)
+		state_id += 8;
 	if (BufferedPaintRenderAnimation(hWnd, hdc))
 		return;
 

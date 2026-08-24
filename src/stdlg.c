@@ -935,6 +935,30 @@ INT_PTR CALLBACK QolCustomizeCallback(HWND hDlg, UINT message, WPARAM wParam, LP
 	return (INT_PTR)FALSE;
 }
 
+static void UpdateQolChoiceState(HWND hDlg, int qol_index)
+{
+	if (qol_index <= 0)
+		return;
+
+	HWND hQolChoice = GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + qol_index - 1);
+	HWND hQolBtn = GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE);
+	uint32_t active = qol_options_mask & QOL_ALL_MASK;
+
+	if (active == 0) {
+		Button_SetStyle(hQolChoice, BS_AUTOCHECKBOX, TRUE);
+		Button_SetCheck(hQolChoice, BST_UNCHECKED);
+		ShowWindow(hQolBtn, SW_HIDE);
+	} else if (active == QOL_ALL_MASK) {
+		Button_SetStyle(hQolChoice, BS_AUTOCHECKBOX, TRUE);
+		Button_SetCheck(hQolChoice, BST_CHECKED);
+		ShowWindow(hQolBtn, SW_SHOW);
+	} else {
+		Button_SetStyle(hQolChoice, BS_AUTO3STATE, TRUE);
+		Button_SetCheck(hQolChoice, BST_INDETERMINATE);
+		ShowWindow(hQolBtn, SW_SHOW);
+	}
+}
+
 /*
  * Custom callback for generic selection dialog
  */
@@ -948,15 +972,14 @@ static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam
 		HTTOPLEFT, HTTOPRIGHT, HTBOTTOMLEFT, HTBOTTOMRIGHT };
 	static HFONT hDlgFont = NULL;
 	char username[128] = { 0 }, str[MAX_PATH];
-	int i, m, dw, dh, r = -1, mw;
 	DWORD size = sizeof(username);
-	LRESULT loc;
-	NONCLIENTMETRICS ncm;	// To use the system message font
+	int i, m, r = 0, dh = 0, dw = 0, mw;
+	HDC hDC;
+	NONCLIENTMETRICS ncm;
 	RECT rc, rc2;
 	HWND hCtrl;
-	HDC hDC;
-	assert(s < ARRAYSIZE(selection_data));
-	assert(selection_data[s].options != NULL);
+	LRESULT loc;
+	int s = (int)GetWindowLongPtr(hDlg, GWLP_USERDATA);
 	int nDialogItems = selection_data[s].options->choices.Index;
 
 	switch (message) {
@@ -1132,8 +1155,10 @@ static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam
 		}
 
 		if (selection_data[s].options->qol_index > 0) {
-			BOOL qol_checked = Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->qol_index - 1)) == BST_CHECKED;
-			ShowWindow(GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), qol_checked ? SW_SHOW : SW_HIDE);
+			if (Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->qol_index - 1)) != BST_UNCHECKED)
+				UpdateQolChoiceState(hDlg, selection_data[s].options->qol_index);
+			else
+				ShowWindow(GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), SW_HIDE);
 		}
 
 		SetDarkModeForChild(hDlg);
@@ -1184,12 +1209,22 @@ static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam
 			}
 			if (selection_data[s].options->qol_index > 0 &&
 				command - IDC_SELECTION_CHOICE1 == selection_data[s].options->qol_index - 1) {
-				BOOL show_qol = Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->qol_index - 1)) == BST_CHECKED;
-				ShowWindow(GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), show_qol ? SW_SHOW : SW_HIDE);
+				int check = Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->qol_index - 1));
+				if (check == BST_UNCHECKED) {
+					ShowWindow(GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), SW_HIDE);
+				} else {
+					if ((qol_options_mask & QOL_ALL_MASK) == 0) {
+						qol_options_mask = QOL_ALL_MASK;
+						WriteSetting32(SETTING_QOL_OPTIONS, qol_options_mask);
+					}
+					UpdateQolChoiceState(hDlg, selection_data[s].options->qol_index);
+				}
 			}
 		} else switch (LOWORD(wParam)) {
 		case IDC_SELECTION_QOL_CUSTOMIZE:
-			MyDialogBox(hMainInstance, IDD_QOL_CUSTOMIZE, hDlg, QolCustomizeCallback);
+			if (MyDialogBox(hMainInstance, IDD_QOL_CUSTOMIZE, hDlg, QolCustomizeCallback) == IDOK) {
+				UpdateQolChoiceState(hDlg, selection_data[s].options->qol_index);
+			}
 			break;
 		case IDOK:
 			// Produce a big scary warning if the silent install option was selected
@@ -1208,7 +1243,7 @@ static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam
 					break;
 			}
 			for (r = 0, i = 0, m = 1; i < nDialogItems; i++, m <<= 1)
-				if (Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + i)) == BST_CHECKED)
+				if (Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + i)) != BST_UNCHECKED)
 					r += m;
 			if (selection_data[s].options->username_index > 0) {
 				GetWindowTextU(GetDlgItem(hDlg, IDC_SELECTION_USERNAME), unattend_username, MAX_USERNAME_LENGTH);
