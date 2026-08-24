@@ -699,6 +699,21 @@ typedef struct {
 #define UNATTEND_DEFAULT_MASK               0x016FF		// Mask of values that are persisted
 #define UNATTEND_WINDOWS_TO_GO              0x10000		// Special flag for Windows To Go
 
+// Quality of Life (QoL) enhancement sub-flags
+#define QOL_DISABLE_ONEDRIVE        0x0001
+#define QOL_REMOVE_OUTLOOK          0x0002
+#define QOL_REMOVE_TEAMS            0x0004
+#define QOL_DISABLE_FAST_STARTUP    0x0008
+#define QOL_DISABLE_COPILOT         0x0010
+#define QOL_DISABLE_CONSUMER_ADS    0x0020
+#define QOL_DISABLE_FEEDS           0x0040
+#define QOL_SKIP_EDGE_FIRST_RUN     0x0080
+#define QOL_START_MENU_SHORTCUTS    0x0100
+#define QOL_CLASSIC_CONTEXT_MENU    0x0200
+#define QOL_ALL_MASK                0x03FF
+
+extern uint32_t qol_options_mask;
+
 #define UNATTEND_WINPE_SETUP_MASK           (UNATTEND_SECUREBOOT_TPM_MINRAM | UNATTEND_SILENT_INSTALL)
 #define UNATTEND_SPECIALIZE_DEPLOYMENT_MASK (UNATTEND_NO_ONLINE_ACCOUNT | UNATTEND_QOL_ENHANCEMENTS)
 #define UNATTEND_OOBE_SHELL_SETUP_MASK      (UNATTEND_NO_DATA_COLLECTION | UNATTEND_SET_USER | UNATTEND_DUPLICATE_LOCALE | UNATTEND_SILENT_INSTALL)
@@ -754,6 +769,7 @@ typedef struct {
 	int edition_index;
 	int regional_index;
 	int privacy_index;
+	int qol_index;
 	StrArray choices;
 	StrArray tooltips;
 } selection_dialog_options_t;

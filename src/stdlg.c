@@ -850,13 +850,93 @@ static VOID ShowSilentOption(HWND hDlg, int index, BOOL show)
 	dh = show ? (rc2.top - rc1.top) : (rc1.top - rc2.top);
 	for (i = selection_data[index].options->edition_index; i < (int)selection_data[index].options->choices.Index; i++)
 		ResizeMoveCtrl(hDlg, GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + i), 0, dh, 0, 0, 1.0f);
+	if (selection_data[index].options->qol_index > selection_data[index].options->edition_index)
+		ResizeMoveCtrl(hDlg, GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), 0, dh, 0, 0, 1.0f);
 	ResizeMoveCtrl(hDlg, GetDlgItem(hDlg, IDOK), 0, dh, 0, 0, 1.0f);
 	ResizeMoveCtrl(hDlg, GetDlgItem(hDlg, IDCANCEL), 0, dh, 0, 0, 1.0f);
 	ResizeMoveCtrl(hDlg, hDlg, 0, 0, 0, dh, 1.0f);
 }
 
+static const int qol_ctrl_ids[] = {
+	IDC_QOL_ONEDRIVE,
+	IDC_QOL_OUTLOOK,
+	IDC_QOL_TEAMS,
+	IDC_QOL_FAST_STARTUP,
+	IDC_QOL_COPILOT,
+	IDC_QOL_CONSUMER_ADS,
+	IDC_QOL_FEEDS,
+	IDC_QOL_EDGE_FIRST_RUN,
+	IDC_QOL_START_MENU,
+	IDC_QOL_CONTEXT_MENU
+};
+
+static const uint32_t qol_ctrl_masks[] = {
+	QOL_DISABLE_ONEDRIVE,
+	QOL_REMOVE_OUTLOOK,
+	QOL_REMOVE_TEAMS,
+	QOL_DISABLE_FAST_STARTUP,
+	QOL_DISABLE_COPILOT,
+	QOL_DISABLE_CONSUMER_ADS,
+	QOL_DISABLE_FEEDS,
+	QOL_SKIP_EDGE_FIRST_RUN,
+	QOL_START_MENU_SHORTCUTS,
+	QOL_CLASSIC_CONTEXT_MENU
+};
+
+INT_PTR CALLBACK QolCustomizeCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int i;
+	static HFONT hQolFont = NULL;
+
+	switch (message) {
+	case WM_INITDIALOG:
+		SetDarkModeForDlg(hDlg);
+		if (hQolFont == NULL) {
+			NONCLIENTMETRICS ncm;
+			ncm.cbSize = sizeof(NONCLIENTMETRICS);
+			SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
+			hQolFont = CreateFontIndirect(&ncm.lfMessageFont);
+		}
+		SendMessage(hDlg, WM_SETFONT, (WPARAM)hQolFont, MAKELPARAM(TRUE, 0));
+		for (i = 0; i < ARRAYSIZE(qol_ctrl_ids); i++) {
+			HWND hItem = GetDlgItem(hDlg, qol_ctrl_ids[i]);
+			SendMessage(hItem, WM_SETFONT, (WPARAM)hQolFont, MAKELPARAM(TRUE, 0));
+			Button_SetCheck(hItem, (qol_options_mask & qol_ctrl_masks[i]) ? BST_CHECKED : BST_UNCHECKED);
+		}
+		SendMessage(GetDlgItem(hDlg, IDOK), WM_SETFONT, (WPARAM)hQolFont, MAKELPARAM(TRUE, 0));
+		SendMessage(GetDlgItem(hDlg, IDCANCEL), WM_SETFONT, (WPARAM)hQolFont, MAKELPARAM(TRUE, 0));
+
+		SetTitleBarIcon(hDlg);
+		CenterDialog(hDlg, NULL);
+		SetDarkModeForChild(hDlg);
+		return (INT_PTR)TRUE;
+
+	case WM_CTLCOLORSTATIC:
+		SetBkMode((HDC)wParam, TRANSPARENT);
+		return (INT_PTR)GetSysColorBrush(COLOR_WINDOW);
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+		case IDOK:
+			qol_options_mask = 0;
+			for (i = 0; i < ARRAYSIZE(qol_ctrl_ids); i++) {
+				if (Button_GetCheck(GetDlgItem(hDlg, qol_ctrl_ids[i])) == BST_CHECKED)
+					qol_options_mask |= qol_ctrl_masks[i];
+			}
+			WriteSetting32(SETTING_QOL_OPTIONS, qol_options_mask);
+			EndDialog(hDlg, IDOK);
+			return (INT_PTR)TRUE;
+		case IDCANCEL:
+			EndDialog(hDlg, IDCANCEL);
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
+}
+
 /*
- * Custom dialog for radio button selection dialog
+ * Custom callback for generic selection dialog
  */
 static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -940,6 +1020,9 @@ static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam
 			} else if (i == selection_data[s].options->edition_index - 1) {
 				mw = max(mw, GetTextSize(hCtrl, str).cx +
 					GetComboBoxMinWidth(GetDlgItem(hDlg, IDC_SELECTION_EDITION), &edition_name));
+			} else if (i == selection_data[s].options->qol_index - 1) {
+				mw = max(mw, GetTextSize(hCtrl, str).cx +
+					GetTextSize(GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), " ... ").cx + (int)(16.0f * fScale));
 			} else {
 				mw = max(mw, GetTextSize(hCtrl, str).cx);
 			}
@@ -1001,6 +1084,22 @@ static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam
 			ShowWindow(hCtrl, SW_SHOW);
 		}
 
+		// If required, set up the QoL customize button
+		if (selection_data[s].options->qol_index > 0) {
+			hCtrl = GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->qol_index - 1);
+			GetClientRect(hCtrl, &rc);
+			ResizeMoveCtrl(hDlg, hCtrl, 0, 0,
+				(rc.left - rc.right) + GetTextSize(hCtrl, selection_data[s].options->choices.String[selection_data[s].options->qol_index - 1]).cx + ddw, 0, 1.0f);
+			GetWindowRect(hCtrl, &rc);
+			SetWindowPos(GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), hCtrl, rc.left, rc.top, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			hCtrl = GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE);
+			GetWindowRect(hCtrl, &rc2);
+			ResizeMoveCtrl(hDlg, hCtrl, right_to_left_mode ? rc2.right - rc.left : rc.right - rc2.left + (int)(4.0f * fScale), rc.top - rc2.top,
+				GetTextSize(hCtrl, " ... ").cx + (int)(4.0f * fScale), 0, 1.0f);
+			SendMessage(hCtrl, WM_SETFONT, (WPARAM)hDlgFont, MAKELPARAM(TRUE, 0));
+			CreateTooltipEx(hDlg, hCtrl, "Customize individual Quality of Life options", -1);
+		}
+
 		if (nDialogItems > 2) {
 			GetWindowRect(GetDlgItem(hDlg, IDC_SELECTION_CHOICE2), &rc);
 			GetWindowRect(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + nDialogItems - 1), &rc2);
@@ -1023,12 +1122,18 @@ static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam
 			Button_SetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + i),
 				(selection_data[s].options->style == BS_AUTORADIOBUTTON && selection_data[s].options->mask == 0 && i == 0) ||
 				(selection_data[s].options->mask != 0 && (m & selection_data[s].options->mask) ? BST_CHECKED : BST_UNCHECKED));
+
 		// Hide the silent option if any of the username/regional/privacy checkboxes are unchecked
 		if (selection_data[s].options->edition_index > 0) {
 			if (!Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->username_index - 1)) ||
 				!Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->regional_index - 1)) ||
 				!Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->privacy_index - 1)))
 				ShowSilentOption(hDlg, s, FALSE);
+		}
+
+		if (selection_data[s].options->qol_index > 0) {
+			BOOL qol_checked = Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->qol_index - 1)) == BST_CHECKED;
+			ShowWindow(GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), qol_checked ? SW_SHOW : SW_HIDE);
 		}
 
 		SetDarkModeForChild(hDlg);
@@ -1077,7 +1182,15 @@ static INT_PTR CALLBACK SelectionCallback(HWND hDlg, UINT message, WPARAM wParam
 				else if (!enable && IsWindowVisible(hCtrl))
 					ShowSilentOption(hDlg, s, FALSE);
 			}
+			if (selection_data[s].options->qol_index > 0 &&
+				command - IDC_SELECTION_CHOICE1 == selection_data[s].options->qol_index - 1) {
+				BOOL show_qol = Button_GetCheck(GetDlgItem(hDlg, IDC_SELECTION_CHOICE1 + selection_data[s].options->qol_index - 1)) == BST_CHECKED;
+				ShowWindow(GetDlgItem(hDlg, IDC_SELECTION_QOL_CUSTOMIZE), show_qol ? SW_SHOW : SW_HIDE);
+			}
 		} else switch (LOWORD(wParam)) {
+		case IDC_SELECTION_QOL_CUSTOMIZE:
+			MyDialogBox(hMainInstance, IDD_QOL_CUSTOMIZE, hDlg, QolCustomizeCallback);
+			break;
 		case IDOK:
 			// Produce a big scary warning if the silent install option was selected
 			if (selection_data[s].options->edition_index > 0 &&

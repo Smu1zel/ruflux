@@ -49,6 +49,7 @@ int unattend_xml_mask = UNATTEND_DEFAULT_SELECTION_MASK;
 int unattend_edition_index = 1;
 char *unattend_xml_path = NULL, unattend_username[MAX_USERNAME_LENGTH];
 uint32_t removable_section[2] = { 0, 0 };
+uint32_t qol_options_mask = QOL_ALL_MASK;
 
 extern BOOL validate_md5sum, bcdboot_supports_ex;
 extern uint64_t md5sum_totalbytes;
@@ -275,24 +276,32 @@ char* CreateUnattendXml(int arch, int flags)
 			uprintf("• Bypass online account requirement");
 		}
 		if (flags & UNATTEND_QOL_ENHANCEMENTS) {
-			uprintf("• QoL: Disable OneDrive and Outlook by default");
-			// Remove OneDrive
-			StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\OneDrive\" /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f", TRUE);
-			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
-				"\"Remove-Item -Path $env:SystemRoot\\System32\\OneDriveSetup.exe -Force -Confirm:$false; "
-				"Remove-Item -Path $env:SystemRoot\\SysWOW64\\OneDriveSetup.exe -Force -Confirm:$false;\"", TRUE);
-			// Remove Outlook. How the frig is forcing Outlook on users legal when MS got pinned for bundling IE with Windows?
-			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
-				"\"Get-AppxProvisionedPackage -Online | Where-Object {$_.PackageName -like '*Outlook*'} |"
-				" Remove-AppxProvisionedPackage -Online\"", TRUE);
-			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
-				"\"Get-AppxPackage -AllUsers *Outlook* | Remove-AppxPackage -AllUsers\"", TRUE);
-			// Same for Teams. Also: "HEY, MICROSOFT, SCREW YOU!!!!"
-			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
-				"\"Get-AppxProvisionedPackage -Online | Where-Object {$_.PackageName -like '*Teams*'} |"
-				" Remove-AppxProvisionedPackage -Online\"", TRUE);
-			StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
-				"\"Get-AppxPackage -AllUsers *Teams* | Remove-AppxPackage -AllUsers\"", TRUE);
+			if (qol_options_mask & QOL_DISABLE_ONEDRIVE) {
+				uprintf("• QoL: Disable OneDrive by default");
+				// Remove OneDrive
+				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\OneDrive\" /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f", TRUE);
+				StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+					"\"Remove-Item -Path $env:SystemRoot\\System32\\OneDriveSetup.exe -Force -Confirm:$false; "
+					"Remove-Item -Path $env:SystemRoot\\SysWOW64\\OneDriveSetup.exe -Force -Confirm:$false;\"", TRUE);
+			}
+			if (qol_options_mask & QOL_REMOVE_OUTLOOK) {
+				uprintf("• QoL: Remove Outlook by default");
+				// Remove Outlook. How the frig is forcing Outlook on users legal when MS got pinned for bundling IE with Windows?
+				StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+					"\"Get-AppxProvisionedPackage -Online | Where-Object {$_.PackageName -like '*Outlook*'} |"
+					" Remove-AppxProvisionedPackage -Online\"", TRUE);
+				StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+					"\"Get-AppxPackage -AllUsers *Outlook* | Remove-AppxPackage -AllUsers\"", TRUE);
+			}
+			if (qol_options_mask & QOL_REMOVE_TEAMS) {
+				uprintf("• QoL: Remove Teams by default");
+				// Same for Teams. Also: "HEY, MICROSOFT, SCREW YOU!!!!"
+				StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+					"\"Get-AppxProvisionedPackage -Online | Where-Object {$_.PackageName -like '*Teams*'} |"
+					" Remove-AppxProvisionedPackage -Online\"", TRUE);
+				StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+					"\"Get-AppxPackage -AllUsers *Teams* | Remove-AppxPackage -AllUsers\"", TRUE);
+			}
 		}
 		// Now that we have all the commands to run, create the RunSynchronous section.
 		for (order = 1; order <= (int)commands.Index; order++) {
@@ -396,61 +405,85 @@ char* CreateUnattendXml(int arch, int flags)
 					"mountvol S: /D", TRUE);
 			}
 			if (flags & UNATTEND_QOL_ENHANCEMENTS) {
-				uprintf("• QoL: Disable Fast Startup, Copilot, Recommendations, News and Teams by default");
-				// Disable Fast Startup 
-				StrArrayAdd(&commands, "reg add \"HKLM\\System\\CurrentControlSet\\Control\\Session Manager\\Power\" "
-					"/v HiberbootEnabled /t REG_DWORD /d 0 /f", TRUE);
-				// Disable Copilot and set search as an icon rather than the default real-estate gobbler
-				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" "
-					"/v ShowCopilotButton /t REG_DWORD /d 0 /f", TRUE);
-				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot\" "
-					"/v TurnOffWindowsCopilot /t REG_DWORD /d 1 /f", TRUE);
-				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Search\" "
-					"/v SearchboxTaskbarMode /t REG_DWORD /d 1 /f", TRUE);
-				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Search\" "
-					"/v SearchboxTaskbarModeCache /t REG_DWORD /d 1 /f", TRUE);
-				// Disable Windows Phone and similarly pushed unwanted crap
-				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\CloudContent\" "
-					"/v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f", TRUE);
-				// Disable ads in menu
-				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager\" "
-					"/v SystemPaneSuggestionsEnabled /t REG_DWORD /d 0 /f", TRUE);
-				StrArrayAdd(&commands, "reg add \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search\" "
-					"/v BingSearchEnabled /t REG_DWORD /d 0 /f", TRUE);
-				// Disable auto installation of manufacturer's crappy apps when plugging new hardware
-				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\Device Metadata\" "
-					"/v PreventDeviceMetadataFromNetwork /t REG_DWORD /d 1 /f", TRUE);
-				// Disable News
-				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Dsh\" "
-					"/v AllowNewsAndInterests /t REG_DWORD /d 0 /f", TRUE);
-				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\Windows Feeds\" "
-					"/v EnableFeeds /t REG_DWORD /d 0 /f", TRUE);
-				// Disable Teams
-				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Communications\" "
-					"/v ConfigureChatAutoInstall /t REG_DWORD /d 0 /f", TRUE);
-				// Prevent frigging Outlook from being forced into the user's taskbar
-				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\CloudContent\" "
-					"/v DisableCloudOptimizedContent /t REG_DWORD /d 1 /f", TRUE);
-				// Skip Edge's first run dialog
-				StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Edge\" "
-					"/v HideFirstRunExperience /t REG_DWORD /d 1 /f", TRUE);
-				uprintf("• QoL: More pins for the Start Menu and enable useful shortcuts");
-				// More pins by default on the Start Menu
-				// https://learn.microsoft.com/en-us/windows/apps/develop/settings/settings-windows-11
-				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" "
-					"/v Start_Layout /t REG_DWORD /d 1 /f", TRUE);
-				// Add Documents, Downloads, Network, Personal Folder, File Explorer and Settings as start menu shortcuts
-				// I wish there was a more transparent way of doing it, but Microsoft made it obscure. Oh, and for some
-				// reason, feeding the full hex string through 'reg add' doesn't create the key when ran through unattend
-				// (but doesn't produce an error and works post logon). PowerShell it is then...
-				StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
-					"\"Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Start' "
-					"-Name 'VisiblePlaces' -Value $([convert]::FromBase64String('ztU0LVr6Q0WC8iLm6vd3PC+zZ+PeiVVDv85h83sYqTe8JIo"
-					"UDNaJQqCAbtm7okiCRIF1/g0IrkKL2jTtl7ZjlEqwvXRK+WhPi9ZDmAcdqLyGCHNSqlFDQp97J3ZYRlnU')) -Type 'Binary'\"", TRUE);
-				// Restore the classic right click context menu
-				uprintf("• QoL: Restore classic context menu");
-				StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32\" "
-					"/ve /t REG_SZ /d \"\" /f", TRUE);
+				if (qol_options_mask & QOL_DISABLE_FAST_STARTUP) {
+					uprintf("• QoL: Disable Fast Startup by default");
+					// Disable Fast Startup 
+					StrArrayAdd(&commands, "reg add \"HKLM\\System\\CurrentControlSet\\Control\\Session Manager\\Power\" "
+						"/v HiberbootEnabled /t REG_DWORD /d 0 /f", TRUE);
+				}
+				if (qol_options_mask & QOL_DISABLE_COPILOT) {
+					uprintf("• QoL: Disable Copilot and minimize search box");
+					// Disable Copilot and set search as an icon rather than the default real-estate gobbler
+					StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" "
+						"/v ShowCopilotButton /t REG_DWORD /d 0 /f", TRUE);
+					StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot\" "
+						"/v TurnOffWindowsCopilot /t REG_DWORD /d 1 /f", TRUE);
+					StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Search\" "
+						"/v SearchboxTaskbarMode /t REG_DWORD /d 1 /f", TRUE);
+					StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Search\" "
+						"/v SearchboxTaskbarModeCache /t REG_DWORD /d 1 /f", TRUE);
+				}
+				if (qol_options_mask & QOL_DISABLE_CONSUMER_ADS) {
+					uprintf("• QoL: Disable consumer features and suggestions");
+					// Disable Windows Phone and similarly pushed unwanted crap
+					StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\CloudContent\" "
+						"/v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f", TRUE);
+					// Disable ads in menu
+					StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager\" "
+						"/v SystemPaneSuggestionsEnabled /t REG_DWORD /d 0 /f", TRUE);
+					StrArrayAdd(&commands, "reg add \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search\" "
+						"/v BingSearchEnabled /t REG_DWORD /d 0 /f", TRUE);
+					// Disable auto installation of manufacturer's crappy apps when plugging new hardware
+					StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\Device Metadata\" "
+						"/v PreventDeviceMetadataFromNetwork /t REG_DWORD /d 1 /f", TRUE);
+				}
+				if (qol_options_mask & QOL_DISABLE_FEEDS) {
+					uprintf("• QoL: Disable News and Feeds");
+					// Disable News
+					StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Dsh\" "
+						"/v AllowNewsAndInterests /t REG_DWORD /d 0 /f", TRUE);
+					StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\Windows Feeds\" "
+						"/v EnableFeeds /t REG_DWORD /d 0 /f", TRUE);
+				}
+				if (qol_options_mask & QOL_REMOVE_TEAMS) {
+					uprintf("• QoL: Disable Teams chat auto-install");
+					// Disable Teams
+					StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Communications\" "
+						"/v ConfigureChatAutoInstall /t REG_DWORD /d 0 /f", TRUE);
+				}
+				if (qol_options_mask & QOL_REMOVE_OUTLOOK) {
+					uprintf("• QoL: Disable cloud-optimized content for Outlook");
+					// Prevent frigging Outlook from being forced into the user's taskbar
+					StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Windows\\CloudContent\" "
+						"/v DisableCloudOptimizedContent /t REG_DWORD /d 1 /f", TRUE);
+				}
+				if (qol_options_mask & QOL_SKIP_EDGE_FIRST_RUN) {
+					uprintf("• QoL: Skip Edge first run experience");
+					// Skip Edge's first run dialog
+					StrArrayAdd(&commands, "reg add \"HKLM\\Software\\Policies\\Microsoft\\Edge\" "
+						"/v HideFirstRunExperience /t REG_DWORD /d 1 /f", TRUE);
+				}
+				if (qol_options_mask & QOL_START_MENU_SHORTCUTS) {
+					uprintf("• QoL: More pins for the Start Menu and enable useful shortcuts");
+					// More pins by default on the Start Menu
+					// https://learn.microsoft.com/en-us/windows/apps/develop/settings/settings-windows-11
+					StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" "
+						"/v Start_Layout /t REG_DWORD /d 1 /f", TRUE);
+					// Add Documents, Downloads, Network, Personal Folder, File Explorer and Settings as start menu shortcuts
+					// I wish there was a more transparent way of doing it, but Microsoft made it obscure. Oh, and for some
+					// reason, feeding the full hex string through 'reg add' doesn't create the key when ran through unattend
+					// (but doesn't produce an error and works post logon). PowerShell it is then...
+					StrArrayAdd(&commands, "PowerShell -NonInteractive -WindowStyle Hidden -Command "
+						"\"Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Start' "
+						"-Name 'VisiblePlaces' -Value $([convert]::FromBase64String('ztU0LVr6Q0WC8iLm6vd3PC+zZ+PeiVVDv85h83sYqTe8JIo"
+						"UDNaJQqCAbtm7okiCRIF1/g0IrkKL2jTtl7ZjlEqwvXRK+WhPi9ZDmAcdqLyGCHNSqlFDQp97J3ZYRlnU')) -Type 'Binary'\"", TRUE);
+				}
+				if (qol_options_mask & QOL_CLASSIC_CONTEXT_MENU) {
+					// Restore the classic right click context menu
+					uprintf("• QoL: Restore classic context menu");
+					StrArrayAdd(&commands, "reg add \"HKCU\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32\" "
+						"/ve /t REG_SZ /d \"\" /f", TRUE);
+				}
 			}
 			// Now that we have all the commands to run, create the FirstLogonCommands section.
 			for (order = 1; order <= (int)commands.Index; order++) {

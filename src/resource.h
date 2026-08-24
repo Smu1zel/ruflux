@@ -12,6 +12,7 @@
 #define IDD_NEW_VERSION                 108
 #define IDD_HASH                        109
 #define IDD_LIST                        110
+#define IDD_QOL_CUSTOMIZE               111
 #define IDI_ICON                        120
 #define IDI_LANG_16                     121
 #define IDI_INFO_16                     122
@@ -174,6 +175,7 @@
 #define IDC_SELECTION_CHOICEMAX         1093
 #define IDC_SELECTION_USERNAME          1094
 #define IDC_SELECTION_EDITION           1095
+#define IDC_SELECTION_QOL_CUSTOMIZE     1096
 #define IDC_LIST_ICON                   1100
 #define IDC_LIST_TEXT                   1101
 #define IDC_LIST_LINE                   1102
@@ -193,6 +195,16 @@
 #define IDC_LIST_ITEM14                 1116
 #define IDC_LIST_ITEM15                 1117
 #define IDC_LIST_ITEMMAX                1118
+#define IDC_QOL_ONEDRIVE                1120
+#define IDC_QOL_OUTLOOK                 1121
+#define IDC_QOL_TEAMS                   1122
+#define IDC_QOL_FAST_STARTUP            1123
+#define IDC_QOL_COPILOT                 1124
+#define IDC_QOL_CONSUMER_ADS            1125
+#define IDC_QOL_FEEDS                   1126
+#define IDC_QOL_EDGE_FIRST_RUN          1127
+#define IDC_QOL_START_MENU              1128
+#define IDC_QOL_CONTEXT_MENU            1129
 #define IDS_DEVICE_TXT                  2000
 #define IDS_PARTITION_TYPE_TXT          2001
 #define IDS_FILE_SYSTEM_TXT             2002

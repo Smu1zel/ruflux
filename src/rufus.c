@@ -1639,6 +1639,7 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 				if (IS_WINDOWS_11(img_report)) {
 					StrArrayAdd(&selection.choices, lmprintf(MSG_324), TRUE);
 					StrArrayAdd(&selection.tooltips, lmprintf(MSG_370), TRUE);
+					selection.qol_index = _log2(b) + 1;
 					MAP_BIT(UNATTEND_QOL_ENHANCEMENTS);
 					if (img_report.win_version.build >= 26200 && bcdboot_supports_ex) {
 						StrArrayAdd(&selection.choices, lmprintf(MSG_350), TRUE);
@@ -1732,6 +1733,7 @@ static DWORD WINAPI BootCheckThread(LPVOID param)
 					MAP_BIT(UNATTEND_DISABLE_BITLOCKER);
 					StrArrayAdd(&selection.choices, lmprintf(MSG_324), TRUE);
 					StrArrayAdd(&selection.tooltips, lmprintf(MSG_370), TRUE);
+					selection.qol_index = _log2(b) + 1;
 					MAP_BIT(UNATTEND_QOL_ENHANCEMENTS);
 					if (img_report.win_version.build >= 26200) {
 						StrArrayAdd(&selection.choices, lmprintf(MSG_350), TRUE);
@@ -3717,6 +3719,11 @@ skip_args_processing:
 		unattend_xml_mask &= ~mask;
 		unattend_xml_mask |= (wue_options & mask);
 	}
+	int32_t saved_qol = ReadSetting32(SETTING_QOL_OPTIONS);
+	if (saved_qol != 0)
+		qol_options_mask = (uint32_t)saved_qol;
+	else
+		qol_options_mask = QOL_ALL_MASK;
 	// We want above normal priority by default, so we offset the value.
 	default_thread_priority = ReadSetting32(SETTING_DEFAULT_THREAD_PRIORITY) + THREAD_PRIORITY_ABOVE_NORMAL;
 
