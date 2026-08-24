@@ -72,11 +72,13 @@ static cregex_node_t *parse_char_class(regex_parse_context *context)
                             .type = type, .from = from, .to = context->sp - 1});
         case '\\':
             ch = *context->sp++;
+            if (ch == '\0')
+                return NULL;
             /* fall-through */
         default:
         CHARACTER:
             if (*context->sp == '-' && context->sp[1] != ']') {
-                if (context->sp[1] < ch)
+                if ((unsigned char)context->sp[1] < (unsigned char)ch)
                     /* empty range in character class */
                     return NULL;
                 context->sp += 2;
@@ -247,7 +249,10 @@ static cregex_node_t *parse_context(regex_parse_context *context, int depth)
 
 static inline int estimate_nodes(const char *pattern)
 {
-    return (int)strlen(pattern) * 2;
+    /* +1 so that an empty pattern ("") still gets a non-zero allocation:
+     * parse_context() always pushes at least one (EPSILON) node via
+     * concatenate(), even when nothing was parsed. */
+    return (int)strlen(pattern) * 2 + 1;
 }
 
 /* Parse a pattern (using a previously allocated buffer of at least
