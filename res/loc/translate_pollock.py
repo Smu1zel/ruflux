@@ -115,7 +115,14 @@ def translate_chunk(new_text, chunk_langs, model_name, ollama_url, strict=False,
         return {"en-US": new_text}
 
 def update_po_file(po_path, msg_id, old_string, new_string, translation):
-    """Update a single PO file with the new msgid and translated msgstr."""
+    """Update a single PO file with the new msgid and translated msgstr.
+    
+    Tries three strategies in order:
+      1. Match by MSG_xxx identifier comment.
+      2. Match by exact old msgid string.
+      3. Match by new msgid string (idempotent re-run).
+    If none match (e.g. a brand-new string), appends a new PO entry at the end.
+    """
     if not os.path.exists(po_path):
         return False
 
@@ -125,11 +132,11 @@ def update_po_file(po_path, msg_id, old_string, new_string, translation):
     # Strategy 1: Search by MSG_xxx identifier if provided
     if msg_id:
         pattern = re.compile(
-            r'(#\.\s*(?:•\s*)?' + re.escape(msg_id) + r'\s*\r?\nmsgid\s+")[^"]+("\s*\r?\nmsgstr\s+")[^"]*(")',
+            r'(#\.\s*(?:\u2022\s*)?' + re.escape(msg_id) + r'\s*\r?\nmsgid\s+")[^"]+("\s*\r?\nmsgstr\s+")[^"]*(")',
             re.MULTILINE
         )
         if pattern.search(content):
-            new_content = pattern.sub(f'#. • {msg_id}\nmsgid "{new_string}"\nmsgstr "{translation}"', content)
+            new_content = pattern.sub(f'#. \u2022 {msg_id}\nmsgid "{new_string}"\nmsgstr "{translation}"', content)
             with open(po_path, "w", encoding="utf-8", newline="\n") as f:
                 f.write(new_content)
             return True
@@ -146,7 +153,7 @@ def update_po_file(po_path, msg_id, old_string, new_string, translation):
                 f.write(new_content)
             return True
 
-    # Strategy 3: Match existing new_string msgid to update msgstr
+    # Strategy 3: Match existing new_string msgid to update msgstr (idempotent)
     pattern_new = re.compile(
         r'(msgid\s+"' + re.escape(new_string) + r'"\s*\r?\nmsgstr\s+")[^"]*(")',
         re.MULTILINE
@@ -157,10 +164,23 @@ def update_po_file(po_path, msg_id, old_string, new_string, translation):
             f.write(new_content)
         return True
 
-    return False
+    # Strategy 4: Brand-new string — append a new PO entry at the end of the file.
+    id_comment = f"#. \u2022 {msg_id}\n" if msg_id else ""
+    new_entry = f"\n{id_comment}msgid \"{new_string}\"\nmsgstr \"{translation}\"\n"
+    with open(po_path, "a", encoding="utf-8", newline="\n") as f:
+        f.write(new_entry)
+    return True
 
 def update_rufus_loc(rufus_loc_path, msg_id, new_string, translations):
-    """Update master rufus.loc across all language blocks while preserving strict DOS CRLF line endings."""
+    """Update master rufus.loc across all language blocks.
+    
+    For each language block:
+      - If 't MSG_xxx ...' already exists: replace it in-place.
+      - If it is missing (e.g. a brand-new string added via --add-string):
+        insert it at the correct alphabetically-sorted position among the
+        existing MSG lines so the block stays well-ordered.
+    Preserves strict DOS CRLF line endings required by the Rufus parser.
+    """
     if not os.path.exists(rufus_loc_path):
         return 0
 
@@ -168,28 +188,93 @@ def update_rufus_loc(rufus_loc_path, msg_id, new_string, translations):
         content = f.read()
 
     lines = content.splitlines()
-    new_lines = []
-    current_lang = "en-US"
-    updated_count = 0
 
+    # Split into language blocks. Each block is delimited by a run of '#' characters.
+    # The separator line starts a new block header, so we group:
+    #   [header-comment lines] [sep line] [lang block lines] [sep line] [lang block] ...
+    SEP = re.compile(r'^#{6,}')
+    blocks = []   # list of lists-of-lines
+    current = []
     for line in lines:
-        m_lang = re.match(r'^l\s+"([^"]+)"', line)
-        if m_lang:
-            current_lang = m_lang.group(1)
+        if SEP.match(line):
+            if current:
+                blocks.append(current)
+            current = [line]   # separator starts a new block
+        else:
+            current.append(line)
+    if current:
+        blocks.append(current)
 
-        if msg_id:
-            m_msg = re.match(r'^(t\s+' + re.escape(msg_id) + r'\s+")[^"\r\n]*(".*)$', line)
-            if m_msg and current_lang in translations:
-                trans = translations[current_lang]
-                line = f'{m_msg.group(1)}{trans}{m_msg.group(2)}'
-                updated_count += 1
+    if not msg_id:
+        # No msg_id means nothing to update; just rewrite unchanged.
+        with open(rufus_loc_path, "wb") as f:
+            f.write(("\r\n".join(lines) + "\r\n").encode("utf-8"))
+        return 0
 
-        new_lines.append(line)
+    msg_pattern     = re.compile(r'^t\s+' + re.escape(msg_id) + r'\s+')
+    any_msg_pattern = re.compile(r'^t\s+(MSG_\S+)')
+    updated_count   = 0
 
-    # Note: Rufus parser.c explicitly checks that rufus.loc MUST be saved with DOS (CRLF \r\n) line endings!
+    result_blocks = []
+    for block in blocks:
+        # Identify the language this block belongs to.
+        lang_id = None
+        for line in block:
+            m = re.match(r'^l\s+"([^"]+)"', line)
+            if m:
+                lang_id = m.group(1)
+                break
+
+        if lang_id is None or lang_id not in translations:
+            result_blocks.append(block)
+            continue
+
+        # Check whether msg_id already exists in this block.
+        if any(msg_pattern.match(l) for l in block):
+            # Replace in-place.
+            new_block = []
+            for line in block:
+                if msg_pattern.match(line):
+                    line = f't {msg_id} "{translations[lang_id]}"'
+                    updated_count += 1
+                new_block.append(line)
+            result_blocks.append(new_block)
+        elif lang_id != "en-US":
+            # Brand-new string: insert at the correct sorted position.
+            new_block = list(block)
+            insert_line = f't {msg_id} "{translations[lang_id]}"'
+
+            # Collect (line-index, MSG_id) for every existing MSG line.
+            msg_positions = [
+                (i, any_msg_pattern.match(l).group(1))
+                for i, l in enumerate(new_block)
+                if any_msg_pattern.match(l)
+            ]
+
+            if msg_positions:
+                # Binary-search for the right alphabetical slot.
+                insert_at = msg_positions[-1][0] + 1   # default: after last MSG line
+                for pos, mid in msg_positions:
+                    if msg_id < mid:
+                        insert_at = pos
+                        break
+                new_block.insert(insert_at, insert_line)
+            else:
+                # No MSG lines yet — append before any trailing blank lines.
+                insert_at = len(new_block)
+                while insert_at > 0 and not new_block[insert_at - 1].strip():
+                    insert_at -= 1
+                new_block.insert(insert_at, insert_line)
+
+            updated_count += 1
+            result_blocks.append(new_block)
+        else:
+            result_blocks.append(block)
+
+    # Flatten and write with mandatory CRLF endings.
+    all_lines = [line for block in result_blocks for line in block]
     with open(rufus_loc_path, "wb") as f:
-        full_text = "\r\n".join(new_lines) + "\r\n"
-        f.write(full_text.encode("utf-8"))
+        f.write(("\r\n".join(all_lines) + "\r\n").encode("utf-8"))
 
     return updated_count
 

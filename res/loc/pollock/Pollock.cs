@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Rufus: The Reliable USB Formatting Utility
  * Poedit <-> rufus.loc conversion utility
  * Copyright © 2018-2026 Pete Batard <pete@akeo.ie>
@@ -882,6 +882,41 @@ namespace pollock
             return (response == ConsoleKey.Y);
         }
 
+        /// <summary>
+        /// Return the value following a named flag in an args array (e.g. --loc path → "path").
+        /// </summary>
+        static string GetArgValue(string[] args, string flag)
+        {
+            for (int i = 0; i < args.Length - 1; i++)
+                if (args[i].Equals(flag, StringComparison.OrdinalIgnoreCase))
+                    return args[i + 1];
+            return null;
+        }
+
+        /// <summary>
+        /// Return all positional arguments — those that are not a '--flag' or the value
+        /// immediately following a known '--flag'.
+        /// </summary>
+        static List<string> GetPositionalArgs(string[] args)
+        {
+            // Named flags that consume the next token as their value
+            var named_flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                { "--loc", "--lang", "--out" };
+            var result = new List<string>();
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i].StartsWith("--"))
+                {
+                    // Skip the value of this named arg if it exists and looks like a value
+                    if (named_flags.Contains(args[i]) && i + 1 < args.Length && !args[i + 1].StartsWith("--"))
+                        i++;
+                    continue;
+                }
+                result.Add(args[i]);
+            }
+            return result;
+        }
+
         //
         // Main entrypoint.
         //
@@ -915,6 +950,230 @@ namespace pollock
             var list = new List<string[]>();
             int index = -1;
 
+            // ----------------------------------------------------------------
+            // Non-interactive CLI mode: activated by any '--' style argument.
+            // This path exits before the interactive menu so that AI agents
+            // and scripts can manipulate rufus.loc without human input.
+            // ----------------------------------------------------------------
+            if (args.Any(a => a.StartsWith("--")))
+            {
+                var known_commands = new[] {
+                    "--list-langs", "--get-string", "--add-string",
+                    "--update-string", "--export-po", "--import-po"
+                };
+                string command = args.FirstOrDefault(a => known_commands.Contains(a));
+                if (command == null)
+                {
+                    Console.Error.WriteLine("ERROR: Unknown command.");
+                    Console.Error.WriteLine("Usage:");
+                    Console.Error.WriteLine("  --list-langs [--loc <path>]");
+                    Console.Error.WriteLine("  --get-string <ID> <group> [--lang <lang-id>] [--loc <path>]");
+                    Console.Error.WriteLine("  --add-string <ID> <group> <value> [--loc <path>]");
+                    Console.Error.WriteLine("  --update-string <ID> <group> <lang-id> <value> [--loc <path>]");
+                    Console.Error.WriteLine("  --export-po <lang-id> [--loc <path>] [--out <dir>]");
+                    Console.Error.WriteLine("  --import-po <file> [--loc <path>]");
+                    Environment.Exit(1);
+                }
+
+                // Resolve loc file path: --loc overrides, then fall back to sibling directory
+                string resolved_loc = GetArgValue(args, "--loc")
+                    ?? Path.GetFullPath(Path.Combine(app_dir, @"..\..\..\", "rufus.loc"));
+                // Try a few common relative locations if the resolved path doesn't exist
+                if (!File.Exists(resolved_loc))
+                {
+                    var candidates = new[]
+                    {
+                        Path.GetFullPath(Path.Combine(app_dir, @"..\rufus.loc")),
+                        Path.GetFullPath(Path.Combine(app_dir, @"rufus.loc")),
+                    };
+                    resolved_loc = candidates.FirstOrDefault(File.Exists) ?? resolved_loc;
+                }
+
+                var pos = GetPositionalArgs(args);
+                int cli_exit = 0;
+
+                switch (command)
+                {
+                    // --list-langs [--loc <path>]
+                    // Print all language IDs, names and versions in the loc file.
+                    case "--list-langs":
+                    {
+                        if (!File.Exists(resolved_loc))
+                        { Console.Error.WriteLine($"ERROR: File not found: {resolved_loc}"); cli_exit = 1; break; }
+                        var langs = ParseLocFile(resolved_loc);
+                        if (langs == null) { cli_exit = 1; break; }
+                        Console.WriteLine($"{"ID",-12} {"Version",-10} Name");
+                        Console.WriteLine(new string('-', 55));
+                        foreach (var lang in langs)
+                            Console.WriteLine($"{lang.id,-12} {"v" + lang.version,-10} {lang.name}");
+                        break;
+                    }
+
+                    // --get-string <ID> <group> [--lang <lang-id>] [--loc <path>]
+                    // Print the current value of a string for a given language (default: en-US).
+                    case "--get-string":
+                    {
+                        if (pos.Count < 2)
+                        { Console.Error.WriteLine("ERROR: Usage: --get-string <ID> <group> [--lang <lang-id>]"); cli_exit = 1; break; }
+                        if (!File.Exists(resolved_loc))
+                        { Console.Error.WriteLine($"ERROR: File not found: {resolved_loc}"); cli_exit = 1; break; }
+                        string gs_id    = pos[0];
+                        string gs_group = pos[1];
+                        string gs_lang  = GetArgValue(args, "--lang") ?? "en-US";
+                        var gs_langs = ParseLocFile(resolved_loc, gs_lang);
+                        if (gs_langs == null) { cli_exit = 1; break; }
+                        var gs_target = gs_langs.Find(x => x.id == gs_lang);
+                        if (gs_target == null)
+                        { Console.Error.WriteLine($"ERROR: Language '{gs_lang}' not found."); cli_exit = 1; break; }
+                        var gs_key = new Id(gs_group, gs_id);
+                        if (gs_target.id_to_str.ContainsKey(gs_key))
+                        {
+                            // Strip the outer quotes that ParseLocFile preserves
+                            string raw = gs_target.id_to_str[gs_key];
+                            Console.WriteLine(raw.Length >= 2 && raw[0] == '"' && raw[raw.Length - 1] == '"'
+                                ? raw.Substring(1, raw.Length - 2) : raw);
+                        }
+                        else
+                        {
+                            Console.Error.WriteLine($"ERROR: '{gs_id}' not found in group '{gs_group}' for language '{gs_lang}'.");
+                            cli_exit = 1;
+                        }
+                        break;
+                    }
+
+                    // --add-string <ID> <group> <value> [--loc <path>]
+                    // Add a new string to en-US in rufus.loc.  Other languages fall back automatically.
+                    // The value should NOT include surrounding quotes; Pollock adds them on write.
+                    case "--add-string":
+                    {
+                        if (pos.Count < 3)
+                        { Console.Error.WriteLine("ERROR: Usage: --add-string <ID> <group> <value>"); cli_exit = 1; break; }
+                        if (!File.Exists(resolved_loc))
+                        { Console.Error.WriteLine($"ERROR: File not found: {resolved_loc}"); cli_exit = 1; break; }
+                        string as_id    = pos[0];
+                        string as_group = pos[1];
+                        string as_value = pos[2];  // stored WITHOUT outer quotes (WriteLoc adds them)
+                        // Load only en-US
+                        var as_langs = ParseLocFile(resolved_loc, "en-US");
+                        if (as_langs == null) { cli_exit = 1; break; }
+                        var as_en = as_langs.Find(x => x.id == "en-US");
+                        if (as_en == null)
+                        { Console.Error.WriteLine("ERROR: en-US not found in loc file."); cli_exit = 1; break; }
+                        // Check for duplicate
+                        // ParseLocFile stores values WITH outer quotes; convert so we can do a proper lookup.
+                        var as_key = new Id(as_group, as_id);
+                        if (as_en.id_to_str.ContainsKey(as_key))
+                        {
+                            Console.Error.WriteLine($"ERROR: '{as_id}' already exists in group '{as_group}'. Use --update-string to change it.");
+                            cli_exit = 1; break;
+                        }
+                        // Add to the section (creating the section if needed)
+                        if (!as_en.sections.ContainsKey(as_group))
+                            as_en.sections.Add(as_group, new List<Message>());
+                        as_en.sections[as_group].Add(new Message(as_id, as_value));
+                        as_en.id_to_str[as_key] = as_value;
+                        // Keep MSG sorted by ID
+                        if (as_group == "MSG")
+                            as_en.sections["MSG"] = as_en.sections["MSG"].OrderBy(x => x.id).ToList();
+                        // Fix up existing entries: ParseLocFile stores values WITH quotes;
+                        // WriteLoc expects WITHOUT quotes, so strip them before calling UpdateLocFile.
+                        foreach (var sec in as_en.sections)
+                            foreach (var msg in sec.Value)
+                                if (msg.str.Length >= 2 && msg.str[0] == '"' && msg.str[msg.str.Length - 1] == '"')
+                                    msg.str = msg.str.Substring(1, msg.str.Length - 2);
+                        if (!UpdateLocFile(as_en, Path.GetDirectoryName(resolved_loc)))
+                        { Console.Error.WriteLine("ERROR: Failed to update loc file."); cli_exit = 1; break; }
+                        Console.WriteLine($"SUCCESS: Added '{as_id}' to group '{as_group}' in en-US.");
+                        break;
+                    }
+
+                    // --update-string <ID> <group> <lang-id> <value> [--loc <path>]
+                    // Update (or insert) a string for a specific language.  The en-US update
+                    // also applies to all other languages via --update-string with lang=en-US.
+                    case "--update-string":
+                    {
+                        if (pos.Count < 4)
+                        { Console.Error.WriteLine("ERROR: Usage: --update-string <ID> <group> <lang-id> <value>"); cli_exit = 1; break; }
+                        if (!File.Exists(resolved_loc))
+                        { Console.Error.WriteLine($"ERROR: File not found: {resolved_loc}"); cli_exit = 1; break; }
+                        string us_id    = pos[0];
+                        string us_group = pos[1];
+                        string us_lang  = pos[2];
+                        string us_value = pos[3];  // WITHOUT outer quotes
+                        var us_langs = ParseLocFile(resolved_loc, us_lang);
+                        if (us_langs == null) { cli_exit = 1; break; }
+                        var us_target = us_langs.Find(x => x.id == us_lang);
+                        if (us_target == null)
+                        { Console.Error.WriteLine($"ERROR: Language '{us_lang}' not found."); cli_exit = 1; break; }
+                        // Ensure the section exists
+                        if (!us_target.sections.ContainsKey(us_group))
+                            us_target.sections.Add(us_group, new List<Message>());
+                        // Update in-place or add
+                        var us_existing = us_target.sections[us_group].Find(x => x.id == us_id);
+                        if (us_existing != null)
+                            us_existing.str = us_value;
+                        else
+                            us_target.sections[us_group].Add(new Message(us_id, us_value));
+                        var us_key = new Id(us_group, us_id);
+                        us_target.id_to_str[us_key] = us_value;
+                        if (us_group == "MSG")
+                            us_target.sections["MSG"] = us_target.sections["MSG"].OrderBy(x => x.id).ToList();
+                        // Strip ParseLocFile outer quotes from untouched entries before writing
+                        foreach (var sec in us_target.sections)
+                            foreach (var msg in sec.Value)
+                                if (msg.id != us_id && msg.str.Length >= 2
+                                    && msg.str[0] == '"' && msg.str[msg.str.Length - 1] == '"')
+                                    msg.str = msg.str.Substring(1, msg.str.Length - 2);
+                        if (!UpdateLocFile(us_target, Path.GetDirectoryName(resolved_loc)))
+                        { Console.Error.WriteLine("ERROR: Failed to update loc file."); cli_exit = 1; break; }
+                        Console.WriteLine($"SUCCESS: Set '{us_id}' in group '{us_group}' for language '{us_lang}'.");
+                        break;
+                    }
+
+                    // --export-po <lang-id> [--loc <path>] [--out <dir>]
+                    // Export a .po/.pot file for the given language ID (use 'en-US' to export the .pot template).
+                    case "--export-po":
+                    {
+                        if (pos.Count < 1)
+                        { Console.Error.WriteLine("ERROR: Usage: --export-po <lang-id>"); cli_exit = 1; break; }
+                        if (!File.Exists(resolved_loc))
+                        { Console.Error.WriteLine($"ERROR: File not found: {resolved_loc}"); cli_exit = 1; break; }
+                        string ep_lang = pos[0];
+                        string ep_out  = GetArgValue(args, "--out") ?? Path.GetDirectoryName(resolved_loc);
+                        var ep_langs = ParseLocFile(resolved_loc, ep_lang);
+                        if (ep_langs == null) { cli_exit = 1; break; }
+                        if (CreatePoFiles(ep_langs, null, ep_out) == 0)
+                        { Console.Error.WriteLine("ERROR: Failed to create PO file."); cli_exit = 1; }
+                        break;
+                    }
+
+                    // --import-po <file> [--loc <path>]
+                    // Non-interactively import a .po file and update the matching language section
+                    // in rufus.loc.  This replaces the GUI file-picker used by the '-i' flag.
+                    case "--import-po":
+                    {
+                        if (pos.Count < 1)
+                        { Console.Error.WriteLine("ERROR: Usage: --import-po <file>"); cli_exit = 1; break; }
+                        string ip_file = pos[0];
+                        if (!File.Exists(ip_file))
+                        { Console.Error.WriteLine($"ERROR: File not found: {ip_file}"); cli_exit = 1; break; }
+                        if (!File.Exists(resolved_loc))
+                        { Console.Error.WriteLine($"ERROR: File not found: {resolved_loc}"); cli_exit = 1; break; }
+                        var ip_lang = ParsePoFile(ip_file);
+                        if (ip_lang == null) { Console.Error.WriteLine("ERROR: Failed to parse PO file."); cli_exit = 1; break; }
+                        if (!UpdateLocFile(ip_lang, Path.GetDirectoryName(resolved_loc)))
+                        { Console.Error.WriteLine("ERROR: Failed to update loc file."); cli_exit = 1; break; }
+                        Console.WriteLine($"SUCCESS: Updated language '{ip_lang.id}' from '{ip_file}'.");
+                        break;
+                    }
+                }
+
+                Environment.Exit(cli_exit);
+            }
+
+            // ----------------------------------------------------------------
+            // Legacy interactive / maintainer argument parsing (unchanged)
+            // ----------------------------------------------------------------
             // Parse parameters
             foreach (var arg in args)
             {
@@ -1024,7 +1283,8 @@ namespace pollock
             }
             else
             {
-                var local_loc = @"C:\Projects\rufus\res\loc\rufus.loc";
+                // Use a path relative to the executable: pollock/ -> loc/ -> rufus.loc
+                var local_loc = Path.GetFullPath(Path.Combine(app_dir, @"..\rufus.loc"));
                 Console.Write($"Copying loc file from '{local_loc}'... ");
                 File.Copy(local_loc, "rufus.loc", true);
             }
