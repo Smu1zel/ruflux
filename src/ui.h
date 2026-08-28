@@ -50,6 +50,7 @@
 #define TOOLBAR_STYLE						( WS_CHILD | WS_TABSTOP | WS_VISIBLE | \
 											  WS_CLIPSIBLINGS | WS_CLIPCHILDREN  | \
 											  CCS_NOPARENTALIGN | CCS_NODIVIDER  | \
+											  CCS_NORESIZE                       | \
 											  TBSTYLE_FLAT | TBSTYLE_BUTTON      | \
 											  TBSTYLE_AUTOSIZE | TBSTYLE_LIST    | \
 											  TBSTYLE_TOOLTIPS )

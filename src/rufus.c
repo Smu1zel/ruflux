@@ -2113,10 +2113,12 @@ static void InitDialog(HWND hDlg)
 	static_strcpy(uppercase_cancel, lmprintf(MSG_007));
 	CharUpperBuffU(uppercase_cancel, sizeof(uppercase_cancel));
 
-	// Always enable the split button for NativeWhitebar
-	LONG_PTR select_style = GetWindowLongPtr(hSelectImage, GWL_STYLE);
-	select_style |= BS_SPLITBUTTON;
-	SetWindowLongPtr(hSelectImage, GWL_STYLE, select_style);
+	// Enable the split button for NativeWhitebar on Vista and above (XP ComCtl32 does not support BS_SPLITBUTTON)
+	if (WindowsVersion.Version >= WINDOWS_VISTA) {
+		LONG_PTR select_style = GetWindowLongPtr(hSelectImage, GWL_STYLE);
+		select_style |= BS_SPLITBUTTON;
+		SetWindowLongPtr(hSelectImage, GWL_STYLE, select_style);
+	}
 
 	CreateSmallButtons(hDlg);
 	GetBasicControlsWidth(hDlg);
@@ -3005,6 +3007,24 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 			TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_TOPALIGN, Point.x, Point.y, hMainDialog, NULL);
 			DestroyMenu(hMenu);
 			break;
+		}
+		break;
+
+	case WM_CONTEXTMENU:
+		if ((HWND)wParam == hSelectImage) {
+			POINT pt = { (short)LOWORD(lParam), (short)HIWORD(lParam) };
+			if (pt.x == -1 && pt.y == -1) {
+				RECT btn_rc;
+				GetWindowRect(hSelectImage, &btn_rc);
+				pt.x = btn_rc.left;
+				pt.y = btn_rc.bottom;
+			}
+			hMenu = CreatePopupMenu();
+			InsertMenuU(hMenu, -1, MF_BYPOSITION | ((select_index == 0) ? MF_CHECKED : 0), IDM_SELECT, uppercase_select[0]);
+			InsertMenuU(hMenu, -1, MF_BYPOSITION | ((select_index == 1) ? MF_CHECKED : 0), IDM_DOWNLOAD, uppercase_select[1]);
+			TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, hMainDialog, NULL);
+			DestroyMenu(hMenu);
+			return (INT_PTR)TRUE;
 		}
 		break;
 

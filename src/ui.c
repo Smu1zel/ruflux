@@ -846,6 +846,76 @@ void ToggleImageOptions(void)
 	InvalidateRect(hMainDialog, NULL, TRUE);
 }
 
+static HICON CreateIconFromPNG(const unsigned char* buffer, DWORD bufsize)
+{
+	HICON hIcon = NULL;
+	if (buffer == NULL || bufsize == 0)
+		return NULL;
+
+	// On Vista+, CreateIconFromResourceEx supports PNG directly
+	if (WindowsVersion.Version >= WINDOWS_VISTA) {
+		hIcon = CreateIconFromResourceEx((PBYTE)buffer, bufsize, TRUE, 0x30000, 0, 0, 0);
+		if (hIcon != NULL)
+			return hIcon;
+	}
+
+	// Fallback for Windows XP using GDI+
+	typedef struct {
+		UINT32 GdiplusVersion;
+		void* DebugEventCallback;
+		BOOL SuppressBackgroundThread;
+		BOOL SuppressExternalCodecs;
+	} GdiplusStartupInput_t;
+
+	HMODULE hGdiplus = LoadLibraryA("gdiplus.dll");
+	if (hGdiplus != NULL) {
+		typedef int (WINAPI *pfn_GdiplusStartup)(ULONG_PTR*, const GdiplusStartupInput_t*, void*);
+		typedef void (WINAPI *pfn_GdiplusShutdown)(ULONG_PTR);
+		typedef int (WINAPI *pfn_GdipCreateBitmapFromStream)(IStream*, void**);
+		typedef int (WINAPI *pfn_GdipCreateHICONFromBitmap)(void*, HICON*);
+		typedef int (WINAPI *pfn_GdipDisposeImage)(void*);
+
+		pfn_GdiplusStartup pGdiplusStartup = (pfn_GdiplusStartup)GetProcAddress(hGdiplus, "GdiplusStartup");
+		pfn_GdiplusShutdown pGdiplusShutdown = (pfn_GdiplusShutdown)GetProcAddress(hGdiplus, "GdiplusShutdown");
+		pfn_GdipCreateBitmapFromStream pGdipCreateBitmapFromStream = (pfn_GdipCreateBitmapFromStream)GetProcAddress(hGdiplus, "GdipCreateBitmapFromStream");
+		pfn_GdipCreateHICONFromBitmap pGdipCreateHICONFromBitmap = (pfn_GdipCreateHICONFromBitmap)GetProcAddress(hGdiplus, "GdipCreateHICONFromBitmap");
+		pfn_GdipDisposeImage pGdipDisposeImage = (pfn_GdipDisposeImage)GetProcAddress(hGdiplus, "GdipDisposeImage");
+
+		if (pGdiplusStartup && pGdiplusShutdown && pGdipCreateBitmapFromStream && pGdipCreateHICONFromBitmap && pGdipDisposeImage) {
+			ULONG_PTR gdiplusToken = 0;
+			GdiplusStartupInput_t gdiplusStartupInput = { 1, NULL, FALSE, FALSE };
+			if (pGdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL) == 0) {
+				HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, bufsize);
+				if (hMem != NULL) {
+					void* pMem = GlobalLock(hMem);
+					if (pMem != NULL) {
+						memcpy(pMem, buffer, bufsize);
+						GlobalUnlock(hMem);
+						IStream* pStream = NULL;
+						if (CreateStreamOnHGlobal(hMem, TRUE, &pStream) == S_OK && pStream != NULL) {
+							void* pBitmap = NULL;
+							if (pGdipCreateBitmapFromStream(pStream, &pBitmap) == 0 && pBitmap != NULL) {
+								pGdipCreateHICONFromBitmap(pBitmap, &hIcon);
+								pGdipDisposeImage(pBitmap);
+							}
+							pStream->lpVtbl->Release(pStream);
+						}
+					} else {
+						GlobalFree(hMem);
+					}
+				}
+				pGdiplusShutdown(gdiplusToken);
+			}
+		}
+	}
+
+	// Last-resort fallback if GDI+ failed
+	if (hIcon == NULL)
+		hIcon = CreateIconFromResourceEx((PBYTE)buffer, bufsize, TRUE, 0x30000, 0, 0, 0);
+
+	return hIcon;
+}
+
 // We need to create the small toolbar buttons first so that we can compute their width
 void CreateSmallButtons(HWND hDlg)
 {
@@ -861,11 +931,12 @@ void CreateSmallButtons(HWND hDlg)
 	else if (i16 >= 20)
 		icon_offset = 10;
 
+	DWORD ilc_flags = ILC_COLOR32 | ((WindowsVersion.Version >= WINDOWS_VISTA) ? (ILC_HIGHQUALITYSCALE | ILC_MIRROR) : 0);
 	hSaveToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL, TOOLBAR_STYLE,
 		0, 0, 0, 0, hMainDialog, (HMENU)IDC_SAVE_TOOLBAR, hMainInstance, NULL);
-	hSaveImageList = ImageList_Create(i16, i16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE | ILC_MIRROR, 1, 0);
+	hSaveImageList = ImageList_Create(i16, i16, ilc_flags, 1, 0);
 	buffer = GetResource(hMainInstance, MAKEINTRESOURCEA(IDI_SAVE_16 + icon_offset), _RT_RCDATA, "save icon", &bufsize, FALSE);
-	hIconSave = CreateIconFromResourceEx(buffer, bufsize, TRUE, 0x30000, 0, 0, 0);
+	hIconSave = CreateIconFromPNG(buffer, bufsize);
 	ChangeIconColor(&hIconSave, 0);
 	ImageList_AddIcon(hSaveImageList, hIconSave);
 	DestroyIcon(hIconSave);
@@ -881,9 +952,9 @@ void CreateSmallButtons(HWND hDlg)
 
 	hHashToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL, TOOLBAR_STYLE,
 		0, 0, 0, 0, hMainDialog, (HMENU)IDC_HASH_TOOLBAR, hMainInstance, NULL);
-	hHashImageList = ImageList_Create(i16, i16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE | ILC_MIRROR, 1, 0);
+	hHashImageList = ImageList_Create(i16, i16, ilc_flags, 1, 0);
 	buffer = GetResource(hMainInstance, MAKEINTRESOURCEA(IDI_HASH_16 + icon_offset), _RT_RCDATA, "hash icon", &bufsize, FALSE);
-	hIconHash = CreateIconFromResourceEx(buffer, bufsize, TRUE, 0x30000, 0, 0, 0);
+	hIconHash = CreateIconFromPNG(buffer, bufsize);
 	ChangeIconColor(&hIconHash, 0);
 	ImageList_AddIcon(hHashImageList, hIconHash);
 	DestroyIcon(hIconHash);
@@ -1204,7 +1275,7 @@ void CreateAdditionalControls(HWND hDlg)
 	for (i = 0; i < ARRAYSIZE(multitoolbar_icons); i++) {
 		buffer = GetResource(hMainInstance, MAKEINTRESOURCEA(multitoolbar_icons[i] + icon_offset),
 			_RT_RCDATA, "toolbar icon", &bufsize, FALSE);
-		hIcon = CreateIconFromResourceEx(buffer, bufsize, TRUE, 0x30000, 0, 0, 0);
+		hIcon = CreateIconFromPNG(buffer, bufsize);
 		ChangeIconColor(&hIcon, 0);
 		// Mirror the "world" icon on RTL since we can't use an ImageList mirroring flag for that...
 		if (right_to_left_mode && (i == 0))
