@@ -109,6 +109,73 @@ void SetDialogFocus(HWND hDlg, HWND hCtrl)
 	SendMessage(hDlg, WM_NEXTDLGCTL, (WPARAM)hCtrl, TRUE);
 }
 
+static char* FileDialogClassic(BOOL save, char* path, const ext_t* ext, UINT* selected_ext)
+{
+	OPENFILENAMEW ofn;
+	wchar_t szFile[MAX_PATH * 2] = { 0 };
+	wchar_t szFilter[2048] = { 0 };
+	wchar_t* pFilter = szFilter;
+	wchar_t* wpath = NULL;
+	char* filepath = NULL;
+	size_t i;
+
+	memset(&ofn, 0, sizeof(ofn));
+
+	for (i = 0; i < ext->count; i++) {
+		wchar_t* wdesc = utf8_to_wchar(ext->description[i]);
+		wchar_t* wspec = utf8_to_wchar(ext->extension[i]);
+		if (wdesc && wspec) {
+			wcscpy(pFilter, wdesc);
+			pFilter += wcslen(wdesc) + 1;
+			wcscpy(pFilter, wspec);
+			pFilter += wcslen(wspec) + 1;
+		}
+		safe_free(wdesc);
+		safe_free(wspec);
+	}
+	wchar_t* wall = utf8_to_wchar(lmprintf(MSG_107));
+	if (wall) {
+		wcscpy(pFilter, wall);
+		pFilter += wcslen(wall) + 1;
+		wcscpy(pFilter, L"*.*");
+		pFilter += 4;
+		safe_free(wall);
+	}
+	*pFilter = L'\0';
+
+	if (ext->filename != NULL) {
+		wchar_t* wfilename = utf8_to_wchar(ext->filename);
+		if (wfilename != NULL) {
+			wcsncpy(szFile, wfilename, ARRAYSIZE(szFile) - 1);
+			safe_free(wfilename);
+		}
+	}
+
+	if (path != NULL) {
+		wpath = utf8_to_wchar(path);
+	}
+
+	ofn.lStructSize = sizeof(OPENFILENAMEW);
+	ofn.hwndOwner = hMainDialog;
+	ofn.lpstrFilter = szFilter;
+	ofn.nFilterIndex = (selected_ext != NULL && *selected_ext > 0) ? *selected_ext : 1;
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = ARRAYSIZE(szFile);
+	ofn.lpstrInitialDir = wpath;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY;
+	if (save)
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING;
+
+	if (save ? GetSaveFileNameW(&ofn) : GetOpenFileNameW(&ofn)) {
+		filepath = wchar_to_utf8(szFile);
+		if (selected_ext != NULL)
+			*selected_ext = (UINT)ofn.nFilterIndex;
+	}
+
+	safe_free(wpath);
+	return filepath;
+}
+
 /*
  * Return the UTF8 path of a file selected through a load or save dialog
  * All string parameters are UTF-8
@@ -129,6 +196,14 @@ char* FileDialog(BOOL save, char* path, const ext_t* ext, UINT* selected_ext)
 
 	if ((ext == NULL) || (ext->count == 0) || (ext->extension == NULL) || (ext->description == NULL))
 		return NULL;
+
+	// On Windows XP, use the classic GetOpenFileName / GetSaveFileName dialog directly
+	if (WindowsVersion.Version < WINDOWS_VISTA) {
+		dialog_showing++;
+		filepath = FileDialogClassic(save, path, ext, selected_ext);
+		dialog_showing--;
+		return filepath;
+	}
 
 	filter_spec = (COMDLG_FILTERSPEC*)calloc(ext->count + 1, sizeof(COMDLG_FILTERSPEC));
 	if (filter_spec == NULL)
@@ -151,7 +226,7 @@ char* FileDialog(BOOL save, char* path, const ext_t* ext, UINT* selected_ext)
 
 	if (FAILED(hr)) {
 		SetLastError(hr);
-		uprintf("CoCreateInstance for FileOpenDialog failed: %s", WindowsErrorString());
+		filepath = FileDialogClassic(save, path, ext, selected_ext);
 		goto out;
 	}
 
