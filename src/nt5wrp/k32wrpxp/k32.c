@@ -465,3 +465,132 @@ BOOL WINAPI Ext_GetNLSVersion(NLS_FUNCTION Function, LCID Locale, LPNLSVERSIONIN
 }
 
 #endif
+
+int WINAPI Ext_LCIDToLocaleName(LCID Locale, LPWSTR lpName, int cchName, DWORD dwFlags) {
+    typedef int (WINAPI *PFN_LCIDToLocaleName)(LCID, LPWSTR, int, DWORD);
+    static PFN_LCIDToLocaleName s_pfnLCIDToLocaleName = (PFN_LCIDToLocaleName)-1;
+
+    if (s_pfnLCIDToLocaleName == (PFN_LCIDToLocaleName)-1) {
+        HMODULE hKernel32 = GetModuleHandleW(L"kernel32.dll");
+        s_pfnLCIDToLocaleName = hKernel32 ? (PFN_LCIDToLocaleName)GetProcAddress(hKernel32, "LCIDToLocaleName") : NULL;
+    }
+
+    if (s_pfnLCIDToLocaleName != NULL) {
+        return s_pfnLCIDToLocaleName(Locale, lpName, cchName, dwFlags);
+    }
+
+    wchar_t lang[10] = {0};
+    wchar_t country[10] = {0};
+    if (GetLocaleInfoW(Locale, LOCALE_SISO639LANGNAME, lang, 10)) {
+        if (GetLocaleInfoW(Locale, LOCALE_SISO3166CTRYNAME, country, 10) && country[0] != L'\0') {
+            return wsprintfW(lpName, L"%s-%s", lang, country);
+        }
+        return wsprintfW(lpName, L"%s", lang);
+    }
+    return 0;
+}
+
+typedef VOID (WINAPI *PFN_InitializeConditionVariable)(PCONDITION_VARIABLE);
+typedef BOOL (WINAPI *PFN_SleepConditionVariableCS)(PCONDITION_VARIABLE, PCRITICAL_SECTION, DWORD);
+typedef VOID (WINAPI *PFN_WakeConditionVariable)(PCONDITION_VARIABLE);
+typedef VOID (WINAPI *PFN_WakeAllConditionVariable)(PCONDITION_VARIABLE);
+
+static PFN_InitializeConditionVariable s_pfnInitCV = (PFN_InitializeConditionVariable)-1;
+static PFN_SleepConditionVariableCS s_pfnSleepCV = NULL;
+static PFN_WakeConditionVariable s_pfnWakeCV = NULL;
+static PFN_WakeAllConditionVariable s_pfnWakeAllCV = NULL;
+
+static void InitConditionVariablePointers(void) {
+    if (s_pfnInitCV == (PFN_InitializeConditionVariable)-1) {
+        HMODULE hKernel32 = GetModuleHandleW(L"kernel32.dll");
+        if (hKernel32) {
+            s_pfnInitCV = (PFN_InitializeConditionVariable)GetProcAddress(hKernel32, "InitializeConditionVariable");
+            s_pfnSleepCV = (PFN_SleepConditionVariableCS)GetProcAddress(hKernel32, "SleepConditionVariableCS");
+            s_pfnWakeCV = (PFN_WakeConditionVariable)GetProcAddress(hKernel32, "WakeConditionVariable");
+            s_pfnWakeAllCV = (PFN_WakeAllConditionVariable)GetProcAddress(hKernel32, "WakeAllConditionVariable");
+        } else {
+            s_pfnInitCV = NULL;
+        }
+    }
+}
+
+VOID WINAPI Ext_InitializeConditionVariable(PCONDITION_VARIABLE ConditionVariable) {
+    InitConditionVariablePointers();
+    if (s_pfnInitCV) {
+        s_pfnInitCV(ConditionVariable);
+        return;
+    }
+    if (ConditionVariable)
+        ConditionVariable->Ptr = CreateEventW(NULL, FALSE, FALSE, NULL);
+}
+
+BOOL WINAPI Ext_SleepConditionVariableCS(PCONDITION_VARIABLE ConditionVariable, PCRITICAL_SECTION CriticalSection, DWORD dwMilliseconds) {
+    InitConditionVariablePointers();
+    if (s_pfnSleepCV)
+        return s_pfnSleepCV(ConditionVariable, CriticalSection, dwMilliseconds);
+
+    if (!ConditionVariable || !ConditionVariable->Ptr)
+        return FALSE;
+
+    HANDLE hEvent = (HANDLE)ConditionVariable->Ptr;
+    LeaveCriticalSection(CriticalSection);
+    DWORD dwWait = WaitForSingleObject(hEvent, dwMilliseconds);
+    EnterCriticalSection(CriticalSection);
+
+    if (dwWait == WAIT_OBJECT_0)
+        return TRUE;
+    if (dwWait == WAIT_TIMEOUT)
+        SetLastError(ERROR_TIMEOUT);
+    return FALSE;
+}
+
+VOID WINAPI Ext_WakeConditionVariable(PCONDITION_VARIABLE ConditionVariable) {
+    InitConditionVariablePointers();
+    if (s_pfnWakeCV) {
+        s_pfnWakeCV(ConditionVariable);
+        return;
+    }
+    if (ConditionVariable && ConditionVariable->Ptr)
+        SetEvent((HANDLE)ConditionVariable->Ptr);
+}
+
+VOID WINAPI Ext_WakeAllConditionVariable(PCONDITION_VARIABLE ConditionVariable) {
+    InitConditionVariablePointers();
+    if (s_pfnWakeAllCV) {
+        s_pfnWakeAllCV(ConditionVariable);
+        return;
+    }
+    if (ConditionVariable && ConditionVariable->Ptr)
+        PulseEvent((HANDLE)ConditionVariable->Ptr);
+}
+
+LANGID WINAPI Ext_GetThreadUILanguage(VOID) {
+    typedef LANGID (WINAPI *PFN_GetThreadUILanguage)(VOID);
+    static PFN_GetThreadUILanguage s_pfnGetThreadUILang = (PFN_GetThreadUILanguage)-1;
+
+    if (s_pfnGetThreadUILang == (PFN_GetThreadUILanguage)-1) {
+        HMODULE hKernel32 = GetModuleHandleW(L"kernel32.dll");
+        s_pfnGetThreadUILang = hKernel32 ? (PFN_GetThreadUILanguage)GetProcAddress(hKernel32, "GetThreadUILanguage") : NULL;
+    }
+
+    if (s_pfnGetThreadUILang != NULL)
+        return s_pfnGetThreadUILang();
+
+    return GetUserDefaultUILanguage();
+}
+
+LANGID WINAPI Ext_SetThreadUILanguage(LANGID LangId) {
+    typedef LANGID (WINAPI *PFN_SetThreadUILanguage)(LANGID);
+    static PFN_SetThreadUILanguage s_pfnSetThreadUILang = (PFN_SetThreadUILanguage)-1;
+
+    if (s_pfnSetThreadUILang == (PFN_SetThreadUILanguage)-1) {
+        HMODULE hKernel32 = GetModuleHandleW(L"kernel32.dll");
+        s_pfnSetThreadUILang = hKernel32 ? (PFN_SetThreadUILanguage)GetProcAddress(hKernel32, "SetThreadUILanguage") : NULL;
+    }
+
+    if (s_pfnSetThreadUILang != NULL)
+        return s_pfnSetThreadUILang(LangId);
+
+    SetThreadLocale(MAKELCID(LangId, SORT_DEFAULT));
+    return LangId;
+}

@@ -52,6 +52,7 @@
  * Globals
  */
 const HANDLE hRufus = (HANDLE)0x0000005275667573ULL;	// "\0\0\0Rufus"
+PF_TYPE_DECL(WINAPI, BOOL, CancelSynchronousIo, (HANDLE));
 HWND hStatus;
 size_t ubuffer_pos = 0;
 char ubuffer[UBUFFER_SIZE];	// Buffer for ubpushf() messages we don't log right away
@@ -587,7 +588,9 @@ HANDLE CreateFileWithTimeout(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwS
 	hThread = CreateThread(NULL, 0, CreateFileWithTimeoutThread, &params, 0, NULL);
 	if (hThread != NULL) {
 		if (WaitForSingleObject(hThread, dwTimeOut) == WAIT_TIMEOUT) {
-			CancelSynchronousIo(hThread);
+			PF_INIT(CancelSynchronousIo, Kernel32);
+			if (pfCancelSynchronousIo)
+				pfCancelSynchronousIo(hThread);
 			switch (WaitForSingleObject(hThread, 30000)) {
 			case WAIT_TIMEOUT:
 				uprintf("Could not open file or device within timeout duration");

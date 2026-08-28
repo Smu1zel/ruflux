@@ -814,9 +814,25 @@ static __inline DWORD GetModuleFileNameExU(HANDLE hProcess, HMODULE hModule, cha
 
 static __inline DWORD GetFinalPathNameByHandleU(HANDLE hFile, char* lpszFilePath, DWORD cchFilePath, DWORD dwFlags)
 {
+	typedef DWORD (WINAPI *PFN_GetFinalPathNameByHandleW)(HANDLE, LPWSTR, DWORD, DWORD);
+	static PFN_GetFinalPathNameByHandleW pfnGetFinalPathNameByHandleW = NULL;
+	static BOOL bInit = FALSE;
+
+	if (!bInit) {
+		HMODULE hK32 = GetModuleHandleA("kernel32.dll");
+		if (hK32)
+			pfnGetFinalPathNameByHandleW = (PFN_GetFinalPathNameByHandleW)GetProcAddress(hK32, "GetFinalPathNameByHandleW");
+		bInit = TRUE;
+	}
+
 	DWORD ret = 0, err = ERROR_INVALID_DATA;
+	if (pfnGetFinalPathNameByHandleW == NULL) {
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		return 0;
+	}
+
 	walloc(lpszFilePath, cchFilePath);
-	ret = GetFinalPathNameByHandleW(hFile, wlpszFilePath, cchFilePath, dwFlags);
+	ret = pfnGetFinalPathNameByHandleW(hFile, wlpszFilePath, cchFilePath, dwFlags);
 	err = GetLastError();
 	if ((ret != 0)
 		&& ((ret = wchar_to_utf8_no_alloc(wlpszFilePath, lpszFilePath, cchFilePath)) == 0)) {
@@ -1356,9 +1372,25 @@ static __inline BOOL MoveFileExU(const char* lpExistingFileName, const char* lpN
 
 static __inline BOOL CreateSymbolicLinkU(const char* lpSymlinkFileName, const char* lpTargetFileName, DWORD dwFlags)
 {
+	typedef BOOLEAN (WINAPI *PFN_CreateSymbolicLinkW)(LPCWSTR, LPCWSTR, DWORD);
+	static PFN_CreateSymbolicLinkW pfnCreateSymbolicLinkW = NULL;
+	static BOOL bInit = FALSE;
+
+	if (!bInit) {
+		HMODULE hK32 = GetModuleHandleA("kernel32.dll");
+		if (hK32)
+			pfnCreateSymbolicLinkW = (PFN_CreateSymbolicLinkW)GetProcAddress(hK32, "CreateSymbolicLinkW");
+		bInit = TRUE;
+	}
+
+	if (!pfnCreateSymbolicLinkW) {
+		SetLastError(ERROR_NOT_SUPPORTED);
+		return FALSE;
+	}
+
 	wconvert(lpSymlinkFileName);
 	wconvert(lpTargetFileName);
-	BOOL ret = CreateSymbolicLinkW(wlpSymlinkFileName, wlpTargetFileName, dwFlags);
+	BOOL ret = (BOOL)pfnCreateSymbolicLinkW(wlpSymlinkFileName, wlpTargetFileName, dwFlags);
 	wfree(lpTargetFileName);
 	wfree(lpSymlinkFileName);
 	return ret;

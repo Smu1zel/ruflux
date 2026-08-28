@@ -45,6 +45,8 @@
 #include "license.h"
 #include "darkmode.h"
 
+PF_TYPE_DECL(WINAPI, HRESULT, SHCreateItemFromParsingName, (PCWSTR, IBindCtx*, REFIID, void**));
+
 /* Globals */
 extern BOOL is_x86_64, appstore_version;
 extern char unattend_username[MAX_USERNAME_LENGTH], *sbat_level_txt, *sb_active_txt, *sb_revoked_txt;
@@ -156,22 +158,21 @@ char* FileDialog(BOOL save, char* path, const ext_t* ext, UINT* selected_ext)
 	// Set the file extension filters
 	IFileDialog_SetFileTypes(pfd, (UINT)ext->count + 1, filter_spec);
 
+	PF_INIT(SHCreateItemFromParsingName, Shell32);
 	if (path == NULL) {
 		// Try to use the "Downloads" folder as the initial default directory
 		const GUID download_dir_guid =
 			{ 0x374de290, 0x123f, 0x4565, { 0x91, 0x64, 0x39, 0xc4, 0x92, 0x5e, 0x46, 0x7b } };
 		hr = SHGetKnownFolderPath(&download_dir_guid, 0, 0, &wpath);
 		if (SUCCEEDED(hr)) {
-			hr = SHCreateItemFromParsingName(wpath, NULL, &IID_IShellItem, (LPVOID)&si_path);
-			if (SUCCEEDED(hr)) {
+			if (pfSHCreateItemFromParsingName && SUCCEEDED(pfSHCreateItemFromParsingName(wpath, NULL, &IID_IShellItem, (LPVOID)&si_path))) {
 				IFileDialog_SetDefaultFolder(pfd, si_path);
 			}
 			CoTaskMemFree(wpath);
 		}
 	} else {
 		wpath = utf8_to_wchar(path);
-		hr = SHCreateItemFromParsingName(wpath, NULL, &IID_IShellItem, (LPVOID)&si_path);
-		if (SUCCEEDED(hr)) {
+		if (pfSHCreateItemFromParsingName && SUCCEEDED(pfSHCreateItemFromParsingName(wpath, NULL, &IID_IShellItem, (LPVOID)&si_path))) {
 			IFileDialog_SetFolder(pfd, si_path);
 		}
 		safe_free(wpath);

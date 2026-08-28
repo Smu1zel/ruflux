@@ -1346,7 +1346,9 @@ BOOL GetDriveLabel(DWORD DriveIndex, char* letters, char** label, BOOL bSilent)
 	if (letters[0] == 0) {
 		// Even if we don't have a letter, try to obtain the label of the first partition
 		HANDLE h = GetLogicalHandle(DriveIndex, 0, FALSE, FALSE, FALSE);
-		if (GetVolumeInformationByHandleW(h, VolumeName, 64, &VolumeSerialNumber,
+		PF_TYPE_DECL(WINAPI, BOOL, GetVolumeInformationByHandleW, (HANDLE, LPWSTR, DWORD, LPDWORD, LPDWORD, LPDWORD, LPWSTR, DWORD));
+		PF_INIT(GetVolumeInformationByHandleW, Kernel32);
+		if (pfGetVolumeInformationByHandleW && pfGetVolumeInformationByHandleW(h, VolumeName, 64, &VolumeSerialNumber,
 			&MaximumComponentLength, &FileSystemFlags, FileSystemName, 64)) {
 			wchar_to_utf8_no_alloc(VolumeName, VolumeLabel, sizeof(VolumeLabel));
 			*label = (VolumeLabel[0] != 0) ? VolumeLabel : STR_NO_LABEL;

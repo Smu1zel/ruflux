@@ -9,6 +9,7 @@
 #define UMDF_USING_NTSTATUS
 #include <ntstatus.h>
 #include <windows.h>
+#include "nt5wrp/nt5wrp.h"
 #include <winternl.h>
 #include <unistd.h>
 

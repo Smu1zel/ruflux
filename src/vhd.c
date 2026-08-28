@@ -388,6 +388,7 @@ PF_TYPE_DECL(WINAPI, DWORD, AttachVirtualDisk, (HANDLE, PSECURITY_DESCRIPTOR,
 	ATTACH_VIRTUAL_DISK_FLAG, ULONG, PATTACH_VIRTUAL_DISK_PARAMETERS, LPOVERLAPPED));
 PF_TYPE_DECL(WINAPI, DWORD, DetachVirtualDisk, (HANDLE, DETACH_VIRTUAL_DISK_FLAG, ULONG));
 PF_TYPE_DECL(WINAPI, DWORD, GetVirtualDiskPhysicalPath, (HANDLE, PULONG, PWSTR));
+PF_TYPE_DECL(WINAPI, BOOL, CancelIoEx, (HANDLE, LPOVERLAPPED));
 
 // Mount an ISO or a VHD/VHDX image and provide its size
 // Returns the physical path of the mounted image or NULL on error.
@@ -532,7 +533,11 @@ static DWORD WINAPI VhdSaveImageThread(void* param)
 	if (r == ERROR_IO_PENDING) {
 		while ((r = WaitForSingleObject(overlapped.hEvent, 100)) == WAIT_TIMEOUT) {
 			if (IS_ERROR(ErrorStatus) && (SCODE_CODE(ErrorStatus) == ERROR_CANCELLED)) {
-				CancelIoEx(handle, &overlapped);
+				PF_INIT(CancelIoEx, Kernel32);
+				if (pfCancelIoEx)
+					pfCancelIoEx(handle, &overlapped);
+				else
+					CancelIo(handle);
 				goto out;
 			}
 			if (GetVirtualDiskOperationProgress(handle, &overlapped, &vprogress) == ERROR_SUCCESS) {

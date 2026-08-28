@@ -464,7 +464,11 @@ void GetWindowsVersion(windows_version_t* windows_version)
 	}
 	arch_name = GetArchName(windows_version->Arch);
 
-	GetProductInfo(vi.dwMajorVersion, vi.dwMinorVersion, vi.wServicePackMajor, vi.wServicePackMinor, &dwProductType);
+	PF_TYPE_DECL(WINAPI, BOOL, GetProductInfo, (DWORD, DWORD, DWORD, DWORD, PDWORD));
+	PF_INIT(GetProductInfo, Kernel32);
+	if (pfGetProductInfo)
+		pfGetProductInfo(vi.dwMajorVersion, vi.dwMinorVersion, vi.wServicePackMajor, vi.wServicePackMinor, &dwProductType);
+
 	vptr = &windows_version->VersionStr[sizeof("Windows ") - 1];
 	vlen = sizeof(windows_version->VersionStr) - sizeof("Windows ") - 1;
 	if (!w)
