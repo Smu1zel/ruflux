@@ -1,0 +1,4 @@
+LIBRARY shlwrxp
+
+EXPORTS
+    SHGetKnownFolderPath=Ext_SHGetKnownFolderPath

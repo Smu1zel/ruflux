@@ -1,0 +1,8 @@
+LIBRARY ws2_xp
+
+EXPORTS
+    WSAPoll=Ext_WSAPoll
+    socket=Ext_socket @23
+    WSASocketW=Ext_WSASocketW @83
+    bind=Ext_bind @2
+    setsockopt=Ext_setsockopt @21

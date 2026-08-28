@@ -1,0 +1,1 @@
+"cl k32.c /GS- /O2 /D_USRDLL /D_WINDLL /DNDEBUG /LD advapi32.lib kernel32.lib "C:\Users\EAZY\Documents\20251802-v2\VxKex-Main\00-Import Libraries\ntdll_x86.lib" user32.lib /Fek32wrpxp /link /DEF:k32.def /NODEFAULTLIB /ENTRY:DllMain /OPT:REF /OPT:ICF /RELEASE" 

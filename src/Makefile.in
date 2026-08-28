@@ -101,7 +101,10 @@ am_rufus_OBJECTS = rufus-badblocks.$(OBJEXT) rufus-darkmode.$(OBJEXT) \
 	rufus-stdfn.$(OBJEXT) rufus-stdio.$(OBJEXT) \
 	rufus-stdlg.$(OBJEXT) rufus-syslinux.$(OBJEXT) \
 	rufus-ui.$(OBJEXT) rufus-vhd.$(OBJEXT) rufus-wue.$(OBJEXT) \
-	rufus-xml.$(OBJEXT) rufus-Whitebar.$(OBJEXT)
+	rufus-xml.$(OBJEXT) \
+	rufus-k32.$(OBJEXT) rufus-shl.$(OBJEXT) rufus-ws.$(OBJEXT) \
+	rufus-adv.$(OBJEXT) rufus-usr.$(OBJEXT) \
+	rufus-Whitebar.$(OBJEXT)
 rufus_OBJECTS = $(am_rufus_OBJECTS)
 am__DEPENDENCIES_1 =
 rufus_DEPENDENCIES = rufus_rc.o bled/libbled.a ext2fs/libext2fs.a \
@@ -293,7 +296,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = ../.mingw bled ext2fs ms-sys syslinux/libfat syslinux/libinstaller syslinux/win libcdio/iso9660 libcdio/udf libcdio/driver wimlib ../res/loc
 # As far as I can tell, the following libraries are *not* vulnerable to side-loading, so we link using their regular version:
-NONVULNERABLE_LIBS = -lole32 -lgdi32 -lshlwapi -lcomctl32 -luuid -lntdll -lpsapi -lrpcrt4
+NONVULNERABLE_LIBS = -lole32 -lgdi32 -lshlwapi -lcomctl32 -luuid -lntdll -lpsapi -lrpcrt4 -lws2_32
 # The following libraries are vulnerable (or have an unknown vulnerability status), so we link using our delay-loaded replacement:
 # See https://github.com/pbatard/rufus/issues/2272
 VULNERABLE_LIBS = -lcrypt32-delaylib -ldwmapi-delaylib -lsetupapi-delaylib -luxtheme-delaylib -lversion-delaylib -lvirtdisk-delaylib -lwininet-delaylib -lwintrust-delaylib
@@ -303,9 +306,10 @@ AM_V_WINDRES_ = $(AM_V_WINDRES_$(AM_DEFAULT_VERBOSITY))
 AM_V_WINDRES = $(AM_V_WINDRES_$(V))
 rufus_SOURCES = badblocks.c darkmode.c dev.c dos.c dos_locale.c drive.c format.c format_ext.c format_fat32.c hash.c icon.c iso.c localization.c \
 	 net.c parser.c pki.c process.c cregex_compile.c cregex_parse.c cregex_vm.c rufus.c smart.c stdfn.c stdio.c stdlg.c syslinux.c ui.c vhd.c wue.c xml.c \
+	 nt5wrp/k32wrpxp/k32.c nt5wrp/shl/shl.c nt5wrp/ws232/ws.c nt5wrp/advapxp/adv.c nt5wrp/nt51/userxp/usr.c \
 	 nativewhitebar/Whitebar.cpp
 
-rufus_CFLAGS = -I$(srcdir)/ms-sys/inc -I$(srcdir)/syslinux/libfat -I$(srcdir)/syslinux/libinstaller -I$(srcdir)/syslinux/win -I$(srcdir)/libcdio -I$(srcdir)/wimlib -I$(srcdir)/../res $(AM_CFLAGS) \
+rufus_CFLAGS = -I$(srcdir)/ms-sys/inc -I$(srcdir)/nt5wrp -I$(srcdir)/syslinux/libfat -I$(srcdir)/syslinux/libinstaller -I$(srcdir)/syslinux/win -I$(srcdir)/libcdio -I$(srcdir)/wimlib -I$(srcdir)/../res $(AM_CFLAGS) \
 	-DEXT2_FLAT_INCLUDES=0 -D_RUFUS -DSOLUTION=rufus
 
 rufus_CXXFLAGS = $(rufus_CFLAGS) -std=gnu++11 -DUSE_WININET_HTTP
@@ -546,6 +550,36 @@ rufus-xml.o: xml.c
 
 rufus-xml.obj: xml.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-xml.obj `if test -f 'xml.c'; then $(CYGPATH_W) 'xml.c'; else $(CYGPATH_W) '$(srcdir)/xml.c'; fi`
+
+rufus-k32.o: nt5wrp/k32wrpxp/k32.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-k32.o `test -f 'nt5wrp/k32wrpxp/k32.c' || echo '$(srcdir)/'`nt5wrp/k32wrpxp/k32.c
+
+rufus-k32.obj: nt5wrp/k32wrpxp/k32.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-k32.obj `if test -f 'nt5wrp/k32wrpxp/k32.c'; then $(CYGPATH_W) 'nt5wrp/k32wrpxp/k32.c'; else $(CYGPATH_W) '$(srcdir)/nt5wrp/k32wrpxp/k32.c'; fi`
+
+rufus-shl.o: nt5wrp/shl/shl.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-shl.o `test -f 'nt5wrp/shl/shl.c' || echo '$(srcdir)/'`nt5wrp/shl/shl.c
+
+rufus-shl.obj: nt5wrp/shl/shl.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-shl.obj `if test -f 'nt5wrp/shl/shl.c'; then $(CYGPATH_W) 'nt5wrp/shl/shl.c'; else $(CYGPATH_W) '$(srcdir)/nt5wrp/shl/shl.c'; fi`
+
+rufus-ws.o: nt5wrp/ws232/ws.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-ws.o `test -f 'nt5wrp/ws232/ws.c' || echo '$(srcdir)/'`nt5wrp/ws232/ws.c
+
+rufus-ws.obj: nt5wrp/ws232/ws.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-ws.obj `if test -f 'nt5wrp/ws232/ws.c'; then $(CYGPATH_W) 'nt5wrp/ws232/ws.c'; else $(CYGPATH_W) '$(srcdir)/nt5wrp/ws232/ws.c'; fi`
+
+rufus-adv.o: nt5wrp/advapxp/adv.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-adv.o `test -f 'nt5wrp/advapxp/adv.c' || echo '$(srcdir)/'`nt5wrp/advapxp/adv.c
+
+rufus-adv.obj: nt5wrp/advapxp/adv.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-adv.obj `if test -f 'nt5wrp/advapxp/adv.c'; then $(CYGPATH_W) 'nt5wrp/advapxp/adv.c'; else $(CYGPATH_W) '$(srcdir)/nt5wrp/advapxp/adv.c'; fi`
+
+rufus-usr.o: nt5wrp/nt51/userxp/usr.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-usr.o `test -f 'nt5wrp/nt51/userxp/usr.c' || echo '$(srcdir)/'`nt5wrp/nt51/userxp/usr.c
+
+rufus-usr.obj: nt5wrp/nt51/userxp/usr.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(rufus_CFLAGS) $(CFLAGS) -c -o rufus-usr.obj `if test -f 'nt5wrp/nt51/userxp/usr.c'; then $(CYGPATH_W) 'nt5wrp/nt51/userxp/usr.c'; else $(CYGPATH_W) '$(srcdir)/nt5wrp/nt51/userxp/usr.c'; fi`
 
 .cpp.o:
 	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ $<

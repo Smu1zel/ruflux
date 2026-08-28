@@ -19,6 +19,7 @@
 
 #include <windows.h>
 #include <intrin.h>
+#include "nt5wrp/nt5wrp.h"
 
 #pragma once
 

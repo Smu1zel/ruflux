@@ -19,6 +19,7 @@
 #include <windows.h>
 #include <malloc.h>
 #include <inttypes.h>
+#include "nt5wrp/nt5wrp.h"
 
 #if defined(_MSC_VER)
 // Disable some VS Code Analysis warnings
