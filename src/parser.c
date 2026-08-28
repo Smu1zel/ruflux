@@ -787,14 +787,14 @@ char* set_token_data_file(const char* token, const char* data, const char* filen
 
 		// Now output the new data
 		// coverity[invalid_type]
-		fwprintf_s(fd_out, L"%s\n", wdata);
+		fwprintf(fd_out, L"%s\n", wdata);
 		ret = (char*)data;
 	}
 
 	if (ret == NULL) {
 		// Didn't find an existing token => append it
 		// coverity[invalid_type]
-		fwprintf_s(fd_out, L"%s = %s\n", wtoken, wdata);
+		fwprintf(fd_out, L"%s = %s\n", wtoken, wdata);
 		ret = (char*)data;
 	}
 
@@ -1053,7 +1053,7 @@ char* insert_section_data(const char* filename, const char* section, const char*
 		fputws(buf, fd_out);
 		// Now output the new data
 		// coverity[invalid_type]
-		fwprintf_s(fd_out, L"%s\n", wdata);
+		fwprintf(fd_out, L"%s\n", wdata);
 		ret = (char*)data;
 	}
 
@@ -1225,11 +1225,11 @@ char* replace_in_token_data(const char* filename, const char* token, const char*
 		// Output all the truncated fragments + replaced strings
 		for (j = 0; torep[j] != NULL; j++)
 			// coverity[invalid_type]
-			fwprintf_s(fd_out, L"%s%s", &buf[p[j]], wrep);
+			fwprintf(fd_out, L"%s%s", &buf[p[j]], wrep);
 
 		// Output the last fragment
 		// coverity[invalid_type]
-		fwprintf_s(fd_out, L"%s", &buf[p[j]]);
+		fwprintf(fd_out, L"%s", &buf[p[j]]);
 
 		ret = (char*)rep;
 	}

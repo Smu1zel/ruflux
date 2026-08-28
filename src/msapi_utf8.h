@@ -1216,7 +1216,7 @@ static __inline FILE* fopenU(const char* filename, const char* mode)
 	FILE* ret = NULL;
 	wconvert(filename);
 	wconvert(mode);
-	_wfopen_s(&ret, wfilename, wmode);
+	ret = _wfopen(wfilename, wmode);
 	wfree(filename);
 	wfree(mode);
 	return ret;
@@ -1232,7 +1232,7 @@ static __inline int _openU(const char *filename, int oflag , int pmode)
 		shflag = _SH_DENYWR;
 	else if ((oflag & 0x03) == _O_WRONLY)
 		shflag = _SH_DENYRD;
-	_wsopen_s(&ret, wfilename, oflag, shflag, pmode);
+	ret = _wsopen(wfilename, oflag, shflag, pmode);
 	wfree(filename);
 	return ret;
 }

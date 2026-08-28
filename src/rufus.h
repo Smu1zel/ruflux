@@ -181,7 +181,16 @@ static __inline void safe_strcp(char* dst, const size_t dst_max, const char* src
 }
 #define safe_strcpy(dst, dst_max, src) safe_strcp(dst, dst_max, src, safe_strlen(src) + 1)
 #define static_strcpy(dst, src) safe_strcpy(dst, sizeof(dst), src)
-#define safe_strcat(dst, dst_max, src) strncat_s(dst, dst_max, src, _TRUNCATE)
+static __inline void safe_strcat_impl(char* dst, const size_t dst_max, const char* src) {
+	if (dst != NULL && src != NULL && dst_max > 0) {
+		size_t dlen = strlen(dst);
+		if (dlen < dst_max - 1) {
+			strncat(dst, src, dst_max - 1 - dlen);
+			dst[dst_max - 1] = 0;
+		}
+	}
+}
+#define safe_strcat(dst, dst_max, src) safe_strcat_impl(dst, dst_max, src)
 #define static_strcat(dst, src) safe_strcat(dst, sizeof(dst), src)
 #define safe_strcmp(str1, str2) strcmp(((str1 == NULL) ? "<NULL>" : str1), ((str2 == NULL) ? "<NULL>" : str2))
 #define safe_strstr(str1, str2) strstr(((str1 == NULL) ? "<NULL>" : str1), ((str2 == NULL) ? "<NULL>" : str2))
@@ -196,8 +205,8 @@ static __inline void safe_strcp(char* dst, const size_t dst_max, const char* src
 #define safe_destroy_imagelist_from_toolbar(hToolbar) do { if (hToolbar != NULL) {                     \
 	HIMAGELIST _hImageList = (HIMAGELIST)SendMessage(hToolbar, TB_GETIMAGELIST, (WPARAM)0, (LPARAM)0); \
 	safe_destroy_imagelist(_hImageList); } } while(0)
-#define safe_sprintf(dst, count, ...) do { size_t _count = count; char* _dst = dst; _snprintf_s(_dst, _count, _TRUNCATE, __VA_ARGS__); \
-	if (_dst != NULL) _dst[(_count) - 1] = 0; } while(0)
+#define safe_sprintf(dst, count, ...) do { size_t _count = count; char* _dst = dst; if (_dst != NULL && _count > 0) { \
+	snprintf(_dst, _count, __VA_ARGS__); _dst[(_count) - 1] = 0; } } while(0)
 #define static_sprintf(dst, ...) safe_sprintf(dst, sizeof(dst), __VA_ARGS__)
 #define safe_atoi(str) ((((char*)(str))==NULL) ? 0 : atoi(str))
 #define safe_strlen(str) ((((char*)(str))==NULL) ? 0 : strlen(str))

@@ -680,7 +680,7 @@ static int udf_extract_files(udf_t *p_udf, udf_dirent_t *p_udf_dirent, const cha
 			uprintf("Error allocating file name");
 			goto out;
 		}
-		length = _snprintf_s(psz_fullpath, length, _TRUNCATE, "%s%s/%s", psz_extract_dir, psz_path, psz_basename);
+		length = snprintf(psz_fullpath, length, "%s%s/%s", psz_extract_dir, psz_path, psz_basename);
 		if (length < 0)
 			goto out;
 		if (S_ISLNK(udf_get_posix_filemode(p_udf_dirent)))
@@ -825,7 +825,7 @@ static int iso_extract_files(iso9660_t* p_iso, const char *psz_path)
 		return 1;
 	}
 
-	length = _snprintf_s(psz_fullpath, sizeof(psz_fullpath), _TRUNCATE, "%s%s/", psz_extract_dir, psz_path);
+	length = snprintf(psz_fullpath, sizeof(psz_fullpath), "%s%s/", psz_extract_dir, psz_path);
 	if (length < 0)
 		goto out;
 	psz_basename = &psz_fullpath[length];

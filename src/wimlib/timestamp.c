@@ -74,8 +74,8 @@ wim_timestamp_to_wimlib_timespec(u64 timestamp, struct wimlib_timespec *wts,
 static void __attribute__((unused))
 check_sizeof_time_t(void)
 {
-	/* Windows builds should always be using 64-bit time_t now. */
-	STATIC_ASSERT(sizeof(time_t) == 8);
+	/* Windows builds may use 32-bit or 64-bit time_t */
+	STATIC_ASSERT(sizeof(time_t) == 4 || sizeof(time_t) == 8);
 }
 #else
 struct timeval

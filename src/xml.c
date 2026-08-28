@@ -250,7 +250,7 @@ char *ezxml_decode(char *s, char **ent, char t)
                 if (!e) return r;
 
                 memmove(s + c, e + 1, strlen(e)); // shift rest of string
-                strncpy_s(s, c, ent[b], _TRUNCATE); // copy in replacement text
+                memcpy(s, ent[b], c); // copy in replacement text
             }
             else s++; // not a known entity
         }

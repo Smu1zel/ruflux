@@ -110,7 +110,7 @@ void wuprintf(const wchar_t* format, ...)
 	int n;
 
 	va_start(args, format);
-	n = _vsnwprintf_s(p, ARRAYSIZE(wbuf) - 3, _TRUNCATE, format, args);
+	n = _vsnwprintf(p, ARRAYSIZE(wbuf) - 3, format, args);
 	va_end(args);
 
 	p += (n < 0) ? ARRAYSIZE(wbuf) - 3 : n;
