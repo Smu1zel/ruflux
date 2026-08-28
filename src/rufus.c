@@ -2113,6 +2113,11 @@ static void InitDialog(HWND hDlg)
 	static_strcpy(uppercase_cancel, lmprintf(MSG_007));
 	CharUpperBuffU(uppercase_cancel, sizeof(uppercase_cancel));
 
+	// Always enable the split button for NativeWhitebar
+	LONG_PTR select_style = GetWindowLongPtr(hSelectImage, GWL_STYLE);
+	select_style |= BS_SPLITBUTTON;
+	SetWindowLongPtr(hSelectImage, GWL_STYLE, select_style);
+
 	CreateSmallButtons(hDlg);
 	GetBasicControlsWidth(hDlg);
 	GetMainButtonsWidth(hDlg);
@@ -2858,10 +2863,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 		safe_release_dc(hDlg, hDC);
 		apply_localization(IDD_DIALOG, hDlg);
 		// The AppStore version always enables Whitebar
-		if (appstore_version)
-			SetWhitebarCheck();
-		else
-			SetUpdateCheck();
+		SetUpdateCheck();
 		first_log_display = TRUE;
 		log_displayed = FALSE;
 		hLogDialog = MyCreateDialog(hMainInstance, IDD_LOG, hDlg, (DLGPROC)LogCallback);
@@ -3049,13 +3051,7 @@ static INT_PTR CALLBACK MainCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
 	case WM_ENDSESSION:
 		if (op_in_progress)
 			return (INT_PTR)TRUE;
-		if (message == WM_CLOSE) {
-			// We must use PostQuitMessage() on WM_CLOSE, to prevent notification sound...
-			PostQuitMessage(0);
-		} else {
-			// ...but we must simulate Cancel on shutdown requests, else the app freezes.
-			SendMessage(hDlg, WM_COMMAND, (WPARAM)IDCANCEL, (LPARAM)0);
-		}
+		SendMessage(hDlg, WM_COMMAND, (WPARAM)IDCANCEL, (LPARAM)0);
 		break;
 
 	case UM_PROGRESS_INIT:

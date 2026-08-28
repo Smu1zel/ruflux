@@ -385,6 +385,14 @@ void PositionMainControls(HWND hDlg)
 	// Seriously, who designed this bullshit API call where you pass a SIZE
 	// struct but can only retrieve one of cx or cy at a time?!?
 	SendMessage(hMultiToolbar, TB_GETIDEALSIZE, (WPARAM)FALSE, (LPARAM)&sz);
+	if (sz.cx < 16) {
+		RECT rcBtn;
+		int nButtons = (int)SendMessage(hMultiToolbar, TB_BUTTONCOUNT, 0, 0);
+		if (nButtons > 0 && SendMessage(hMultiToolbar, TB_GETITEMRECT, (WPARAM)(nButtons - 1), (LPARAM)&rcBtn))
+			sz.cx = rcBtn.right;
+		else
+			sz.cx = nButtons * 24;
+	}
 	GetWindowRect(GetDlgItem(hDlg, IDC_ABOUT), &rc);
 	MapWindowPoints(NULL, hDlg, (POINT*)&rc, 2);
 	SetWindowPos(hMultiToolbar, hProgress, rc.left, rc.top, sz.cx, ddbh, 0);
@@ -1038,6 +1046,61 @@ static INT_PTR CALLBACK ProgressCallback(HWND hCtrl, UINT message, WPARAM wParam
 	return CallWindowProc(progress_original_proc, hCtrl, message, wParam, lParam);
 }
 
+static HICON CreateArrowIcon(BOOL bUp, int size)
+{
+	HDC hdcScreen = GetDC(NULL);
+	HDC hdc = CreateCompatibleDC(hdcScreen);
+	HBITMAP hbmColor = CreateCompatibleBitmap(hdcScreen, size, size);
+	HBITMAP hbmMask = CreateBitmap(size, size, 1, 1, NULL);
+	HBITMAP hbmOld = (HBITMAP)SelectObject(hdc, hbmColor);
+
+	COLORREF bg = is_darkmode_enabled ? RGB(32, 32, 32) : GetSysColor(COLOR_BTNFACE);
+	COLORREF fg = is_darkmode_enabled ? RGB(220, 220, 220) : GetSysColor(COLOR_BTNTEXT);
+	HBRUSH hbrBg = CreateSolidBrush(bg);
+	RECT rc = { 0, 0, size, size };
+	FillRect(hdc, &rc, hbrBg);
+	DeleteObject(hbrBg);
+
+	POINT pts[3];
+	int mid = size / 2;
+	int margin_h = max(2, size / 4);
+	int margin_v = max(3, size / 3);
+	if (bUp) {
+		pts[0].x = mid; pts[0].y = margin_v - 1;
+		pts[1].x = margin_h; pts[1].y = size - margin_v;
+		pts[2].x = size - margin_h; pts[2].y = size - margin_v;
+	} else {
+		pts[0].x = margin_h; pts[0].y = margin_v;
+		pts[1].x = size - margin_h; pts[1].y = margin_v;
+		pts[2].x = mid; pts[2].y = size - margin_v + 1;
+	}
+
+	HBRUSH hbrFg = CreateSolidBrush(fg);
+	HBRUSH hbrOldBrush = (HBRUSH)SelectObject(hdc, hbrFg);
+	HPEN hpenFg = CreatePen(PS_SOLID, 1, fg);
+	HPEN hpenOld = (HPEN)SelectObject(hdc, hpenFg);
+
+	Polygon(hdc, pts, 3);
+
+	SelectObject(hdc, hpenOld);
+	DeleteObject(hpenFg);
+	SelectObject(hdc, hbrOldBrush);
+	DeleteObject(hbrFg);
+	SelectObject(hdc, hbmOld);
+	DeleteDC(hdc);
+	ReleaseDC(NULL, hdcScreen);
+
+	ICONINFO ii = { 0 };
+	ii.fIcon = TRUE;
+	ii.hbmMask = hbmMask;
+	ii.hbmColor = hbmColor;
+	HICON hIcon = CreateIconIndirect(&ii);
+
+	DeleteObject(hbmColor);
+	DeleteObject(hbmMask);
+	return hIcon;
+}
+
 void CreateAdditionalControls(HWND hDlg)
 {
 	int buttons_list[] = { IDC_LANG, IDC_ABOUT, IDC_SETTINGS, IDC_LOG };
@@ -1052,6 +1115,7 @@ void CreateAdditionalControls(HWND hDlg)
 	TBBUTTON tbToolbarButtons[ARRAYSIZE(buttons_list) * 2 - 1];
 	unsigned char* buffer;
 	DWORD bufsize;
+	DWORD ilc_flags = ILC_COLOR32 | ((WindowsVersion.Version >= WINDOWS_VISTA) ? ILC_HIGHQUALITYSCALE : 0);
 
 	s16 = i16 = GetSystemMetrics(SM_CXSMICON);
 	if (s16 >= 54)
@@ -1077,8 +1141,14 @@ void CreateAdditionalControls(HWND hDlg)
 		hIconUp = (HICON)LoadImage(hDll, MAKEINTRESOURCE(16749), IMAGE_ICON, s16, s16, LR_DEFAULTCOLOR | LR_SHARED);
 	if (hIconDown == NULL)
 		hIconDown = (HICON)LoadImage(hDll, MAKEINTRESOURCE(16750), IMAGE_ICON, s16, s16, LR_DEFAULTCOLOR | LR_SHARED);
-	hUpImageList = ImageList_Create(i16, i16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 1, 0);
-	hDownImageList = ImageList_Create(i16, i16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 1, 0);
+	// Fallback to generating arrow icons on Windows XP
+	if (hIconUp == NULL)
+		hIconUp = CreateArrowIcon(TRUE, s16);
+	if (hIconDown == NULL)
+		hIconDown = CreateArrowIcon(FALSE, s16);
+
+	hUpImageList = ImageList_Create(i16, i16, ilc_flags, 1, 0);
+	hDownImageList = ImageList_Create(i16, i16, ilc_flags, 1, 0);
 	ImageList_AddIcon(hUpImageList, hIconUp);
 	ImageList_AddIcon(hDownImageList, hIconDown);
 
@@ -1130,7 +1200,7 @@ void CreateAdditionalControls(HWND hDlg)
 	// Create the multi toolbar
 	hMultiToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL, TOOLBAR_STYLE,
 		0, 0, 0, 0, hMainDialog, (HMENU)IDC_MULTI_TOOLBAR, hMainInstance, NULL);
-	hToolbarImageList = ImageList_Create(i16, i16, ILC_COLOR32 | ILC_HIGHQUALITYSCALE, 8, 0);
+	hToolbarImageList = ImageList_Create(i16, i16, ilc_flags, 8, 0);
 	for (i = 0; i < ARRAYSIZE(multitoolbar_icons); i++) {
 		buffer = GetResource(hMainInstance, MAKEINTRESOURCEA(multitoolbar_icons[i] + icon_offset),
 			_RT_RCDATA, "toolbar icon", &bufsize, FALSE);

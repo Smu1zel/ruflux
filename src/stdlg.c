@@ -1840,96 +1840,6 @@ INT_PTR CALLBACK UpdateCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 }
 
 /*
- * Use a thread to enable the download button as this may be a lengthy
- * operation due to the external download check.
- */
-static DWORD WINAPI CheckForWhitebarThread(LPVOID param)
-{
-	static BOOL is_active = FALSE;
-	LONG_PTR style;
-	char* loc = NULL;
-	uint32_t i;
-	uint64_t len;
-	HWND hCtrl;
-
-	// Because a user may switch language before this thread has completed,
-	// we need to detect concurrency.
-	// Checking on a static boolean is more than good enough for our purpose.
-	if (is_active)
-		return -1;
-	is_active = TRUE;
-	safe_free(sbat_entries);
-	safe_free(sbat_level_txt);
-	safe_free(sb_active_txt);
-	safe_free(sb_revoked_txt);
-
-	// Get the latest sbat_level.txt data while we're poking the network for Whitebar.
-	len = DownloadToFileOrBuffer(RUFUS_URL "/sbat_level.txt", NULL, (BYTE**)&sbat_level_txt, NULL, FALSE);
-	if (len != 0 && len < 1 * KB) {
-		sbat_entries = GetSbatEntries(sbat_level_txt);
-		if (sbat_entries != NULL) {
-			for (i = 0; sbat_entries[i].product != NULL; i++);
-			if (i > 0)
-				uprintf("Found %d additional UEFI revocation filters from remote SBAT", i);
-		}
-	}
-
-	// Get the active Secure Boot certificate thumbprints
-	len = DownloadToFileOrBuffer(RUFUS_URL "/sb_active.txt", NULL, (BYTE**)&sb_active_txt, NULL, FALSE);
-	if (len != 0 && len < 1 * KB) {
-		sb_active_certs = GetThumbprintEntries(sb_active_txt);
-		if (sb_active_certs != NULL) {
-			uprintf("Found %d active Secure Boot certificate entries from remote", sb_active_certs->count);
-		}
-	}
-
-	// Get the revoked Secure Boot certificate thumbprints
-	len = DownloadToFileOrBuffer(RUFUS_URL "/sb_revoked.txt", NULL, (BYTE**)&sb_revoked_txt, NULL, FALSE);
-	if (len != 0 && len < 1 * KB) {
-		sb_revoked_certs = GetThumbprintEntries(sb_revoked_txt);
-		if (sb_revoked_certs != NULL) {
-			uprintf("Found %d revoked Secure Boot certificate entries from remote", sb_revoked_certs->count);
-		}
-	}
-
-	// Download Whitebar
-	len++;	// DownloadToFileOrBuffer allocated an extra NUL character if needed
-	whitebar_url = "https://github.com/Smu1zel/Whitebar/releases/latest/download/Whitebar.ps1.lzma";
-	if (safe_strncmp(whitebar_url, "https://github.com/Smu1zel/Whitebar", 35) != 0) {
-		uprintf("WARNING: Download script URL %s is invalid ✗", whitebar_url);
-		goto out;
-	}
-	if (IsDownloadable(whitebar_url)) {
-		hCtrl = GetDlgItem(hMainDialog, IDC_SELECT);
-		style = GetWindowLongPtr(hCtrl, GWL_STYLE);
-		style |= BS_SPLITBUTTON;
-		SetWindowLongPtr(hCtrl, GWL_STYLE, style);
-		RedrawWindow(hCtrl, NULL, NULL, RDW_ALLCHILDREN | RDW_UPDATENOW);
-		InvalidateRect(hCtrl, NULL, TRUE);
-	}
-
-out:
-	safe_free(loc);
-	is_active = FALSE;
-	return 0;
-}
-
-void SetWhitebarCheck(void)
-{
-	// Detect if we can use Whitebar, which depends on:
-	// - PowerShell being installed
-	// - URL for the script being reachable
-	if ((ReadRegistryKey32(REGKEY_HKLM, "Software\\Microsoft\\PowerShell\\1\\Install") <= 0) &&
-		(ReadRegistryKey32(REGKEY_HKLM, "Software\\Microsoft\\PowerShell\\3\\Install") <= 0)) {
-		ubprintf("Notice: The ISO download feature has been deactivated because "
-			"a compatible PowerShell version was not detected on this system.");
-		return;
-	}
-
-	CreateThread(NULL, 0, CheckForWhitebarThread, NULL, 0, NULL);
-}
-
-/*
  * Initial update check setup
  */
 BOOL SetUpdateCheck(void)
@@ -1974,7 +1884,6 @@ BOOL SetUpdateCheck(void)
 			 (ReadSetting32(SETTING_UPDATE_INTERVAL) == -1) )
 			WriteSetting32(SETTING_UPDATE_INTERVAL, 86400);
 	}
-	SetWhitebarCheck();
 	return TRUE;
 }
 
