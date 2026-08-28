@@ -678,6 +678,8 @@ typedef struct {
 	WORD Nano;
 } version_t;
 static __inline uint64_t version_to_uint64(version_t* ver) {
+	if (ver == NULL)
+		return 0;
 	return (uint64_t)ver->Major << 48 | (uint64_t)ver->Minor << 32 | (uint64_t)ver->Micro << 16 | ver->Nano;
 }
 
