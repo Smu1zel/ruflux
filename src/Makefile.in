@@ -101,9 +101,8 @@ am_rufus_OBJECTS = rufus-badblocks.$(OBJEXT) rufus-darkmode.$(OBJEXT) \
 	rufus-stdfn.$(OBJEXT) rufus-stdio.$(OBJEXT) \
 	rufus-stdlg.$(OBJEXT) rufus-syslinux.$(OBJEXT) \
 	rufus-ui.$(OBJEXT) rufus-vhd.$(OBJEXT) rufus-wue.$(OBJEXT) \
-	rufus-xml.$(OBJEXT) \
-	rufus-k32.$(OBJEXT) rufus-shl.$(OBJEXT) rufus-ws.$(OBJEXT) \
-	rufus-adv.$(OBJEXT) rufus-usr.$(OBJEXT) \
+	rufus-xml.$(OBJEXT) rufus-k32.$(OBJEXT) rufus-shl.$(OBJEXT) \
+	rufus-ws.$(OBJEXT) rufus-adv.$(OBJEXT) rufus-usr.$(OBJEXT) \
 	rufus-Whitebar.$(OBJEXT)
 rufus_OBJECTS = $(am_rufus_OBJECTS)
 am__DEPENDENCIES_1 =
